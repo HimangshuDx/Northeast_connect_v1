@@ -207,6 +207,62 @@ export interface AppTranslations {
     safetyBanner: string;
     scopeNote: string;
   };
+  map: {
+    title: string;
+    subtitle: string;
+    allLayers: string;
+    incidents: string;
+    corridors: string;
+    resources: string;
+    tryMapView: string;
+    locationList: string;
+    locateMe: string;
+    locating: string;
+    youAreHere: string;
+    accuracyPrefix: string;
+    geoUnsupported: string;
+    geoPermissionDenied: string;
+    geoUnavailable: string;
+    geoTimeout: string;
+    geoGenericError: string;
+    legendLabel: string;
+    legendToggleShow: string;
+    legendToggleHide: string;
+    legendIncident: string;
+    legendCorridor: string;
+    legendReliefCamp: string;
+    legendMedical: string;
+    legendWater: string;
+    legendBoat: string;
+    legendUser: string;
+    showRouteBtn: string;
+    routeLoading: string;
+    routeDistance: string;
+    routeDuration: string;
+    drivingMode: string;
+    walkingToggle: string;
+    clearRoute: string;
+    openGoogleMaps: string;
+    straightLineNotice: string;
+    routeSafetyNotice: string;
+    blockedCorridorsWarningTitle: string;
+    noCoordsTitle: string;
+    noCoordsSubtitle: string;
+    lastConfirmed: string;
+    phoneLabel: string;
+    routeToLabel: string;
+    locatingForRoute: string;
+    approxWalkNote: string;
+    geoIframeBlocked: string;
+    pickStartOnMap: string;
+    pickStartHint: string;
+    cancelPickStart: string;
+    useDistrictCenter: string;
+    manualOriginLabel: string;
+    districtCenterSuffix: string;
+    retryGps: string;
+    gpsRequiredForRoute: string;
+  };
 }
 
 export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
@@ -421,6 +477,66 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       scopeNote:
         'Community & NGO coordination platform. Does not directly dispatch official 112 or SDRF government rescue.',
     },
+    map: {
+      title: 'Regional Map & Key Locations',
+      subtitle:
+        'Sample coordinates via OpenStreetMap · Automatically falls back to offline directory when tiles are unavailable',
+      allLayers: 'All Layers',
+      incidents: 'Incidents',
+      corridors: 'Corridors',
+      resources: 'Camps & Medical',
+      tryMapView: 'Try Map View',
+      locationList: 'Location List',
+      locateMe: 'Locate me',
+      locating: 'Locating...',
+      youAreHere: 'You are here (approx.)',
+      accuracyPrefix: 'Accuracy: ~',
+      geoUnsupported: 'Geolocation is not supported by this browser. Map and markers remain available.',
+      geoPermissionDenied:
+        'Location permission was denied. Enable location access in browser settings to center on your position or calculate routes.',
+      geoUnavailable: 'Device location is currently unavailable. Check GPS signal and try again.',
+      geoTimeout: 'Location request timed out. Tap Locate me to try again.',
+      geoGenericError: 'Unable to read your location. Map and markers remain available.',
+      legendLabel: 'Legend:',
+      legendToggleShow: 'Show legend',
+      legendToggleHide: 'Hide legend',
+      legendIncident: 'Incident Report',
+      legendCorridor: 'Corridor Point',
+      legendReliefCamp: 'Relief Camp',
+      legendMedical: 'Medical Post',
+      legendWater: 'Water / Ration',
+      legendBoat: 'Boat Rescue',
+      legendUser: 'You are here (approx.)',
+      showRouteBtn: 'Show route from my location',
+      routeLoading: 'Calculating route...',
+      routeDistance: 'Distance',
+      routeDuration: 'Est. time',
+      drivingMode: 'Driving',
+      walkingToggle: 'Walking',
+      clearRoute: 'Clear route',
+      openGoogleMaps: 'Open in Google Maps',
+      straightLineNotice: 'Straight-line distance only. Road route unavailable.',
+      routeSafetyNotice:
+        'Route is a suggestion only. It does not know about flooded or blocked roads. Check the Corridor Board and local authorities before travelling.',
+      blockedCorridorsWarningTitle: 'Blocked or closed corridors in this district:',
+      noCoordsTitle: 'No coordinates available',
+      noCoordsSubtitle: 'These items currently lack latitude/longitude coordinates.',
+      lastConfirmed: 'Last confirmed',
+      phoneLabel: 'Phone',
+      routeToLabel: 'Route to',
+      locatingForRoute: 'Getting your location before calculating route...',
+      approxWalkNote: 'approx. walking pace',
+      geoIframeBlocked:
+        'Browser GPS is blocked inside this embedded preview frame. Open in a direct browser tab for live GPS, or choose a manual starting point below.',
+      pickStartOnMap: 'Pick start on map',
+      pickStartHint: 'Tap or click anywhere on the map to set your starting point',
+      cancelPickStart: 'Cancel',
+      useDistrictCenter: 'Use district center (approx.)',
+      manualOriginLabel: 'Starting point (manual pin)',
+      districtCenterSuffix: 'approx. center',
+      retryGps: 'Retry GPS',
+      gpsRequiredForRoute: 'Select a starting point to draw the route on this map, or open directly in Google Maps:',
+    },
   },
   as: {
     brandName: 'নৰ্থইষ্ট কানেক্ট',
@@ -632,6 +748,65 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       safetyBanner: 'তৎকালীন বিপদত পৰিছে নেকি? ১১২-ত কল কৰক।',
       scopeNote:
         'সমূহীয়া আৰু এনজিঅ’ সমন্বয় মঞ্চ। চৰকাৰী ১১২ বা এছডিআৰএফ উদ্ধাৰ দল পোনপটীয়াকৈ প্ৰেৰণ নকৰে।',
+    },
+    map: {
+      title: 'আঞ্চলিক মানচিত্ৰ আৰু মুখ্য স্থানসমূহ',
+      subtitle:
+        'OpenStreetMap-ৰ জৰিয়তে নমুনা স্থান · টাইল উপলব্ধ নহ’লে স্বয়ংক্ৰিয়ভাৱে অফলাইন তালিকালৈ সলনি হয়',
+      allLayers: 'সকলো স্তৰ',
+      incidents: 'ঘটনাসমূহ',
+      corridors: 'পথ/কৰিডৰ',
+      resources: 'শিবিৰ আৰু চিকিৎসা',
+      tryMapView: 'মানচিত্ৰ চাওক',
+      locationList: 'স্থানৰ তালিকা',
+      locateMe: 'মোৰ স্থান চাওক',
+      locating: 'স্থান বিচৰা হৈছে...',
+      youAreHere: 'আপুনি ইয়াত আছে (আনুমানিক)',
+      accuracyPrefix: 'সঠিকতা: ~',
+      geoUnsupported: 'এই ব্ৰাউজাৰত জিঅ’লকেশ্যন সমৰ্থিত নহয়। মানচিত্ৰ আৰু চিহ্নসমূহ এতিয়াও ব্যৱহাৰযোগ্য।',
+      geoPermissionDenied: 'স্থানৰ অনুমতি নাকচ কৰা হৈছে। আপোনাৰ স্থান চাবলৈ ব্ৰাউজাৰ ছেটিঙত অনুমতি দিয়ক।',
+      geoUnavailable: 'বৰ্তমান ডিভাইচৰ স্থান উপলব্ধ নহয়। পুনৰ চেষ্টা কৰক।',
+      geoTimeout: 'স্থান বিচৰাৰ সময় উকলি গ’ল। পুনৰ চেষ্টা কৰক।',
+      geoGenericError: 'আপোনাৰ স্থান পঢ়িব পৰা নগ’ল। মানচিত্ৰ এতিয়াও ব্যৱহাৰযোগ্য।',
+      legendLabel: 'সংকেত:',
+      legendToggleShow: 'সংকেত চাওক',
+      legendToggleHide: 'সংকেত লুকুৱাওক',
+      legendIncident: 'ঘটনাৰ প্ৰতিবেদন',
+      legendCorridor: 'পথ / কৰিডৰ',
+      legendReliefCamp: 'সাহায্য শিবিৰ',
+      legendMedical: 'চিকিৎসা কেন্দ্ৰ',
+      legendWater: 'পানী / ৰেচন',
+      legendBoat: 'নাও উদ্ধাৰ',
+      legendUser: 'আপোনাৰ স্থান (আনুমানিক)',
+      showRouteBtn: 'মোৰ স্থানৰ পৰা পথ দেখুৱাওক',
+      routeLoading: 'পথ গণনা কৰা হৈছে...',
+      routeDistance: 'দূৰত্ব',
+      routeDuration: 'আনুমানিক সময়',
+      drivingMode: 'গাড়ীৰে',
+      walkingToggle: 'খোজকাঢ়ি',
+      clearRoute: 'পথ মচক',
+      openGoogleMaps: 'Google Maps-ত খোলক',
+      straightLineNotice: 'কেৱল সৰল ৰৈখিক দূৰত্ব। পথৰ নিৰ্দেশনা উপলব্ধ নহয়।',
+      routeSafetyNotice:
+        'এই পথ কেৱল এটা পৰামৰ্শহে। ই প্লাৱিত বা বন্ধ হোৱা পথৰ বিষয়ে নাজানে। যাত্ৰা কৰাৰ আগতে কৰিডৰ বোৰ্ড আৰু স্থানীয় কৰ্তৃপক্ষৰ পৰা নিশ্চিত হওক।',
+      blockedCorridorsWarningTitle: 'এই জিলাত বন্ধ বা অৱৰুদ্ধ পথসমূহ:',
+      noCoordsTitle: 'কোনো স্থানাংক উপলব্ধ নহয়',
+      noCoordsSubtitle: 'এই তথ্যসমূহৰ মানচিত্ৰ স্থানাংক বৰ্তমান উপলব্ধ নহয়।',
+      lastConfirmed: 'সৰ্বশেষ নিশ্চিত',
+      phoneLabel: 'ফোন',
+      routeToLabel: 'গন্তব্যস্থল',
+      locatingForRoute: 'পথ গণনা কৰাৰ আগতে আপোনাৰ স্থান লোৱা হৈছে...',
+      approxWalkNote: 'আনুমানিক খোজকাঢ়াৰ সময়',
+      geoIframeBlocked:
+        'এই এম্বেডেড প্ৰিভিউত ব্ৰাউজাৰ জিপিএছ অৱৰুদ্ধ হৈ আছে। লাইভ জিপিএছৰ বাবে পোনপটীয়াকৈ ব্ৰাউজাৰ টেবত খোলক, বা তলত হাতেৰে আৰম্ভণি বিন্দু বাছনি কৰক।',
+      pickStartOnMap: 'মানচিত্ৰত আৰম্ভণি স্থান বাছনি কৰক',
+      pickStartHint: 'আপোনাৰ আৰম্ভণি স্থান নিৰ্ধাৰণ কৰিবলৈ মানচিত্ৰত যিকোনো ঠাইত টিপক',
+      cancelPickStart: 'বাতিল কৰক',
+      useDistrictCenter: 'জিলা কেন্দ্ৰ ব্যৱহাৰ কৰক (আনুমানিক)',
+      manualOriginLabel: 'আৰম্ভণি স্থান (হাতেৰে চিহ্নিত)',
+      districtCenterSuffix: 'আনুমানিক কেন্দ্ৰ',
+      retryGps: 'জিপিএছ পুনৰ চেষ্টা',
+      gpsRequiredForRoute: 'এই মানচিত্ৰত পথ দেখুৱাবলৈ এটা আৰম্ভণি স্থান বাছনি কৰক, বা Google Maps-ত খোলক:',
     },
   },
   hi: {
@@ -845,6 +1020,65 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       scopeNote:
         'समुदाय और NGO समन्वय मंच। सीधे सरकारी 112 या SDRF बचाव दल नहीं भेजता।',
     },
+    map: {
+      title: 'क्षेत्रीय मानचित्र और प्रमुख स्थान',
+      subtitle:
+        'OpenStreetMap के माध्यम से सैंपल निर्देशांक · टाइल्स उपलब्ध न होने पर स्वतः ऑफलाइन सूची दिखाता है',
+      allLayers: 'सभी परतें',
+      incidents: 'घटनाएं',
+      corridors: 'मार्ग / कॉरिडोर',
+      resources: 'शिविर और चिकित्सा',
+      tryMapView: 'मानचित्र देखें',
+      locationList: 'स्थान सूची',
+      locateMe: 'मेरा स्थान खोजें',
+      locating: 'स्थान खोज रहे हैं...',
+      youAreHere: 'आप यहाँ हैं (अनुमानित)',
+      accuracyPrefix: 'सटीकता: ~',
+      geoUnsupported: 'इस ब्राउज़र में जियोलोकेशन समर्थित नहीं है। मानचित्र और मार्कर उपलब्ध हैं।',
+      geoPermissionDenied: 'स्थान की अनुमति अस्वीकृत हुई। मार्ग देखने के लिए ब्राउज़र सेटिंग्स में स्थान अनुमति दें।',
+      geoUnavailable: 'वर्तमान में डिवाइस का स्थान उपलब्ध नहीं है। पुनः प्रयास करें।',
+      geoTimeout: 'स्थान अनुरोध का समय समाप्त हो गया। पुनः प्रयास करें।',
+      geoGenericError: 'आपका स्थान प्राप्त नहीं हो सका। मानचित्र उपलब्ध है।',
+      legendLabel: 'संकेत:',
+      legendToggleShow: 'संकेत दिखाएं',
+      legendToggleHide: 'संकेत छिपाएं',
+      legendIncident: 'घटना रिपोर्ट',
+      legendCorridor: 'कॉरिडोर बिंदु',
+      legendReliefCamp: 'राहत शिविर',
+      legendMedical: 'चिकित्सा केंद्र',
+      legendWater: 'पानी / राशन',
+      legendBoat: 'नाव बचाव',
+      legendUser: 'आपका स्थान (अनुमानित)',
+      showRouteBtn: 'मेरे स्थान से मार्ग दिखाएं',
+      routeLoading: 'मार्ग की गणना हो रही है...',
+      routeDistance: 'दूरी',
+      routeDuration: 'अनुमानित समय',
+      drivingMode: 'ड्राइविंग',
+      walkingToggle: 'पैदल',
+      clearRoute: 'मार्ग हटाएं',
+      openGoogleMaps: 'Google Maps में खोलें',
+      straightLineNotice: 'केवल सीधी रेखा की दूरी। सड़क मार्ग उपलब्ध नहीं है।',
+      routeSafetyNotice:
+        'यह मार्ग केवल एक सुझाव है। इसमें जलमग्न या अवरुद्ध सड़कों की जानकारी नहीं होती। यात्रा से पहले कॉरिडोर बोर्ड और स्थानीय अधिकारियों से जांच लें।',
+      blockedCorridorsWarningTitle: 'इस जिले में अवरुद्ध या बंद मार्ग:',
+      noCoordsTitle: 'निर्देशांक उपलब्ध नहीं हैं',
+      noCoordsSubtitle: 'इन प्रविष्टियों के अक्षांश/देशांतर निर्देशांक उपलब्ध नहीं हैं।',
+      lastConfirmed: 'अंतिम पुष्टि',
+      phoneLabel: 'फोन',
+      routeToLabel: 'गंतव्य',
+      locatingForRoute: 'मार्ग गणना से पहले आपका स्थान प्राप्त किया जा रहा है...',
+      approxWalkNote: 'अनुमानित पैदल समय',
+      geoIframeBlocked:
+        'इस एम्बेडेड प्रीव्यू में ब्राउज़र GPS अवरुद्ध है। लाइव GPS के लिए सीधे ब्राउज़र टैब में खोलें, या नीचे मैन्युअल प्रारंभिक बिंदु चुनें।',
+      pickStartOnMap: 'मानचित्र पर प्रारंभ बिंदु चुनें',
+      pickStartHint: 'अपना प्रारंभिक बिंदु सेट करने के लिए मानचित्र पर कहीं भी टैप या क्लिक करें',
+      cancelPickStart: 'रद्द करें',
+      useDistrictCenter: 'जिला केंद्र का उपयोग करें (अनुमानित)',
+      manualOriginLabel: 'प्रारंभिक बिंदु (मैन्युअल पिन)',
+      districtCenterSuffix: 'अनुमानित केंद्र',
+      retryGps: 'GPS पुनः प्रयास करें',
+      gpsRequiredForRoute: 'इस मानचित्र पर मार्ग दिखाने के लिए प्रारंभ बिंदु चुनें, या सीधे Google Maps में खोलें:',
+    },
   },
   bn: {
     brandName: 'নর্থইস্ট কানেক্ট',
@@ -1056,6 +1290,65 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       safetyBanner: 'তাৎক্ষণিক বিপদে আছেন? ১১২ নম্বরে কল করুন।',
       scopeNote:
         'কমিউনিটি ও NGO সমন্বয় প্ল্যাটফর্ম। এটি সরাসরি সরকারি ১১২ বা SDRF উদ্ধার দল পাঠায় না।',
+    },
+    map: {
+      title: 'আঞ্চলিক মানচিত্র ও গুরুত্বপূর্ণ স্থান',
+      subtitle:
+        'OpenStreetMap থেকে নমুনা স্থানাঙ্ক · টাইল লোড না হলে স্বয়ংক্রিয়ভাবে অফলাইন তালিকা দেখায়',
+      allLayers: 'সব স্তর',
+      incidents: 'ঘটনাসমূহ',
+      corridors: 'সড়ক / করিডর',
+      resources: 'শিবির ও চিকিৎসা',
+      tryMapView: 'মানচিত্র দেখুন',
+      locationList: 'স্থানের তালিকা',
+      locateMe: 'আমার অবস্থান দেখুন',
+      locating: 'অবস্থান খোঁজা হচ্ছে...',
+      youAreHere: 'আপনি এখানে আছেন (আনুমানিক)',
+      accuracyPrefix: 'নির্ভুলতা: ~',
+      geoUnsupported: 'এই ব্রাউজারে জিওলোকেশন সমর্থিত নয়। মানচিত্র ও মার্কার সচল আছে।',
+      geoPermissionDenied: 'অবস্থানের অনুমতি বাতিল হয়েছে। রুট দেখতে ব্রাউজার সেটিংস থেকে অনুমতি দিন।',
+      geoUnavailable: 'ডিভাইসের অবস্থান এই মুহূর্তে পাওয়া যাচ্ছে না। আবার চেষ্টা করুন।',
+      geoTimeout: 'অবস্থান অনুরোধের সময় শেষ হয়েছে। আবার চেষ্টা করুন।',
+      geoGenericError: 'আপনার অবস্থান পড়া যায়নি। মানচিত্র সচল আছে।',
+      legendLabel: 'নির্দেশিকা:',
+      legendToggleShow: 'নির্দেশিকা দেখুন',
+      legendToggleHide: 'নির্দেশিকা লুকান',
+      legendIncident: 'ঘটনার রিপোর্ট',
+      legendCorridor: 'করিডর পয়েন্ট',
+      legendReliefCamp: 'ত্রাণ শিবির',
+      legendMedical: 'চিকিৎসা কেন্দ্র',
+      legendWater: 'পানি / রেশন',
+      legendBoat: 'নৌকা উদ্ধার',
+      legendUser: 'আপনার অবস্থান (আনুমানিক)',
+      showRouteBtn: 'আমার অবস্থান থেকে রুট দেখুন',
+      routeLoading: 'রুট হিসাব করা হচ্ছে...',
+      routeDistance: 'দূরত্ব',
+      routeDuration: 'আনুমানিক সময়',
+      drivingMode: 'গাড়িতে',
+      walkingToggle: 'হেঁটে',
+      clearRoute: 'রুট মুছুন',
+      openGoogleMaps: 'Google Maps-এ খুলুন',
+      straightLineNotice: 'শুধুমাত্র সরলরৈখিক দূরত্ব। সড়ক পথের রুট পাওয়া যায়নি।',
+      routeSafetyNotice:
+        'এই রুট শুধুমাত্র একটি পরামর্শ। এতে প্লাবিত বা বন্ধ রাস্তার তথ্য নেই। যাত্রার আগে করিডর বোর্ড এবং স্থানীয় কর্তৃপক্ষের সাথে যাচাই করুন।',
+      blockedCorridorsWarningTitle: 'এই জেলায় বন্ধ বা অবরুদ্ধ সড়কসমূহ:',
+      noCoordsTitle: 'কোনো স্থানাঙ্ক উপলব্ধ নেই',
+      noCoordsSubtitle: 'এই আইটেমগুলোর অক্ষাংশ/দ্রাঘিমাংশ স্থানাঙ্ক নেই।',
+      lastConfirmed: 'সর্বশেষ নিশ্চিত',
+      phoneLabel: 'ফোন',
+      routeToLabel: 'গন্তব্য',
+      locatingForRoute: 'রুট বের করার আগে আপনার অবস্থান নির্ণয় করা হচ্ছে...',
+      approxWalkNote: 'আনুমানিক হাঁটার সময়',
+      geoIframeBlocked:
+        'এই এম্বেডেড প্রিভিউতে ব্রাউজার GPS ব্লক করা আছে। লাইভ GPS-এর জন্য সরাসরি ব্রাউজার ট্যাবে খুলুন, অথবা নিচে ম্যানুয়াল শুরুর স্থান বেছে নিন।',
+      pickStartOnMap: 'মানচিত্রে শুরুর স্থান বাছুন',
+      pickStartHint: 'শুরুর স্থান নির্ধারণ করতে মানচিত্রের যেকোনো জায়গায় ট্যাপ বা ক্লিক করুন',
+      cancelPickStart: 'বাতিল করুন',
+      useDistrictCenter: 'জেলা কেন্দ্র ব্যবহার করুন (আনুমানিক)',
+      manualOriginLabel: 'শুরুর স্থান (ম্যানুয়াল পিন)',
+      districtCenterSuffix: 'আনুমানিক কেন্দ্র',
+      retryGps: 'GPS আবার চেষ্টা করুন',
+      gpsRequiredForRoute: 'এই মানচিত্রে রুট দেখাতে একটি শুরুর স্থান বেছে নিন, অথবা Google Maps-এ খুলুন:',
     },
   },
 };

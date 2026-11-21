@@ -20,8 +20,16 @@ Northeast Connect is an offline-first, community-driven disaster management and 
 - **Situation Overview:** Live-filtered statistics for Active Advisories, Blocked Corridors, Open Help Requests, and Available Resources across 10+ Northeast districts.
 - **Disaster Advisories:** Severity-coded bulletins (`CRITICAL`, `WARNING`, `WATCH`) showing instructions, issued/expiry timestamps, source attribution, verification state, and stale-data warnings.
 - **Lifeline Corridor Board:** Searchable and filterable status board (`PASSABLE`, `SINGLE LANE`, `LANDSLIDE BLOCKED`, `SUBMERGED`, `CLOSED`, `UNKNOWN`) rendered as a table on desktop and cards on mobile.
-- **Interactive Regional Map:** Built with **Leaflet** and **OpenStreetMap** featuring layer filters (`Incidents`, `Corridors`, `Camps & Medical`), custom markers, popups, legend, and automatic/manual fallback to a structured **Offline Location Directory** when offline or if map tiles fail to load.
+- **Interactive Regional Map:** Built with **Leaflet** and **OpenStreetMap** featuring layer filters (`Incidents`, `Corridors`, `Camps & Medical`), typed markers, a mobile-collapsible legend, **"Locate me"** GPS positioning, **OSRM route preview** on marker click, and automatic/manual fallback to a structured **Offline Location Directory** when offline or if map tiles fail to load. Items lacking coordinates are safely listed under **No coordinates available**.
 - **Community Reports Feed:** Searchable incident cards with vulnerability/assistance details and interactive **+1 Confirm** endorsement counts.
+
+#### Map Location & Routing (How It Works & Limitations)
+- **My Location (`Locate me`):** Uses browser Geolocation (`getCurrentPosition` + `watchPosition`) to display your approximate position as a pulsing blue dot with an accuracy ring. **Note:** Browser Geolocation requires **HTTPS** (or `http://localhost` during local development) and user permission.
+- **Route Preview:** Clicking any map marker opens its details (`name`, `type`, trust badge, status, last confirmed time, `tel:` link) and a **Show route from my location** button. Routes are fetched from the **free public OSRM demo server** (`https://router.project-osrm.org/route/v1/`) with distance, estimated duration, a **Driving / Walking** toggle (`foot` profile when supported, otherwise estimated walking pace), and an **Open in Google Maps** external link.
+- **Limitations & Offline Fallback:**
+  - The public OSRM demo server is intended for evaluation only and is **not guaranteed for heavy load or offline use**.
+  - When offline or if OSRM is unavailable, the map draws a **dashed straight line**, calculates straight-line (Haversine) distance, and displays *"Straight-line distance only. Road route unavailable."*
+  - **Safety Notice:** Any displayed route is a suggestion only and does **not** account for flooded, landslide-blocked, or closed roads. Always check the **Lifeline Corridor Board** and local authorities before travelling.
 
 ### 3. Report / Request Help (`/report`)
 - **Dual Mode:** Choose **Quick SOS (1-Step)**, **Report a Hazard**, or **Request Urgent Help (3-Step)**.
