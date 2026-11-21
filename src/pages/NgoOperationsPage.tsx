@@ -139,6 +139,7 @@ export const NgoOperationsPage: React.FC = () => {
     releaseNgoTask,
     saveVolunteerProfile,
     isLoading,
+    authSession,
     t,
   } = useApp();
 
@@ -363,12 +364,18 @@ export const NgoOperationsPage: React.FC = () => {
                 ? 'Team Deployed'
                 : 'Team Offline'}
             </span>
+            {authSession.isDemo && (
+              <span className="rounded bg-amber-100 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-900 dark:bg-amber-950/70 dark:text-amber-200">
+                DEMO MODE
+              </span>
+            )}
           </div>
           <h2 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Relief Operations Dashboard
           </h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            {volunteerProfile.organization} · Lead: {volunteerProfile.name} ·{' '}
+            {authSession.organizationName || volunteerProfile.organization} · Partner:{' '}
+            {authSession.isAuthenticated ? authSession.fullName : volunteerProfile.name} ·{' '}
             <span className="font-mono tabular-nums">{volunteerProfile.teamSize}</span> volunteers
           </p>
         </div>

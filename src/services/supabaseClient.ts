@@ -34,14 +34,21 @@ export const isSupabaseConfigured = Boolean(
 
 let cachedClient: SupabaseClient | null = null;
 
+export const REMEMBER_ME_MODE_KEY = 'ne_connect_auth_remember_v1';
+export const EPHEMERAL_TAB_SESSION_KEY = 'ne_connect_auth_tab_active_v1';
+
 export function getSupabaseClient(): SupabaseClient | null {
   if (!isSupabaseConfigured) return null;
   if (!cachedClient) {
     cachedClient = createClient(rawUrl, rawAnonKey, {
       auth: {
-        persistSession: false,
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'ne_connect_supabase_auth',
       },
     });
   }
   return cachedClient;
 }
+

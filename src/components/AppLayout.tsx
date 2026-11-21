@@ -8,8 +8,12 @@ import {
   FilePlus2,
   Globe,
   HandHeart,
+  Home,
   Inbox,
   LifeBuoy,
+  Lock,
+  LogIn,
+  LogOut,
   Moon,
   RefreshCw,
   Shield,
@@ -21,6 +25,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { LANGUAGE_LABELS } from '../data/safetyGuides';
 import { NORTHEAST_DISTRICTS } from '../data/sampleData';
+import { getRoleDisplayLabel } from '../services/authService';
 import { ExperienceMode, LanguageCode } from '../types';
 import { formatSyncAge, formatTimestamp } from '../utils/formatters';
 import { OutboxDrawer } from './OutboxDrawer';
@@ -49,6 +54,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     refreshData,
     outbox,
     setIsOutboxOpen,
+    authSession,
+    canAccessNgo,
+    canAccessCoordinator,
+    signOutOrganization,
   } = useApp();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -65,6 +74,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     if (location.pathname.startsWith('/ngo')) {
       if (experienceMode !== 'ngo') setExperienceMode('ngo');
     } else if (
+      location.pathname.startsWith('/board') ||
       location.pathname.startsWith('/citizen') ||
       location.pathname.startsWith('/report')
     ) {
@@ -75,14 +85,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const handleSwitchExperience = (mode: ExperienceMode) => {
     setExperienceMode(mode);
     if (mode === 'ngo') {
-      navigate('/ngo');
+      navigate(canAccessNgo ? '/ngo' : '/login?redirect=/ngo');
     } else {
-      navigate('/');
+      navigate('/board');
     }
   };
 
   const citizenNavItems = [
-    { to: '/', label: t.nav.situationBoard, shortLabel: t.nav.shortBoard, icon: Activity },
+    { to: '/board', label: t.nav.situationBoard, shortLabel: t.nav.shortBoard, icon: Activity },
     { to: '/report?mode=sos', matchPath: '/report', label: t.nav.reportHelp, shortLabel: t.nav.shortReport, icon: FilePlus2 },
     { to: '/resources', label: t.nav.resourcesGuides, shortLabel: t.nav.shortResources, icon: BookOpen },
   ];
@@ -128,12 +138,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     experienceMode === 'ngo'
       ? [
           { to: '/ngo', label: t.experience.shortReliefOps, icon: HandHeart, end: false },
-          { to: '/', label: t.nav.shortBoard, icon: Activity, end: true },
+          { to: '/board', label: t.nav.shortBoard, icon: Activity, end: false },
           { to: '/resources', label: t.nav.shortResources, icon: BookOpen, end: false },
           { to: '/report?mode=sos', label: t.nav.shortReport, icon: LifeBuoy, end: false },
         ]
       : [
-          { to: '/', label: t.nav.shortBoard, icon: Activity, end: true },
+          { to: '/board', label: t.nav.shortBoard, icon: Activity, end: false },
           { to: '/report?mode=sos', label: t.nav.shortReport, icon: FilePlus2, end: false },
           { to: '/resources', label: t.nav.shortResources, icon: BookOpen, end: false },
           { to: '/ngo', label: t.experience.shortReliefOps, icon: HandHeart, end: false },
@@ -152,7 +162,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {/* Brand Block */}
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-slate-800">
             <Link
-              to="/"
+              to="/board"
               className="flex items-center gap-2.5 overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-blue-500"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white dark:bg-blue-600">
@@ -258,8 +268,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               const Icon = item.icon;
               const isManualActive = item.matchPath
                 ? location.pathname.startsWith(item.matchPath)
-                : item.to === '/'
-                ? location.pathname === '/' || location.pathname === '/citizen'
+                : item.to === '/board'
+                ? location.pathname === '/board' || location.pathname === '/citizen'
                 : location.pathname.startsWith(item.to);
               return (
                 <NavLink
@@ -310,17 +320,28 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               )}
               <NavLink
                 to={adminNavItem.to}
-                title={sidebarCollapsed ? adminNavItem.label : undefined}
+                title={
+                  sidebarCollapsed
+                    ? adminNavItem.label
+                    : !canAccessCoordinator
+                    ? 'Restricted to Coordinator / Admin accounts'
+                    : undefined
+                }
                 className={({ isActive }) =>
-                  `flex min-h-[40px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                  `flex min-h-[40px] items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive
                       ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300'
                       : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'
                   } ${sidebarCollapsed ? 'justify-center px-2' : ''}`
                 }
               >
-                <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {!sidebarCollapsed && <span className="truncate">{adminNavItem.label}</span>}
+                <span className="flex items-center gap-3 min-w-0">
+                  <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {!sidebarCollapsed && <span className="truncate">{adminNavItem.label}</span>}
+                </span>
+                {!sidebarCollapsed && !canAccessCoordinator && (
+                  <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                )}
               </NavLink>
 
               <button
@@ -350,8 +371,53 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
           </nav>
 
-          {/* Bottom Sidebar Controls */}
+          {/* Bottom Sidebar Controls & Role Session */}
           <div className="space-y-2 border-t border-slate-200 p-3 dark:border-slate-800">
+            {!sidebarCollapsed && (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-xs dark:border-slate-700 dark:bg-slate-800/70">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-semibold text-slate-900 dark:text-slate-100">
+                    {authSession.isAuthenticated ? authSession.fullName : 'Citizen Guest'}
+                  </span>
+                  {authSession.isDemo && (
+                    <span className="shrink-0 rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-950 dark:bg-amber-900 dark:text-amber-100">
+                      DEMO
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">
+                  {getRoleDisplayLabel(authSession.role)}
+                </p>
+                <div className="mt-2 flex items-center justify-between gap-2 border-t border-slate-200 pt-2 dark:border-slate-700">
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+                  >
+                    <Home className="h-3 w-3" aria-hidden="true" />
+                    <span>Role Home</span>
+                  </Link>
+                  {authSession.isAuthenticated ? (
+                    <button
+                      type="button"
+                      onClick={() => void signOutOrganization()}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-700 hover:underline dark:text-red-400"
+                    >
+                      <LogOut className="h-3 w-3" aria-hidden="true" />
+                      <span>Sign Out</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                    >
+                      <LogIn className="h-3 w-3" aria-hidden="true" />
+                      <span>Partner Login</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => setSimulatedOffline(!simulatedOffline)}
@@ -403,7 +469,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur-xs dark:border-slate-800 dark:bg-slate-900/95">
             {/* Mobile Compact Header (<= 52px) */}
             <div className="flex h-13 items-center justify-between gap-2 px-3 sm:px-4 md:hidden">
-              <Link to="/" className="flex items-center gap-2 min-w-0">
+              <Link to="/board" className="flex items-center gap-2 min-w-0">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-900 text-white dark:bg-blue-600">
                   <Compass className="h-4 w-4" aria-hidden="true" />
                 </div>

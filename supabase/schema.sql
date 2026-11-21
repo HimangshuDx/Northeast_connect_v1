@@ -336,3 +336,124 @@ begin
 exception when duplicate_object then null; when undefined_object then null;
 end $$;
 
+-- ============================================================================
+-- 9. Organization Profiles & Role-Based Access Control (Supabase Auth)
+-- ============================================================================
+-- Authoritative role source for authenticated response partners.
+-- Roles:
+--   NGO_MEMBER   -> Relief Operations Dashboard (/ngo)
+--   VOLUNTEER    -> Relief Operations Dashboard (/ngo)
+--   COORDINATOR  -> Coordinator Desk (/coordinator) + Relief Operations (/ngo)
+--   ADMIN        -> Full administrative access
+-- Note: Citizens use public guest access without requiring rows here.
+create table if not exists public.organization_profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text not null unique,
+  full_name text not null check (char_length(trim(full_name)) between 2 and 100),
+  organization_name text not null check (char_length(trim(organization_name)) between 2 and 140),
+  role text not null check (role in ('NGO_MEMBER', 'VOLUNTEER', 'COORDINATOR', 'ADMIN')),
+  district_id text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.organization_profiles enable row level security;
+
+-- Helper function returning the authenticated user's verified role from DB
+create or replace function public.current_user_role()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (
+      select op.role
+      from public.organization_profiles op
+      where op.user_id = auth.uid()
+        and op.is_active = true
+      limit 1
+    ),
+    'CITIZEN'
+  );
+$$;
+
+create or replace function public.is_response_partner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.current_user_role() in ('NGO_MEMBER', 'VOLUNTEER', 'COORDINATOR', 'ADMIN');
+$$;
+
+create or replace function public.is_coordinator_or_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.current_user_role() in ('COORDINATOR', 'ADMIN');
+$$;
+
+drop policy if exists "Users read own organization profile" on public.organization_profiles;
+create policy "Users read own organization profile"
+  on public.organization_profiles
+  for select
+  to authenticated
+  using (auth.uid() = user_id or public.is_coordinator_or_admin());
+
+drop policy if exists "Coordinators manage organization profiles" on public.organization_profiles;
+create policy "Coordinators manage organization profiles"
+  on public.organization_profiles
+  for all
+  to authenticated
+  using (public.is_coordinator_or_admin())
+  with check (public.is_coordinator_or_admin());
+
+-- 10. Demo Account Directory (read-only metadata table seeded in supabase/seed.sql)
+-- Lists the clearly labeled hackathon demo accounts and their expected roles.
+-- Authoritative Auth role checks still require a matching row in public.organization_profiles.
+create table if not exists public.demo_account_directory (
+  email text primary key,
+  full_name text not null,
+  organization_name text not null,
+  role text not null check (role in ('NGO_MEMBER', 'VOLUNTEER', 'COORDINATOR', 'ADMIN')),
+  district_id text,
+  is_demo_data boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.demo_account_directory enable row level security;
+
+drop policy if exists "Public read demo_account_directory" on public.demo_account_directory;
+create policy "Public read demo_account_directory"
+  on public.demo_account_directory
+  for select
+  to anon, authenticated
+  using (true);
+
+-- PRODUCTION HARDENING SQL (Uncomment when switching from open hackathon demo RLS to strict Auth RLS):
+-- drop policy if exists "Public read reports" on public.reports;
+-- create policy "Coordinators read full reports" on public.reports for select to authenticated using (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo update reports" on public.reports;
+-- create policy "Coordinators update reports" on public.reports for update to authenticated using (public.is_coordinator_or_admin()) with check (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo delete reports" on public.reports;
+-- create policy "Coordinators delete reports" on public.reports for delete to authenticated using (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo update corridors" on public.corridors;
+-- create policy "Coordinators update corridors" on public.corridors for update to authenticated using (public.is_coordinator_or_admin()) with check (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo update resources" on public.resources;
+-- create policy "Coordinators update resources" on public.resources for update to authenticated using (public.is_coordinator_or_admin()) with check (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo insert audit_logs" on public.audit_logs;
+-- create policy "Coordinators insert audit_logs" on public.audit_logs for insert to authenticated with check (public.is_coordinator_or_admin());
+-- drop policy if exists "Demo write ngo_assignments" on public.ngo_assignments;
+-- create policy "Partners insert ngo_assignments" on public.ngo_assignments for insert to authenticated with check (public.is_response_partner());
+-- drop policy if exists "Demo update ngo_assignments" on public.ngo_assignments;
+-- create policy "Partners update ngo_assignments" on public.ngo_assignments for update to authenticated using (public.is_response_partner()) with check (public.is_response_partner());
+-- drop policy if exists "Demo delete ngo_assignments" on public.ngo_assignments;
+-- create policy "Partners delete ngo_assignments" on public.ngo_assignments for delete to authenticated using (public.is_response_partner());
+

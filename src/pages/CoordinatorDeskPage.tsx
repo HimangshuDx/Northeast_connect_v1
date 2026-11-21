@@ -3,15 +3,15 @@ import {
   CheckCircle2,
   ClipboardList,
   GitMerge,
-  KeyRound,
   Loader2,
-  Lock,
+  LogOut,
   RotateCcw,
   Shield,
   Trash2,
   Truck,
   Users,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { EmptyState } from '../components/EmptyState';
 import { SeverityBadge } from '../components/SeverityBadge';
@@ -19,6 +19,7 @@ import { StatusPill } from '../components/StatusPill';
 import { DemoDataNoticeBadge, TrustBadge } from '../components/TrustBadge';
 import { useApp } from '../context/AppContext';
 import { NORTHEAST_DISTRICTS } from '../data/sampleData';
+import { getRoleDisplayLabel } from '../services/authService';
 import {
   AssistanceStatus,
   CapacityStatus,
@@ -26,10 +27,6 @@ import {
   TrustStatus,
 } from '../types';
 import { formatTimestamp } from '../utils/formatters';
-
-const DEMO_PIN =
-  (import.meta.env.VITE_COORDINATOR_PIN as string | undefined)?.trim() || '2468';
-const AUTH_SESSION_KEY = 'ne_connect_coord_auth';
 
 const RESPONSE_UNITS = [
   '',
@@ -57,21 +54,13 @@ export const CoordinatorDeskPage: React.FC = () => {
     updateCorridorStatus,
     updateResourceCapacity,
     resetDemoData,
-    refreshData,
-    addToast,
+    authSession,
+    signOutOrganization,
     t,
   } = useApp();
 
-  const [authenticated, setAuthenticated] = useState<boolean>(() => {
-    try {
-      return sessionStorage.getItem(AUTH_SESSION_KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
-  const [coordinatorName, setCoordinatorName] = useState('Duty Coordinator (Demo)');
+  const navigate = useNavigate();
+  const coordinatorName = authSession.fullName || 'Duty Coordinator';
 
   const [activeTab, setActiveTab] = useState<DeskTab>('inbox');
 
@@ -161,123 +150,10 @@ export const CoordinatorDeskPage: React.FC = () => {
     };
   }, [reports, corridors]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedName = coordinatorName.trim();
-    if (trimmedName.length < 2 || trimmedName.length > 80) {
-      setPinError('Coordinator label must be between 2 and 80 characters.');
-      return;
-    }
-    if (pinInput.trim() === DEMO_PIN) {
-      setCoordinatorName(trimmedName);
-      setAuthenticated(true);
-      setPinError('');
-      try {
-        sessionStorage.setItem(AUTH_SESSION_KEY, '1');
-      } catch {
-        // ignore
-      }
-      void refreshData();
-      addToast({ type: 'success', title: 'Signed in to Coordinator Desk (Demo)' });
-    } else {
-      setPinError(`Incorrect Demo PIN. Use ${DEMO_PIN} for prototype evaluation.`);
-    }
+  const handleLogout = async () => {
+    await signOutOrganization();
+    navigate('/login?redirect=/coordinator', { replace: true });
   };
-
-  const handleLogout = () => {
-    setAuthenticated(false);
-    setPinInput('');
-    try {
-      sessionStorage.removeItem(AUTH_SESSION_KEY);
-    } catch {
-      // ignore
-    }
-    void refreshData();
-  };
-
-  // Demo PIN Login Screen
-  if (!authenticated) {
-    return (
-      <div className="mx-auto max-w-md py-8">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
-              <KeyRound className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <DemoDataNoticeBadge />
-          </div>
-
-          <h2 className="mt-4 font-display text-xl font-bold text-slate-900 dark:text-slate-100">
-            {t.coordinatorPage.accessTitle}
-          </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            {t.coordinatorPage.accessSub}
-          </p>
-
-          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-xs text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-200">
-            Prototype Demo PIN: <span className="font-mono font-bold">{DEMO_PIN}</span> (demo PIN, not real security)
-          </div>
-
-          <form onSubmit={handleLogin} className="mt-5 space-y-4">
-            <div>
-              <label
-                htmlFor="coord-name"
-                className="block text-sm font-medium text-slate-900 dark:text-slate-100"
-              >
-                Coordinator Label
-              </label>
-              <input
-                id="coord-name"
-                type="text"
-                value={coordinatorName}
-                onChange={(e) => setCoordinatorName(e.target.value)}
-                className="mt-1.5 h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="coord-pin"
-                className="block text-sm font-medium text-slate-900 dark:text-slate-100"
-              >
-                Enter Demo PIN
-              </label>
-              <input
-                id="coord-pin"
-                type="password"
-                inputMode="numeric"
-                maxLength={6}
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                placeholder="4-digit PIN"
-                className="mt-1.5 h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 font-mono text-base tracking-widest text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
-              {pinError && (
-                <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{pinError}</p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2.5 pt-1">
-              <button
-                type="submit"
-                className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                <Shield className="h-4 w-4" aria-hidden="true" />
-                <span>{t.coordinatorPage.unlockBtn}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPinInput(DEMO_PIN)}
-                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-              >
-                {t.coordinatorPage.fillDemoPin}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -288,10 +164,19 @@ export const CoordinatorDeskPage: React.FC = () => {
             <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               {t.coordinatorPage.title}
             </h2>
+            {authSession.isDemo && (
+              <span className="rounded bg-amber-100 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-900 dark:bg-amber-950/70 dark:text-amber-200">
+                DEMO MODE
+              </span>
+            )}
             <DemoDataNoticeBadge />
           </div>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Signed in as <span className="font-medium text-slate-900 dark:text-slate-100">{coordinatorName}</span> · Verification and assistance dispatch statuses are managed independently.
+            Signed in as{' '}
+            <span className="font-medium text-slate-900 dark:text-slate-100">
+              {coordinatorName}
+            </span>{' '}
+            ({getRoleDisplayLabel(authSession.role)}) · Verification and assistance dispatch statuses are managed independently.
           </p>
         </div>
 
@@ -307,11 +192,11 @@ export const CoordinatorDeskPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={() => void handleLogout()}
             className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
-            <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t.coordinatorPage.lockDesk}</span>
+            <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Sign Out</span>
           </button>
         </div>
       </div>

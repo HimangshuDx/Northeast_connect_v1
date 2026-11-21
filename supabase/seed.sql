@@ -577,3 +577,64 @@ insert into public.audit_logs (
   true
 )
 on conflict (id) do nothing;
+
+-- Seed Demo Account Directory (roles for clearly marked Hackathon Demo accounts)
+insert into public.demo_account_directory (
+  email, full_name, organization_name, role, district_id, is_demo_data
+) values
+(
+  'demo.ngo@northeastconnect.demo',
+  'Ananya Das',
+  'Brahmaputra River Relief Collective',
+  'NGO_MEMBER',
+  'kamrup-metro',
+  true
+),
+(
+  'demo.volunteer@northeastconnect.demo',
+  'Rohan Deb',
+  'Barak Valley Rapid Volunteers',
+  'VOLUNTEER',
+  'cachar',
+  true
+),
+(
+  'demo.coordinator@northeastconnect.demo',
+  'Duty Coordinator (Demo)',
+  'ASDMA District Control Room (Demo)',
+  'COORDINATOR',
+  'kamrup-metro',
+  true
+)
+on conflict (email) do update
+  set full_name = excluded.full_name,
+      organization_name = excluded.organization_name,
+      role = excluded.role,
+      district_id = excluded.district_id,
+      is_demo_data = true;
+
+-- Sync matching Supabase Auth users into authoritative public.organization_profiles
+-- (Safe to run anytime; rows are inserted/updated for any matching emails created in auth.users)
+insert into public.organization_profiles (
+  user_id, email, full_name, organization_name, role, district_id, is_active
+)
+select
+  u.id,
+  d.email,
+  d.full_name,
+  d.organization_name,
+  d.role,
+  d.district_id,
+  true
+from auth.users u
+join public.demo_account_directory d
+  on lower(u.email) = lower(d.email)
+on conflict (user_id) do update
+  set email = excluded.email,
+      full_name = excluded.full_name,
+      organization_name = excluded.organization_name,
+      role = excluded.role,
+      district_id = excluded.district_id,
+      is_active = true,
+      updated_at = now();
+

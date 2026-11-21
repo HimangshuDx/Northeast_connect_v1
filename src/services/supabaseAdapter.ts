@@ -1429,7 +1429,9 @@ export class SupabaseAdapter implements DataAdapter {
 
 export function createSupabaseAdapter(
   supabaseUrl: string,
-  supabaseAnonKey: string
+  supabaseAnonKey: string,
+  clientOverride?: SupabaseClient
 ): DataAdapter {
-  return new SupabaseAdapter(supabaseUrl, supabaseAnonKey);
+  return new SupabaseAdapter(supabaseUrl, supabaseAnonKey, clientOverride);
 }
+

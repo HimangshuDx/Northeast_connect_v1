@@ -234,3 +234,31 @@ export interface VolunteerProfile {
   updatedAt: string;
 }
 
+export type UserRole =
+  | 'CITIZEN'
+  | 'NGO_MEMBER'
+  | 'VOLUNTEER'
+  | 'COORDINATOR'
+  | 'ADMIN';
+
+export interface OrganizationProfile {
+  userId: string;
+  email: string;
+  fullName: string;
+  organizationName: string;
+  role: Exclude<UserRole, 'CITIZEN'>;
+  districtId: string | null;
+  isActive: boolean;
+}
+
+export interface AuthSessionState {
+  userId: string | null;
+  email: string | null;
+  fullName: string;
+  organizationName: string | null;
+  role: UserRole;
+  districtId: string | null;
+  mode: 'guest' | 'supabase' | 'demo';
+  isDemo: boolean;
+  isAuthenticated: boolean;
+}

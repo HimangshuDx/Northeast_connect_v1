@@ -581,7 +581,7 @@ export const ReportHelpPage: React.FC = () => {
             </a>
 
             <Link
-              to="/"
+              to="/board"
               className="inline-flex min-h-[42px] items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
               <span>{t.reportPage.returnBoard}</span>

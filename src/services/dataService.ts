@@ -2,6 +2,7 @@ import { DataAdapter } from './dataAdapter';
 import { LocalAdapter } from './localAdapter';
 import { createSupabaseAdapter } from './supabaseAdapter';
 import {
+  getSupabaseClient,
   isSupabaseConfigured,
   supabaseAnonKey,
   supabaseConfigError,
@@ -20,5 +21,6 @@ if (supabaseConfigError) {
  * otherwise defaults to zero-config LocalAdapter (localStorage demo mode).
  */
 export const dataService: DataAdapter = isSupabaseConfigured
-  ? createSupabaseAdapter(supabaseUrl, supabaseAnonKey)
+  ? createSupabaseAdapter(supabaseUrl, supabaseAnonKey, getSupabaseClient() ?? undefined)
   : new LocalAdapter();
+

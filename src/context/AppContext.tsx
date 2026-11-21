@@ -10,14 +10,26 @@ import React, {
 import { INITIAL_VOLUNTEER_PROFILE } from '../data/sampleData';
 import { AppTranslations, TRANSLATIONS } from '../data/translations';
 import {
+  canAccessCoordinatorDesk,
+  canAccessNgoOperations,
+  getCurrentAuthSession,
+  GUEST_CITIZEN_SESSION,
+  requestPasswordRecovery as sendPasswordRecovery,
+  signInWithDemoAccount,
+  signInWithSupabase,
+  signOutAuth,
+} from '../services/authService';
+import {
   AcceptNgoTaskPayload,
   DataSnapshot,
   SubmitReportPayload,
 } from '../services/dataAdapter';
 import { dataService } from '../services/dataService';
+import { getSupabaseClient, isSupabaseConfigured } from '../services/supabaseClient';
 import {
   AssistanceStatus,
   AuditLogEntry,
+  AuthSessionState,
   CapacityStatus,
   CommunityReport,
   CorridorPassability,
@@ -107,6 +119,19 @@ interface AppContextValue {
   ) => Promise<boolean>;
   releaseNgoTask: (assignmentId: string) => Promise<boolean>;
   saveVolunteerProfile: (profile: Omit<VolunteerProfile, 'updatedAt'>) => Promise<boolean>;
+  authSession: AuthSessionState;
+  authLoading: boolean;
+  supabaseConfigured: boolean;
+  canAccessNgo: boolean;
+  canAccessCoordinator: boolean;
+  signInOrganization: (
+    email: string,
+    password: string,
+    rememberMe: boolean
+  ) => Promise<AuthSessionState>;
+  signInDemoRole: (demoEmail: string, rememberMe?: boolean) => Promise<AuthSessionState>;
+  requestPasswordRecovery: (email: string) => Promise<void>;
+  signOutOrganization: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -212,6 +237,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isOutboxOpen, setIsOutboxOpen] = useState<boolean>(false);
   const [editingOutboxItem, setEditingOutboxItem] = useState<OutboxSubmission | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [authSession, setAuthSession] = useState<AuthSessionState>(GUEST_CITIZEN_SESSION);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
 
   const isOnline = realOnline && !simulatedOffline;
   const isOnlineRef = useRef(isOnline);
@@ -317,6 +344,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     void refreshData();
   }, [refreshData]);
+
+  useEffect(() => {
+    let active = true;
+    const hydrateAuth = async () => {
+      try {
+        const session = await getCurrentAuthSession();
+        if (active) {
+          setAuthSession(session);
+        }
+      } finally {
+        if (active) {
+          setAuthLoading(false);
+        }
+      }
+    };
+    void hydrateAuth();
+
+    const client = getSupabaseClient();
+    if (!client) {
+      return () => {
+        active = false;
+      };
+    }
+
+    const { data } = client.auth.onAuthStateChange((_event) => {
+      void getCurrentAuthSession().then((session) => {
+        if (active) {
+          setAuthSession(session);
+        }
+      });
+    });
+
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isOnline || !dataService.subscribeToChanges) return;
@@ -916,6 +980,68 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [addToast, applySnapshot]
   );
 
+  const signInOrganization = useCallback(
+    async (email: string, password: string, rememberMe: boolean): Promise<AuthSessionState> => {
+      const session = await signInWithSupabase(email, password, rememberMe);
+      setAuthSession(session);
+      if (canAccessNgoOperations(session.role)) {
+        setExperienceMode('ngo');
+      }
+      void refreshData({ silent: true });
+      addToast({
+        type: 'success',
+        title: `Signed in as ${session.fullName}`,
+        description: session.organizationName ?? undefined,
+      });
+      return session;
+    },
+    [addToast, refreshData, setExperienceMode]
+  );
+
+  const signInDemoRole = useCallback(
+    async (demoEmail: string, rememberMe = false): Promise<AuthSessionState> => {
+      const session = await signInWithDemoAccount(demoEmail, rememberMe);
+      setAuthSession(session);
+      if (canAccessNgoOperations(session.role)) {
+        setExperienceMode('ngo');
+      }
+      void refreshData({ silent: true });
+      addToast({
+        type: 'info',
+        title: `DEMO MODE: ${session.fullName}`,
+        description: `${session.role.replace('_', ' ')} · ${session.organizationName ?? ''}`,
+      });
+      return session;
+    },
+    [addToast, refreshData, setExperienceMode]
+  );
+
+  const requestPasswordRecovery = useCallback(async (email: string): Promise<void> => {
+    await sendPasswordRecovery(email);
+  }, []);
+
+  const signOutOrganization = useCallback(async (): Promise<void> => {
+    const guest = await signOutAuth();
+    setAuthSession(guest);
+    setExperienceMode('citizen');
+    void refreshData({ silent: true });
+    addToast({
+      type: 'info',
+      title: 'Signed out of Response Partner Portal',
+      description: 'Switched back to Citizen Guest session.',
+    });
+  }, [addToast, refreshData, setExperienceMode]);
+
+  const canAccessNgo = useMemo(
+    () => canAccessNgoOperations(authSession.role),
+    [authSession.role]
+  );
+
+  const canAccessCoordinator = useMemo(
+    () => canAccessCoordinatorDesk(authSession.role),
+    [authSession.role]
+  );
+
   const value = useMemo<AppContextValue>(
     () => ({
       theme,
@@ -970,6 +1096,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateNgoTaskStatus,
       releaseNgoTask,
       saveVolunteerProfile,
+      authSession,
+      authLoading,
+      supabaseConfigured: isSupabaseConfigured,
+      canAccessNgo,
+      canAccessCoordinator,
+      signInOrganization,
+      signInDemoRole,
+      requestPasswordRecovery,
+      signOutOrganization,
     }),
     [
       theme,
@@ -1019,6 +1154,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateNgoTaskStatus,
       releaseNgoTask,
       saveVolunteerProfile,
+      authSession,
+      authLoading,
+      canAccessNgo,
+      canAccessCoordinator,
+      signInOrganization,
+      signInDemoRole,
+      requestPasswordRecovery,
+      signOutOrganization,
     ]
   );
 

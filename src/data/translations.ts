@@ -192,6 +192,21 @@ export interface AppTranslations {
     confirmPlusOne: string;
     confirmed: string;
   };
+  portal: {
+    subtitle: string;
+    citizenTitle: string;
+    citizenDescription: string;
+    citizenCta: string;
+    partnerTitle: string;
+    partnerDescription: string;
+    partnerCta: string;
+    loginHeading: string;
+    loginSubtext: string;
+    restrictedNotice: string;
+    backToRoles: string;
+    safetyBanner: string;
+    scopeNote: string;
+  };
 }
 
 export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
@@ -387,6 +402,25 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       confirmPlusOne: '+1 Confirm',
       confirmed: 'Confirmed',
     },
+    portal: {
+      subtitle: 'A Community-Driven Disaster Response & Coordination Platform.',
+      citizenTitle: "I'm a Citizen",
+      citizenDescription:
+        'For individuals, families and communities seeking emergency information, reporting hazards or requesting assistance.',
+      citizenCta: 'Continue as Citizen',
+      partnerTitle: "I'm a Response Partner",
+      partnerDescription:
+        'For NGOs, relief organizations, registered volunteers and authorized disaster management personnel coordinating assistance.',
+      partnerCta: 'Organization Login',
+      loginHeading: 'Organization & Response Partner Portal',
+      loginSubtext:
+        'Secure access for authorized organizations and emergency response personnel.',
+      restrictedNotice: 'Access is restricted to authorized response partners.',
+      backToRoles: 'Back to Role Selection',
+      safetyBanner: 'In immediate danger? Call 112.',
+      scopeNote:
+        'Community & NGO coordination platform. Does not directly dispatch official 112 or SDRF government rescue.',
+    },
   },
   as: {
     brandName: 'নৰ্থইষ্ট কানেক্ট',
@@ -579,6 +613,25 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       sampleDemoMode: 'নমুনা ডেম’ মোড',
       confirmPlusOne: '+1 নিশ্চিত',
       confirmed: 'নিশ্চিত কৰা হ’ল',
+    },
+    portal: {
+      subtitle: 'এক সমূহীয়া দুৰ্যোগ সঁহাৰি আৰু সমন্বয় মঞ্চ।',
+      citizenTitle: 'মই এজন নাগৰিক',
+      citizenDescription:
+        'জৰুৰীকালীন তথ্য বিচৰা, বিপদৰ খবৰ দিয়া বা সহায় বিচৰা ব্যক্তি, পৰিয়াল আৰু ৰাইজৰ বাবে।',
+      citizenCta: 'নাগৰিক হিচাপে আগবাঢ়ক',
+      partnerTitle: 'মই এজন সঁহাৰি অংশীদাৰ',
+      partnerDescription:
+        'সাহায্য সমন্বয় কৰা এনজিঅ’, সাহায্য সংস্থা, পঞ্জীয়নভুক্ত স্বেচ্ছাসেৱক আৰু অনুমোদিত দুৰ্যোগ ব্যৱস্থাপনা কৰ্মীৰ বাবে।',
+      partnerCta: 'সংস্থাৰ লগইন',
+      loginHeading: 'সংস্থা আৰু সঁহাৰি অংশীদাৰ পৰ্টেল',
+      loginSubtext:
+        'অনুমোদিত সংস্থা আৰু জৰুৰীকালীন সঁহাৰি কৰ্মীসকলৰ বাবে সুৰক্ষিত প্ৰৱেশ।',
+      restrictedNotice: 'কেৱল অনুমোদিত সঁহাৰি অংশীদাৰসকলৰ বাবেহে প্ৰৱেশ সীমিত।',
+      backToRoles: 'ভূমিকা নিৰ্বাচনলৈ উভতি যাওক',
+      safetyBanner: 'তৎকালীন বিপদত পৰিছে নেকি? ১১২-ত কল কৰক।',
+      scopeNote:
+        'সমূহীয়া আৰু এনজিঅ’ সমন্বয় মঞ্চ। চৰকাৰী ১১২ বা এছডিআৰএফ উদ্ধাৰ দল পোনপটীয়াকৈ প্ৰেৰণ নকৰে।',
     },
   },
   hi: {
@@ -773,6 +826,25 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       confirmPlusOne: '+1 पुष्टि',
       confirmed: 'पुष्टि की गई',
     },
+    portal: {
+      subtitle: 'एक समुदाय-संचालित आपदा प्रतिक्रिया और समन्वय मंच।',
+      citizenTitle: 'मैं एक नागरिक हूँ',
+      citizenDescription:
+        'आपातकालीन जानकारी प्राप्त करने, खतरों की रिपोर्ट करने या सहायता मांगने वाले व्यक्तियों, परिवारों और समुदायों के लिए।',
+      citizenCta: 'नागरिक के रूप में जारी रखें',
+      partnerTitle: 'मैं एक प्रतिक्रिया भागीदार हूँ',
+      partnerDescription:
+        'सहायता का समन्वय करने वाले NGO, राहत संगठनों, पंजीकृत स्वयंसेवकों और अधिकृत आपदा प्रबंधन कर्मियों के लिए।',
+      partnerCta: 'संगठन लॉगिन',
+      loginHeading: 'संगठन और प्रतिक्रिया भागीदार पोर्टल',
+      loginSubtext:
+        'अधिकृत संगठनों और आपातकालीन प्रतिक्रिया कर्मियों के लिए सुरक्षित पहुंच।',
+      restrictedNotice: 'प्रवेश केवल अधिकृत प्रतिक्रिया भागीदारों तक सीमित है।',
+      backToRoles: 'भूमिका चयन पर लौटें',
+      safetyBanner: 'तत्काल खतरा? 112 पर कॉल करें।',
+      scopeNote:
+        'समुदाय और NGO समन्वय मंच। सीधे सरकारी 112 या SDRF बचाव दल नहीं भेजता।',
+    },
   },
   bn: {
     brandName: 'নর্থইস্ট কানেক্ট',
@@ -966,5 +1038,25 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       confirmPlusOne: '+1 নিশ্চিত',
       confirmed: 'নিশ্চিত করা হয়েছে',
     },
+    portal: {
+      subtitle: 'একটি কমিউনিটি-চালিত দুর্যোগ সাড়াদান ও সমন্বয় প্ল্যাটফর্ম।',
+      citizenTitle: 'আমি একজন নাগরিক',
+      citizenDescription:
+        'জরুরি তথ্য খোঁজা, বিপদের খবর জানানো বা সহায়তার অনুরোধ করা ব্যক্তি, পরিবার ও কমিউনিটির জন্য।',
+      citizenCta: 'নাগরিক হিসেবে এগিয়ে যান',
+      partnerTitle: 'আমি একজন রেসপন্স পার্টনার',
+      partnerDescription:
+        'সহায়তা সমন্বয়কারী NGO, ত্রাণ সংস্থা, নিবন্ধিত স্বেচ্ছাসেবক এবং অনুমোদিত দুর্যোগ ব্যবস্থাপনা কর্মীদের জন্য।',
+      partnerCta: 'সংস্থা লগইন',
+      loginHeading: 'সংস্থা ও রেসপন্স পার্টনার পোর্টাল',
+      loginSubtext:
+        'অনুমোদিত সংস্থা এবং জরুরি সাড়াদান কর্মীদের জন্য সুরক্ষিত প্রবেশাধিকার।',
+      restrictedNotice: 'প্রবেশাধিকার শুধুমাত্র অনুমোদিত রেসপন্স পার্টনারদের জন্য সীমাবদ্ধ।',
+      backToRoles: 'ভূমিকা নির্বাচনে ফিরে যান',
+      safetyBanner: 'তাৎক্ষণিক বিপদে আছেন? ১১২ নম্বরে কল করুন।',
+      scopeNote:
+        'কমিউনিটি ও NGO সমন্বয় প্ল্যাটফর্ম। এটি সরাসরি সরকারি ১১২ বা SDRF উদ্ধার দল পাঠায় না।',
+    },
   },
 };
+
