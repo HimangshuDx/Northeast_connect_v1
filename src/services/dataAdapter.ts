@@ -7,8 +7,12 @@ import {
   DisasterAdvisory,
   EmergencyResource,
   LifelineCorridor,
+  NgoAssignment,
+  NgoCapability,
+  NgoTaskStatus,
   OutboxSubmission,
   TrustStatus,
+  VolunteerProfile,
 } from '../types';
 
 export interface DataSnapshot {
@@ -19,6 +23,8 @@ export interface DataSnapshot {
   outbox: OutboxSubmission[];
   auditLogs: AuditLogEntry[];
   confirmedReportIds: string[];
+  ngoAssignments?: NgoAssignment[];
+  volunteerProfile?: VolunteerProfile;
   lastSyncedAt: string;
 }
 
@@ -26,6 +32,15 @@ export interface SubmitReportPayload {
   reportData: OutboxSubmission['reportData'];
   isOnline: boolean;
   editingOutboxId?: string;
+  clientUuid?: string;
+}
+
+export interface AcceptNgoTaskPayload {
+  reportId: string;
+  volunteerName: string;
+  organization: string;
+  capability: NgoCapability;
+  note?: string;
 }
 
 export interface DataAdapter {
@@ -69,6 +84,7 @@ export interface DataAdapter {
     duplicateId: string,
     actor: string
   ): Promise<{ primary: CommunityReport; duplicate: CommunityReport }>;
+  deleteReport(reportId: string, actor: string): Promise<void>;
   updateCorridorStatus(
     corridorId: string,
     status: CorridorPassability,
@@ -83,5 +99,17 @@ export interface DataAdapter {
     verificationStatus: 'VERIFIED' | 'UNVERIFIED',
     actor: string
   ): Promise<EmergencyResource>;
+  acceptNgoTask(payload: AcceptNgoTaskPayload): Promise<NgoAssignment>;
+  updateNgoTaskStatus(
+    assignmentId: string,
+    taskStatus: NgoTaskStatus,
+    note?: string
+  ): Promise<NgoAssignment>;
+  releaseNgoTask(assignmentId: string): Promise<void>;
+  saveVolunteerProfile(
+    profile: Omit<VolunteerProfile, 'updatedAt'>
+  ): Promise<VolunteerProfile>;
   recordSyncTimestamp(): Promise<string>;
+  subscribeToChanges?(onChange: () => void): () => void;
 }
+

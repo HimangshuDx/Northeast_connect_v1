@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   CheckSquare,
@@ -8,6 +8,7 @@ import {
   Search,
   Waves,
 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { EmergencyStrip } from '../components/EmergencyStrip';
 import { EmptyState } from '../components/EmptyState';
 import { OfflineBanner } from '../components/OfflineBanner';
@@ -21,6 +22,14 @@ import { LanguageCode, ResourceCategory } from '../types';
 
 export const ResourcesGuidesPage: React.FC = () => {
   const { resources, selectedDistrictId, isLoading, language, setLanguage, t } = useApp();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#helplines') {
+      const el = document.getElementById('helplines');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash]);
 
   const [categoryFilter, setCategoryFilter] = useState<'All' | ResourceCategory>('All');
   const [resourceSearch, setResourceSearch] = useState('');
@@ -151,7 +160,7 @@ export const ResourcesGuidesPage: React.FC = () => {
       </section>
 
       {/* Emergency Helpline Cards */}
-      <section className="space-y-4">
+      <section id="helplines" className="space-y-4 scroll-mt-20">
         <div>
           <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t.resourcesPage.helplinesTitle}

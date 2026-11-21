@@ -2,26 +2,16 @@ import {
   AuditLogEntry,
   CommunityReport,
   DisasterAdvisory,
-  DistrictOption,
   EmergencyHelpline,
   EmergencyResource,
   LifelineCorridor,
+  NgoAssignment,
   OutboxSubmission,
+  VolunteerProfile,
 } from '../types';
+import { NORTHEAST_DISTRICTS } from './districts';
 
-export const NORTHEAST_DISTRICTS: DistrictOption[] = [
-  { id: 'all', name: 'All Districts', state: 'Northeast India', lat: 26.1445, lng: 91.7362 },
-  { id: 'kamrup-metro', name: 'Kamrup Metro (Guwahati)', state: 'Assam', lat: 26.1445, lng: 91.7362 },
-  { id: 'dima-hasao', name: 'Dima Hasao (Haflong)', state: 'Assam', lat: 25.1655, lng: 93.0167 },
-  { id: 'cachar', name: 'Cachar (Silchar)', state: 'Assam', lat: 24.8333, lng: 92.7789 },
-  { id: 'east-khasi', name: 'East Khasi Hills (Shillong)', state: 'Meghalaya', lat: 25.5788, lng: 91.8933 },
-  { id: 'east-sikkim', name: 'East Sikkim (Gangtok)', state: 'Sikkim', lat: 27.3314, lng: 88.6138 },
-  { id: 'kohima', name: 'Kohima', state: 'Nagaland', lat: 25.6751, lng: 94.1086 },
-  { id: 'imphal-west', name: 'Imphal West', state: 'Manipur', lat: 24.817, lng: 93.9368 },
-  { id: 'papum-pare', name: 'Papum Pare (Itanagar)', state: 'Arunachal Pradesh', lat: 27.0844, lng: 93.6053 },
-  { id: 'aizawl', name: 'Aizawl', state: 'Mizoram', lat: 23.7271, lng: 92.7176 },
-  { id: 'west-tripura', name: 'West Tripura (Agartala)', state: 'Tripura', lat: 23.8315, lng: 91.2868 },
-];
+export { NORTHEAST_DISTRICTS };
 
 export const INITIAL_ADVISORIES: DisasterAdvisory[] = [
   {
@@ -572,7 +562,9 @@ export const INITIAL_RESOURCES: EmergencyResource[] = [
 export const INITIAL_OUTBOX: OutboxSubmission[] = [
   {
     id: 'out-01',
+    clientUuid: '00000000-0000-4000-8000-000000000101',
     syncStatus: 'PENDING',
+    retryCount: 0,
     createdAt: '2026-11-20T20:02:00Z',
     reportData: {
       mode: 'HAZARD',
@@ -595,7 +587,9 @@ export const INITIAL_OUTBOX: OutboxSubmission[] = [
   },
   {
     id: 'out-02',
+    clientUuid: '00000000-0000-4000-8000-000000000102',
     syncStatus: 'FAILED',
+    retryCount: 1,
     createdAt: '2026-11-20T19:22:00Z',
     lastAttemptAt: '2026-11-20T19:25:00Z',
     errorMessage: 'Connection timed out while device was offline. Retry or share via SMS.',
@@ -691,3 +685,48 @@ export const EMERGENCY_HELPLINES: EmergencyHelpline[] = [
     description: 'Specialized flood boat and landslide search-and-rescue coordination.',
   },
 ];
+
+export const INITIAL_NGO_ASSIGNMENTS: NgoAssignment[] = [
+  {
+    id: 'ngo-task-01',
+    reportId: 'rep-101',
+    volunteerName: 'Meera Goswami',
+    organization: 'Brahmaputra Civic Relief Network (Sample)',
+    capability: 'Boat Rescue',
+    taskStatus: 'ON_SITE',
+    note: 'Coordinating dry ration & drinking water handoff at Zoo Road Tiniali staging point.',
+    acceptedAt: '2026-11-20T19:48:00Z',
+    updatedAt: '2026-11-20T20:05:00Z',
+    isDemo: true,
+  },
+  {
+    id: 'ngo-task-02',
+    reportId: 'rep-102',
+    volunteerName: 'K. Phonglo',
+    organization: 'Dima Hasao Youth Volunteers (Sample)',
+    capability: 'Food & Water Distribution',
+    taskStatus: 'EN_ROUTE',
+    note: 'Bringing 40 packaged meal kits & ORS sachets from Maibang market.',
+    acceptedAt: '2026-11-20T19:35:00Z',
+    updatedAt: '2026-11-20T19:50:00Z',
+    isDemo: true,
+  },
+];
+
+export const INITIAL_VOLUNTEER_PROFILE: VolunteerProfile = {
+  id: 'vol-local-default',
+  name: 'Field Volunteer Team (Demo)',
+  organization: 'Northeast Community Relief Collective',
+  districtId: 'kamrup-metro',
+  capability: 'Food & Water Distribution',
+  availability: 'AVAILABLE',
+  teamSize: 4,
+  resourceInventory: [
+    'Drinking Water Cans (20L x 12)',
+    'ORS & First Aid Kits (15)',
+    'Tarpaulin Sheets (8)',
+    'Solar Lanterns (6)',
+  ],
+  updatedAt: '2026-11-20T19:30:00Z',
+};
+

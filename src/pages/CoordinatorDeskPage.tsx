@@ -4,9 +4,11 @@ import {
   ClipboardList,
   GitMerge,
   KeyRound,
+  Loader2,
   Lock,
   RotateCcw,
   Shield,
+  Trash2,
   Truck,
   Users,
 } from 'lucide-react';
@@ -25,7 +27,8 @@ import {
 } from '../types';
 import { formatTimestamp } from '../utils/formatters';
 
-const DEMO_PIN = '2468';
+const DEMO_PIN =
+  (import.meta.env.VITE_COORDINATOR_PIN as string | undefined)?.trim() || '2468';
 const AUTH_SESSION_KEY = 'ne_connect_coord_auth';
 
 const RESPONSE_UNITS = [
@@ -50,9 +53,11 @@ export const CoordinatorDeskPage: React.FC = () => {
     assignReportUnit,
     addReportNote,
     mergeReports,
+    deleteReport,
     updateCorridorStatus,
     updateResourceCapacity,
     resetDemoData,
+    refreshData,
     addToast,
     t,
   } = useApp();
@@ -77,9 +82,14 @@ export const CoordinatorDeskPage: React.FC = () => {
 
   const [selectedReportId, setSelectedReportId] = useState<string>('');
   const [noteInput, setNoteInput] = useState('');
+  const [noteError, setNoteError] = useState('');
   const [mergeTargetId, setMergeTargetId] = useState('');
   const [confirmMergeOpen, setConfirmMergeOpen] = useState(false);
+  const [confirmDeleteReportOpen, setConfirmDeleteReportOpen] = useState(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [corridorErrors, setCorridorErrors] = useState<Record<string, string>>({});
+  const [resourceErrors, setResourceErrors] = useState<Record<string, string>>({});
 
   // Corridor editing draft state
   const [corridorDrafts, setCorridorDrafts] = useState<
@@ -153,7 +163,13 @@ export const CoordinatorDeskPage: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = coordinatorName.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 80) {
+      setPinError('Coordinator label must be between 2 and 80 characters.');
+      return;
+    }
     if (pinInput.trim() === DEMO_PIN) {
+      setCoordinatorName(trimmedName);
       setAuthenticated(true);
       setPinError('');
       try {
@@ -161,6 +177,7 @@ export const CoordinatorDeskPage: React.FC = () => {
       } catch {
         // ignore
       }
+      void refreshData();
       addToast({ type: 'success', title: 'Signed in to Coordinator Desk (Demo)' });
     } else {
       setPinError(`Incorrect Demo PIN. Use ${DEMO_PIN} for prototype evaluation.`);
@@ -175,6 +192,7 @@ export const CoordinatorDeskPage: React.FC = () => {
     } catch {
       // ignore
     }
+    void refreshData();
   };
 
   // Demo PIN Login Screen
@@ -197,7 +215,7 @@ export const CoordinatorDeskPage: React.FC = () => {
           </p>
 
           <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-xs text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-200">
-            Prototype Demo PIN: <span className="font-mono font-bold">{DEMO_PIN}</span> (local demonstration session only)
+            Prototype Demo PIN: <span className="font-mono font-bold">{DEMO_PIN}</span> (demo PIN, not real security)
           </div>
 
           <form onSubmit={handleLogin} className="mt-5 space-y-4">
@@ -418,6 +436,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                       onClick={() => {
                         setSelectedReportId(rep.id);
                         setMergeTargetId('');
+                        setNoteError('');
                       }}
                       className={`w-full rounded-xl border p-4 text-left transition-colors ${
                         selected
@@ -464,7 +483,18 @@ export const CoordinatorDeskPage: React.FC = () => {
                           {selectedReport.corridorOrBlock} · {selectedReport.districtName}
                         </p>
                       </div>
-                      <SeverityBadge severity={selectedReport.severity} />
+                      <div className="flex items-center gap-2">
+                        <SeverityBadge severity={selectedReport.severity} />
+                        <button
+                          type="button"
+                          disabled={busyAction !== null}
+                          onClick={() => setConfirmDeleteReportOpen(true)}
+                          className="inline-flex min-h-[32px] items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-300 dark:hover:bg-red-900/60"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </div>
 
                     <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
@@ -501,10 +531,16 @@ export const CoordinatorDeskPage: React.FC = () => {
                           <button
                             key={val}
                             type="button"
-                            onClick={() =>
-                              void updateReportVerification(selectedReport.id, val, coordinatorName)
-                            }
-                            className={`min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors ${
+                            disabled={busyAction !== null}
+                            onClick={async () => {
+                              setBusyAction(`verify-${val}`);
+                              try {
+                                await updateReportVerification(selectedReport.id, val, coordinatorName);
+                              } finally {
+                                setBusyAction(null);
+                              }
+                            }}
+                            className={`min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
                               selectedReport.verificationStatus === val
                                 ? 'border-blue-600 bg-blue-600 text-white'
                                 : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
@@ -533,10 +569,16 @@ export const CoordinatorDeskPage: React.FC = () => {
                           <button
                             key={val}
                             type="button"
-                            onClick={() =>
-                              void updateReportAssistance(selectedReport.id, val, coordinatorName)
-                            }
-                            className={`min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors ${
+                            disabled={busyAction !== null}
+                            onClick={async () => {
+                              setBusyAction(`assist-${val}`);
+                              try {
+                                await updateReportAssistance(selectedReport.id, val, coordinatorName);
+                              } finally {
+                                setBusyAction(null);
+                              }
+                            }}
+                            className={`min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
                               selectedReport.assistanceStatus === val
                                 ? 'border-emerald-600 bg-emerald-600 text-white'
                                 : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
@@ -561,11 +603,17 @@ export const CoordinatorDeskPage: React.FC = () => {
                       </label>
                       <select
                         id="assign-unit-select"
+                        disabled={busyAction !== null}
                         value={selectedReport.assignedUnit ?? ''}
-                        onChange={(e) =>
-                          void assignReportUnit(selectedReport.id, e.target.value, coordinatorName)
-                        }
-                        className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                        onChange={async (e) => {
+                          setBusyAction('assign');
+                          try {
+                            await assignReportUnit(selectedReport.id, e.target.value, coordinatorName);
+                          } finally {
+                            setBusyAction(null);
+                          }
+                        }}
+                        className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-900 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                       >
                         <option value="">Unassigned</option>
                         {RESPONSE_UNITS.filter(Boolean).map((unit) => (
@@ -588,9 +636,10 @@ export const CoordinatorDeskPage: React.FC = () => {
                       <div className="mt-1.5 flex gap-2">
                         <select
                           id="merge-duplicate-select"
+                          disabled={busyAction !== null}
                           value={mergeTargetId}
                           onChange={(e) => setMergeTargetId(e.target.value)}
-                          className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
                           <option value="">
                             {mergeCandidates.length === 0
@@ -605,7 +654,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                         </select>
                         <button
                           type="button"
-                          disabled={!mergeTargetId}
+                          disabled={!mergeTargetId || busyAction !== null}
                           onClick={() => setConfirmMergeOpen(true)}
                           className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
@@ -623,29 +672,59 @@ export const CoordinatorDeskPage: React.FC = () => {
                     </h4>
 
                     <form
-                      onSubmit={(e) => {
+                      onSubmit={async (e) => {
                         e.preventDefault();
-                        if (!noteInput.trim()) return;
-                        void addReportNote(selectedReport.id, noteInput, coordinatorName);
-                        setNoteInput('');
+                        const trimmed = noteInput.trim();
+                        if (trimmed.length < 2) {
+                          setNoteError('Note must be at least 2 characters.');
+                          return;
+                        }
+                        if (trimmed.length > 1000) {
+                          setNoteError('Note must be 1,000 characters or fewer.');
+                          return;
+                        }
+                        setNoteError('');
+                        setBusyAction('note');
+                        try {
+                          const ok = await addReportNote(selectedReport.id, trimmed, coordinatorName);
+                          if (ok) {
+                            setNoteInput('');
+                          }
+                        } finally {
+                          setBusyAction(null);
+                        }
                       }}
                       className="mt-2 flex gap-2"
                     >
                       <input
                         type="text"
                         value={noteInput}
-                        onChange={(e) => setNoteInput(e.target.value)}
+                        onChange={(e) => {
+                          setNoteInput(e.target.value);
+                          if (noteError) setNoteError('');
+                        }}
                         placeholder="Add verification log, dispatch ETA, or callback result..."
                         aria-label="Internal coordinator note"
                         className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                       />
                       <button
                         type="submit"
-                        className="h-10 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700"
+                        disabled={busyAction !== null}
+                        className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                       >
-                        Add Note
+                        {busyAction === 'note' ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <span>Saving...</span>
+                          </>
+                        ) : (
+                          <span>Add Note</span>
+                        )}
                       </button>
                     </form>
+                    {noteError && (
+                      <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{noteError}</p>
+                    )}
 
                     {selectedReport.internalNotes.length > 0 && (
                       <ul className="mt-3 space-y-2">
@@ -701,10 +780,14 @@ export const CoordinatorDeskPage: React.FC = () => {
 
                 <div className="mt-3 grid gap-3 md:grid-cols-12">
                   <div className="md:col-span-3">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`corridor-status-${cor.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Passability
                     </label>
                     <select
+                      id={`corridor-status-${cor.id}`}
                       value={draft.status}
                       onChange={(e) =>
                         setCorridorDrafts((prev) => ({
@@ -715,7 +798,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                           },
                         }))
                       }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
                     >
                       <option value="PASSABLE">PASSABLE</option>
                       <option value="SINGLE_LANE">SINGLE LANE</option>
@@ -727,10 +810,14 @@ export const CoordinatorDeskPage: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`corridor-trust-${cor.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Trust Status
                     </label>
                     <select
+                      id={`corridor-trust-${cor.id}`}
                       value={draft.verification}
                       onChange={(e) =>
                         setCorridorDrafts((prev) => ({
@@ -741,7 +828,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                           },
                         }))
                       }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
                     >
                       <option value="VERIFIED">VERIFIED</option>
                       <option value="UNVERIFIED">UNVERIFIED</option>
@@ -749,37 +836,71 @@ export const CoordinatorDeskPage: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-5">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`corridor-note-${cor.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Advisory Note
                     </label>
                     <input
+                      id={`corridor-note-${cor.id}`}
                       type="text"
                       value={draft.note}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setCorridorDrafts((prev) => ({
                           ...prev,
                           [cor.id]: { ...draft, note: e.target.value },
-                        }))
-                      }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs dark:border-slate-700 dark:bg-slate-800"
+                        }));
+                        if (corridorErrors[cor.id]) {
+                          setCorridorErrors((prev) => ({ ...prev, [cor.id]: '' }));
+                        }
+                      }}
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-3 text-xs dark:border-slate-700 dark:bg-slate-800"
                     />
+                    {corridorErrors[cor.id] && (
+                      <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+                        {corridorErrors[cor.id]}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-end md:col-span-2">
                     <button
                       type="button"
-                      onClick={() =>
-                        void updateCorridorStatus(
-                          cor.id,
-                          draft.status,
-                          draft.note,
-                          draft.verification,
-                          coordinatorName
-                        )
-                      }
-                      className="h-9 w-full rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                      disabled={busyAction !== null}
+                      onClick={async () => {
+                        const trimmedNote = draft.note.trim();
+                        if (trimmedNote.length < 3 || trimmedNote.length > 500) {
+                          setCorridorErrors((prev) => ({
+                            ...prev,
+                            [cor.id]: 'Advisory note must be 3–500 characters.',
+                          }));
+                          return;
+                        }
+                        setCorridorErrors((prev) => ({ ...prev, [cor.id]: '' }));
+                        setBusyAction(`corridor-${cor.id}`);
+                        try {
+                          await updateCorridorStatus(
+                            cor.id,
+                            draft.status,
+                            trimmedNote,
+                            draft.verification,
+                            coordinatorName
+                          );
+                        } finally {
+                          setBusyAction(null);
+                        }
+                      }}
+                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                     >
-                      Save Corridor
+                      {busyAction === `corridor-${cor.id}` ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Saving...</span>
+                        </>
+                      ) : (
+                        <span>Save Corridor</span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -818,10 +939,14 @@ export const CoordinatorDeskPage: React.FC = () => {
 
                 <div className="mt-3 grid gap-3 md:grid-cols-12">
                   <div className="md:col-span-3">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`resource-cap-${res.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Capacity Status
                     </label>
                     <select
+                      id={`resource-cap-${res.id}`}
                       value={draft.capacity}
                       onChange={(e) =>
                         setResourceDrafts((prev) => ({
@@ -832,7 +957,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                           },
                         }))
                       }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
                     >
                       <option value="OPEN_AVAILABLE">OPEN AVAILABLE</option>
                       <option value="NEAR_CAPACITY">NEAR CAPACITY</option>
@@ -843,10 +968,14 @@ export const CoordinatorDeskPage: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`resource-trust-${res.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Verification
                     </label>
                     <select
+                      id={`resource-trust-${res.id}`}
                       value={draft.verification}
                       onChange={(e) =>
                         setResourceDrafts((prev) => ({
@@ -857,7 +986,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                           },
                         }))
                       }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-800"
                     >
                       <option value="VERIFIED">VERIFIED</option>
                       <option value="UNVERIFIED">UNVERIFIED</option>
@@ -865,40 +994,74 @@ export const CoordinatorDeskPage: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-5">
-                    <label className="block text-[11px] font-medium text-slate-500">
+                    <label
+                      htmlFor={`resource-supplies-${res.id}`}
+                      className="block text-[11px] font-medium text-slate-500"
+                    >
                       Available Supplies (comma-separated)
                     </label>
                     <input
+                      id={`resource-supplies-${res.id}`}
                       type="text"
                       value={draft.suppliesText}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setResourceDrafts((prev) => ({
                           ...prev,
                           [res.id]: { ...draft, suppliesText: e.target.value },
-                        }))
-                      }
-                      className="mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs dark:border-slate-700 dark:bg-slate-800"
+                        }));
+                        if (resourceErrors[res.id]) {
+                          setResourceErrors((prev) => ({ ...prev, [res.id]: '' }));
+                        }
+                      }}
+                      className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-3 text-xs dark:border-slate-700 dark:bg-slate-800"
                     />
+                    {resourceErrors[res.id] && (
+                      <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+                        {resourceErrors[res.id]}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-end md:col-span-2">
                     <button
                       type="button"
-                      onClick={() =>
-                        void updateResourceCapacity(
-                          res.id,
-                          draft.capacity,
-                          draft.suppliesText
-                            .split(',')
-                            .map((s) => s.trim())
-                            .filter(Boolean),
-                          draft.verification,
-                          coordinatorName
-                        )
-                      }
-                      className="h-9 w-full rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                      disabled={busyAction !== null}
+                      onClick={async () => {
+                        const supplies = draft.suppliesText
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+                        if (supplies.length > 20 || supplies.some((s) => s.length > 80)) {
+                          setResourceErrors((prev) => ({
+                            ...prev,
+                            [res.id]: 'Max 20 items, each 80 characters or fewer.',
+                          }));
+                          return;
+                        }
+                        setResourceErrors((prev) => ({ ...prev, [res.id]: '' }));
+                        setBusyAction(`resource-${res.id}`);
+                        try {
+                          await updateResourceCapacity(
+                            res.id,
+                            draft.capacity,
+                            supplies,
+                            draft.verification,
+                            coordinatorName
+                          );
+                        } finally {
+                          setBusyAction(null);
+                        }
+                      }}
+                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                     >
-                      Update Post
+                      {busyAction === `resource-${res.id}` ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Saving...</span>
+                        </>
+                      ) : (
+                        <span>Update Post</span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -955,12 +1118,47 @@ export const CoordinatorDeskPage: React.FC = () => {
         confirmLabel="Confirm Merge"
         destructive={false}
         onCancel={() => setConfirmMergeOpen(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (selectedReport && mergeTargetId) {
-            void mergeReports(selectedReport.id, mergeTargetId, coordinatorName);
-            setMergeTargetId('');
+            setBusyAction('merge');
+            try {
+              const ok = await mergeReports(selectedReport.id, mergeTargetId, coordinatorName);
+              if (ok) setMergeTargetId('');
+            } finally {
+              setBusyAction(null);
+            }
           }
           setConfirmMergeOpen(false);
+        }}
+      />
+
+      <ConfirmationDialog
+        open={confirmDeleteReportOpen}
+        title="Delete Report Permanently?"
+        description={
+          selectedReport
+            ? `Remove report #${selectedReport.id} (${selectedReport.locality}) from the Situation Board and Coordinator Inbox? This action is recorded in the audit log.`
+            : ''
+        }
+        confirmLabel="Delete Report"
+        destructive={true}
+        onCancel={() => setConfirmDeleteReportOpen(false)}
+        onConfirm={async () => {
+          if (selectedReport) {
+            const targetId = selectedReport.id;
+            setBusyAction('delete');
+            try {
+              const ok = await deleteReport(targetId, coordinatorName);
+              if (ok) {
+                const nextReport = visibleReports.find((r) => r.id !== targetId);
+                setSelectedReportId(nextReport?.id ?? '');
+                setMergeTargetId('');
+              }
+            } finally {
+              setBusyAction(null);
+            }
+          }
+          setConfirmDeleteReportOpen(false);
         }}
       />
 
@@ -970,8 +1168,13 @@ export const CoordinatorDeskPage: React.FC = () => {
         description="This restores all sample advisories, corridors, reports, resources, and outbox items back to initial prototype defaults."
         confirmLabel="Reset Data"
         onCancel={() => setConfirmResetOpen(false)}
-        onConfirm={() => {
-          void resetDemoData();
+        onConfirm={async () => {
+          setBusyAction('reset');
+          try {
+            await resetDemoData();
+          } finally {
+            setBusyAction(null);
+          }
           setConfirmResetOpen(false);
         }}
       />

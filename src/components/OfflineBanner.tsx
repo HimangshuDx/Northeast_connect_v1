@@ -3,9 +3,12 @@ import { WifiOff, Inbox, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const OfflineBanner: React.FC = () => {
-  const { isOnline, simulatedOffline, setSimulatedOffline, outbox, setIsOutboxOpen, t } = useApp();
+  const { isOnline, realOnline, simulatedOffline, setSimulatedOffline, outbox, setIsOutboxOpen, t } =
+    useApp();
 
   if (isOnline) return null;
+
+  const isActualOffline = !realOnline;
 
   const pendingCount = outbox.filter(
     (item) => item.syncStatus === 'PENDING' || item.syncStatus === 'FAILED'
@@ -22,7 +25,7 @@ export const OfflineBanner: React.FC = () => {
           <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
           <div className="text-sm">
             <p className="font-semibold">
-              {simulatedOffline ? t.offlineBanner.simulatedTitle : t.offlineBanner.actualTitle}
+              {isActualOffline ? t.offlineBanner.actualTitle : t.offlineBanner.simulatedTitle}
             </p>
             <p className="text-xs text-amber-800 dark:text-amber-200/90 mt-0.5">
               {t.offlineBanner.subtitle}
@@ -42,7 +45,7 @@ export const OfflineBanner: React.FC = () => {
             </span>
           </button>
 
-          {simulatedOffline && (
+          {!isActualOffline && simulatedOffline && (
             <button
               type="button"
               onClick={() => setSimulatedOffline(false)}

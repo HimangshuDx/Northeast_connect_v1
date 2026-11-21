@@ -14,6 +14,19 @@ export interface AppTranslations {
     shortCoordinator: string;
     myOutbox: string;
   };
+  experience: {
+    needHelp: string;
+    needHelpSub: string;
+    wantHelp: string;
+    wantHelpSub: string;
+    citizenMode: string;
+    ngoMode: string;
+    reliefOps: string;
+    shortReliefOps: string;
+    quickSos: string;
+    detailedReport: string;
+    adminSeparator: string;
+  };
   controls: {
     allNeDistricts: string;
     online: string;
@@ -196,15 +209,28 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       shortCoordinator: 'Coordinator',
       myOutbox: 'My Outbox',
     },
+    experience: {
+      needHelp: 'I NEED HELP',
+      needHelpSub: 'Citizen Mode · Quick SOS, hazard alerts, shelters & offline outbox',
+      wantHelp: 'I WANT TO HELP',
+      wantHelpSub: 'NGO / Volunteer Mode · Verified needs, task pledges & relief ops',
+      citizenMode: 'Citizen Mode',
+      ngoMode: 'NGO / Volunteer Mode',
+      reliefOps: 'Relief Operations',
+      shortReliefOps: 'Relief Ops',
+      quickSos: 'Quick SOS (1-Step)',
+      detailedReport: 'Detailed Request (3-Step)',
+      adminSeparator: 'Administration',
+    },
     controls: {
       allNeDistricts: 'All NE Districts',
       online: 'Online',
       offline: 'Offline',
-      simulateOffline: 'Simulate Offline',
-      offlineTestOn: 'Offline Test: ON',
+      simulateOffline: 'Demo: simulate offline',
+      offlineTestOn: 'Demo offline: ON',
       switchToLight: 'Switch to Light Mode',
       switchToDark: 'Switch to Dark Mode',
-      syncedPrefix: 'Synced',
+      syncedPrefix: 'Last synced:',
       requestHelp: 'Request Help',
       languageLabel: 'Language',
     },
@@ -215,8 +241,8 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       requestUrgentHelp: 'Request Urgent Help',
     },
     offlineBanner: {
-      simulatedTitle: 'Offline Mode (Simulated for Prototype)',
-      actualTitle: 'You are currently offline',
+      simulatedTitle: 'Simulated offline (demo helper)',
+      actualTitle: 'No internet connection',
       subtitle: 'Viewing cached local records. New reports are saved on your device in My Outbox and can be shared via SMS.',
       goOnline: 'Go Online',
       queuedSuffix: 'queued',
@@ -376,15 +402,28 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       shortCoordinator: 'সমন্বয়ক',
       myOutbox: 'মোৰ আউটবক্স',
     },
+    experience: {
+      needHelp: 'মোক সহায় লাগে',
+      needHelpSub: 'নাগৰিক মোড · দ্ৰুত এছঅ’এছ, বিপদ সতৰ্কতা, আশ্ৰয় শিবিৰ',
+      wantHelp: 'মই সহায় কৰিব বিচাৰোঁ',
+      wantHelpSub: 'এনজিঅ’ / স্বেচ্ছাসেৱক মোড · সত্যাপিত প্ৰয়োজন আৰু সাহায্য কাৰ্য',
+      citizenMode: 'নাগৰিক মোড',
+      ngoMode: 'এনজিঅ’ / স্বেচ্ছাসেৱক',
+      reliefOps: 'সাহায্য অভিযান',
+      shortReliefOps: 'সাহায্য',
+      quickSos: 'দ্ৰুত এছঅ’এছ (১-খোজ)',
+      detailedReport: 'বিস্তাৰিত অনুৰোধ (৩-খোজ)',
+      adminSeparator: 'প্ৰশাসন',
+    },
     controls: {
       allNeDistricts: 'সকলো উত্তৰ-পূব জিলা',
       online: 'অনলাইন',
       offline: 'অফলাইন',
-      simulateOffline: 'অফলাইন পৰীক্ষা',
-      offlineTestOn: 'অফলাইন পৰীক্ষা: সক্ৰিয়',
+      simulateOffline: 'ডেম’: অফলাইন পৰীক্ষা',
+      offlineTestOn: 'ডেম’ অফলাইন: সক্ৰিয়',
       switchToLight: 'লাইট মোডলৈ যাওক',
       switchToDark: 'ডাৰ্ক মোডলৈ যাওক',
-      syncedPrefix: 'ছিন্ক কৰা হৈছে',
+      syncedPrefix: 'অন্তিম ছিন্ক:',
       requestHelp: 'সহায় বিচাৰক',
       languageLabel: 'ভাষা',
     },
@@ -395,8 +434,8 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       requestUrgentHelp: 'জৰুৰী সহায় বিচাৰক',
     },
     offlineBanner: {
-      simulatedTitle: 'অফলাইন মোড (প্ৰট’টাইপ পৰীক্ষা)',
-      actualTitle: 'আপুনি বৰ্তমান অফলাইনত আছে',
+      simulatedTitle: 'নকল অফলাইন মোড (ডেম’ সহায়ক)',
+      actualTitle: 'ইণ্টাৰনেট সংযোগ নাই',
       subtitle: 'কেশ্ব কৰা স্থানীয় তথ্য দেখুওৱা হৈছে। নতুন প্ৰতিবেদন আপোনাৰ ডিভাইচৰ আউটবক্সত সংৰক্ষিত হ’ব আৰু এছএমএছ যোগে পঠিয়াব পাৰিব।',
       goOnline: 'অনলাইন হওক',
       queuedSuffix: 'শাৰীত আছে',
@@ -556,15 +595,28 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       shortCoordinator: 'समन्वयक',
       myOutbox: 'मेरा आउटबॉक्स',
     },
+    experience: {
+      needHelp: 'मुझे मदद चाहिए',
+      needHelpSub: 'नागरिक मोड · त्वरित SOS, खतरा अलर्ट, राहत शिविर व ऑफलाइन आउटबॉक्स',
+      wantHelp: 'मैं मदद करना चाहता हूँ',
+      wantHelpSub: 'NGO / स्वयंसेवक मोड · सत्यापित मदद अनुरोध, कार्य संकल्प व राहत संचालन',
+      citizenMode: 'नागरिक मोड',
+      ngoMode: 'NGO / स्वयंसेवक मोड',
+      reliefOps: 'राहत संचालन',
+      shortReliefOps: 'राहत कार्य',
+      quickSos: 'त्वरित SOS (1-चरण)',
+      detailedReport: 'विस्तृत अनुरोध (3-चरण)',
+      adminSeparator: 'प्रशासन',
+    },
     controls: {
       allNeDistricts: 'सभी पूर्वोत्तर जिले',
       online: 'ऑनलाइन',
       offline: 'ऑफलाइन',
-      simulateOffline: 'ऑफलाइन परीक्षण',
-      offlineTestOn: 'ऑफलाइन मोड: चालू',
+      simulateOffline: 'डेमो: ऑफलाइन सिमुलेट करें',
+      offlineTestOn: 'डेमो ऑफलाइन: चालू',
       switchToLight: 'लाइट मोड में बदलें',
       switchToDark: 'डार्क मोड में बदलें',
-      syncedPrefix: 'सिंक समय',
+      syncedPrefix: 'अंतिम सिंक:',
       requestHelp: 'मदद मांगें',
       languageLabel: 'भाषा',
     },
@@ -575,8 +627,8 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       requestUrgentHelp: 'तत्काल मदद मांगें',
     },
     offlineBanner: {
-      simulatedTitle: 'ऑफलाइन मोड (प्रोटोटाइप परीक्षण)',
-      actualTitle: 'आप अभी ऑफलाइन हैं',
+      simulatedTitle: 'सिमुलेटेड ऑफलाइन (डेमो सहायक)',
+      actualTitle: 'इंटरनेट कनेक्शन नहीं है',
       subtitle: 'स्थानीय रूप से सहेजा गया डेटा दिख रहा है। नई रिपोर्ट आपके डिवाइस के आउटबॉक्स में सहेजी जाएंगी और SMS से भेजी जा सकती हैं।',
       goOnline: 'ऑनलाइन जाएं',
       queuedSuffix: 'कतार में',
@@ -736,15 +788,28 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       shortCoordinator: 'সমন্বয়ক',
       myOutbox: 'আমার আউটবক্স',
     },
+    experience: {
+      needHelp: 'আমার সাহায্য প্রয়োজন',
+      needHelpSub: 'নাগরিক মোড · দ্রুত SOS, বিপদ সতর্কতা, আশ্রয়কেন্দ্র ও অফলাইন আউটবক্স',
+      wantHelp: 'আমি সাহায্য করতে চাই',
+      wantHelpSub: 'NGO / স্বেচ্ছাসেবক মোড · যাচাইকৃত প্রয়োজন, দায়িত্ব গ্রহণ ও ত্রাণ কার্যক্রম',
+      citizenMode: 'নাগরিক মোড',
+      ngoMode: 'NGO / স্বেচ্ছাসেবক মোড',
+      reliefOps: 'ত্রাণ কার্যক্রম',
+      shortReliefOps: 'ত্রাণ কাজ',
+      quickSos: 'দ্রুত SOS (১-ধাপ)',
+      detailedReport: 'বিস্তারিত অনুরোধ (৩-ধাপ)',
+      adminSeparator: 'প্রশাসন',
+    },
     controls: {
       allNeDistricts: 'সকল উত্তর-পূর্ব জেলা',
       online: 'অনলাইন',
       offline: 'অফলাইন',
-      simulateOffline: 'অফলাইন পরীক্ষা',
-      offlineTestOn: 'অফলাইন পরীক্ষা: চালু',
+      simulateOffline: 'ডেমো: অফলাইন সিমুলেট করুন',
+      offlineTestOn: 'ডেমো অফলাইন: চালু',
       switchToLight: 'লাইট মোডে যান',
       switchToDark: 'ডার্ক মোডে যান',
-      syncedPrefix: 'সিঙ্ক হয়েছে',
+      syncedPrefix: 'সর্বশেষ সিঙ্ক:',
       requestHelp: 'সাহায্য চান',
       languageLabel: 'ভাষা',
     },
@@ -755,8 +820,8 @@ export const TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
       requestUrgentHelp: 'জরুরি সাহায্য চান',
     },
     offlineBanner: {
-      simulatedTitle: 'অফলাইন মোড (প্রোটোটাইপ পরীক্ষা)',
-      actualTitle: 'আপনি বর্তমানে অফলাইনে আছেন',
+      simulatedTitle: 'সিমুলেটেড অফলাইন (ডেমো সহায়ক)',
+      actualTitle: 'ইন্টারনেট সংযোগ নেই',
       subtitle: 'ক্যাশ করা স্থানীয় তথ্য দেখানো হচ্ছে। নতুন রিপোর্ট আপনার ডিভাইসের আউটবক্সে সংরক্ষিত থাকবে এবং এসএমএস-এর মাধ্যমে পাঠানো যাবে।',
       goOnline: 'অনলাইনে যান',
       queuedSuffix: 'অপেক্ষমাণ',

@@ -30,6 +30,28 @@ export function formatRelativeAge(isoString: string): string {
   }
 }
 
+export function formatSyncAge(isoString: string): string {
+  try {
+    const diffMs = Math.max(0, Date.now() - new Date(isoString).getTime());
+    if (diffMs < 60_000) return 'just now';
+    const mins = Math.floor(diffMs / 60_000);
+    if (mins < 60) return `${mins} min ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hr ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} d ago`;
+  } catch {
+    return 'unknown';
+  }
+}
+
+export function createClientUuid(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `ne-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function isItemStale(isoString: string, explicitStale?: boolean, expiresAt?: string): boolean {
   if (explicitStale) return true;
   if (expiresAt) {

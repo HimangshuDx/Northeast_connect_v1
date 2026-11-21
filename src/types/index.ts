@@ -101,6 +101,7 @@ export interface CoordinatorNote {
 
 export interface CommunityReport {
   id: string;
+  clientUuid?: string;
   mode: ReportMode;
   districtId: string;
   districtName: string;
@@ -149,11 +150,14 @@ export interface EmergencyResource {
 
 export interface OutboxSubmission {
   id: string;
+  clientUuid: string;
   reportData: Omit<
     CommunityReport,
-    'id' | 'verificationStatus' | 'assistanceStatus' | 'confirmations' | 'internalNotes' | 'isDemo'
+    'id' | 'clientUuid' | 'verificationStatus' | 'assistanceStatus' | 'confirmations' | 'internalNotes' | 'isDemo'
   >;
   syncStatus: OutboxSyncStatus;
+  retryCount: number;
+  nextRetryAt?: string;
   createdAt: string;
   lastAttemptAt?: string;
   errorMessage?: string;
@@ -170,6 +174,7 @@ export interface AuditLogEntry {
     | 'ASSIGN_UNIT'
     | 'ADD_NOTE'
     | 'MERGE_REPORT'
+    | 'DELETE_REPORT'
     | 'UPDATE_CORRIDOR'
     | 'UPDATE_RESOURCE';
   targetLabel: string;
@@ -190,3 +195,42 @@ export interface ToastMessage {
   title: string;
   description?: string;
 }
+
+export type ExperienceMode = 'citizen' | 'ngo';
+
+export type NgoTaskStatus = 'PLEDGED' | 'EN_ROUTE' | 'ON_SITE' | 'RELIEF_DELIVERED';
+
+export type VolunteerAvailability = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
+
+export type NgoCapability =
+  | 'Boat Rescue'
+  | 'Medical Aid'
+  | 'Food & Water Distribution'
+  | 'Shelter & Evacuation'
+  | 'Road & Debris Support';
+
+export interface NgoAssignment {
+  id: string;
+  reportId: string;
+  volunteerName: string;
+  organization: string;
+  capability: NgoCapability;
+  taskStatus: NgoTaskStatus;
+  note: string;
+  acceptedAt: string;
+  updatedAt: string;
+  isDemo?: boolean;
+}
+
+export interface VolunteerProfile {
+  id: string;
+  name: string;
+  organization: string;
+  districtId: string;
+  capability: NgoCapability;
+  availability: VolunteerAvailability;
+  teamSize: number;
+  resourceInventory: string[];
+  updatedAt: string;
+}
+

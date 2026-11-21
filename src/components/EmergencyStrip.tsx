@@ -43,7 +43,7 @@ export const EmergencyStrip: React.FC = () => {
             <span>{t.emergencyStrip.call112Now}</span>
           </a>
           <Link
-            to="/report?mode=help"
+            to="/report?mode=sos"
             className="inline-flex min-h-[40px] items-center justify-center rounded-lg border border-white/30 bg-red-700/60 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white whitespace-nowrap shrink-0 dark:bg-red-900/80 dark:hover:bg-red-800"
           >
             {t.emergencyStrip.requestUrgentHelp}

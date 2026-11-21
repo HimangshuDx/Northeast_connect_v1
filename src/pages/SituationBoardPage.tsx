@@ -1,11 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpen,
   Building2,
   Clock,
   FileWarning,
+  HandHeart,
   HeartHandshake,
+  Inbox,
+  LifeBuoy,
+  PhoneCall,
   Search,
   ShieldAlert,
   Wrench,
@@ -15,8 +20,9 @@ import { CorridorCard } from '../components/CorridorCard';
 import { EmergencyStrip } from '../components/EmergencyStrip';
 import { EmptyState } from '../components/EmptyState';
 import { IncidentCard } from '../components/IncidentCard';
-import { InteractiveMap } from '../components/InteractiveMap';
 import { OfflineBanner } from '../components/OfflineBanner';
+import { RainfallIndicator } from '../components/RainfallIndicator';
+import { ResourceCard } from '../components/ResourceCard';
 import { SeverityBadge } from '../components/SeverityBadge';
 import { SkeletonCard } from '../components/SkeletonCard';
 import { StatusPill } from '../components/StatusPill';
@@ -25,6 +31,10 @@ import { useApp } from '../context/AppContext';
 import { NORTHEAST_DISTRICTS } from '../data/sampleData';
 import { formatRelativeAge, formatTimestamp, isItemStale } from '../utils/formatters';
 
+const InteractiveMap = lazy(() =>
+  import('../components/InteractiveMap').then((m) => ({ default: m.InteractiveMap }))
+);
+
 type CorridorFilter = 'all' | 'blocked' | 'caution' | 'passable';
 type ReportFilter = 'all' | 'HELP_REQUEST' | 'HAZARD';
 
@@ -32,10 +42,14 @@ export const SituationBoardPage: React.FC = () => {
   const {
     selectedDistrictId,
     setSelectedDistrictId,
+    setExperienceMode,
+    setIsOutboxOpen,
     advisories,
     corridors,
     reports,
     resources,
+    outbox,
+    ngoAssignments,
     confirmedReportIds,
     toggleConfirmReport,
     isLoading,
@@ -54,13 +68,21 @@ export const SituationBoardPage: React.FC = () => {
     [selectedDistrictId]
   );
 
-  const filteredAdvisories = useMemo(
-    () =>
+  const filteredAdvisories = useMemo(() => {
+    const base =
       selectedDistrictId === 'all'
         ? advisories
-        : advisories.filter((a) => a.districtId === selectedDistrictId),
-    [advisories, selectedDistrictId]
-  );
+        : advisories.filter((a) => a.districtId === selectedDistrictId);
+    // Prioritize verified, non-stale advisories first
+    return [...base].sort((a, b) => {
+      const aVerified = a.verificationStatus === 'VERIFIED' ? 0 : 1;
+      const bVerified = b.verificationStatus === 'VERIFIED' ? 0 : 1;
+      if (aVerified !== bVerified) return aVerified - bVerified;
+      const aStale = isItemStale(a.issuedAt, a.isStale, a.expiresAt) ? 1 : 0;
+      const bStale = isItemStale(b.issuedAt, b.isStale, b.expiresAt) ? 1 : 0;
+      return aStale - bStale;
+    });
+  }, [advisories, selectedDistrictId]);
 
   const districtCorridors = useMemo(
     () =>
@@ -132,6 +154,23 @@ export const SituationBoardPage: React.FC = () => {
     [resources, selectedDistrictId]
   );
 
+  const previewResources = useMemo(() => {
+    const rank: Record<string, number> = {
+      OPEN_AVAILABLE: 0,
+      NEAR_CAPACITY: 1,
+      FULL: 2,
+      TEMPORARILY_CLOSED: 3,
+      UNKNOWN: 4,
+    };
+    return [...districtResources]
+      .sort((a, b) => (rank[a.capacityStatus] ?? 9) - (rank[b.capacityStatus] ?? 9))
+      .slice(0, 4);
+  }, [districtResources]);
+
+  const queuedCount = outbox.filter(
+    (item) => item.syncStatus === 'PENDING' || item.syncStatus === 'FAILED'
+  ).length;
+
   const stats = useMemo(() => {
     const activeAdvCount = filteredAdvisories.filter(
       (a) => !isItemStale(a.issuedAt, a.isStale, a.expiresAt)
@@ -145,6 +184,12 @@ export const SituationBoardPage: React.FC = () => {
     const openHelpCount = districtReports.filter(
       (r) => r.mode === 'HELP_REQUEST' && r.assistanceStatus !== 'RESOLVED'
     ).length;
+    const verifiedHelpCount = districtReports.filter(
+      (r) =>
+        r.mode === 'HELP_REQUEST' &&
+        r.assistanceStatus !== 'RESOLVED' &&
+        r.verificationStatus === 'VERIFIED'
+    ).length;
     const availableResCount = districtResources.filter(
       (r) => r.capacityStatus === 'OPEN_AVAILABLE' || r.capacityStatus === 'NEAR_CAPACITY'
     ).length;
@@ -153,6 +198,7 @@ export const SituationBoardPage: React.FC = () => {
       activeAdvCount,
       blockedCount,
       openHelpCount,
+      verifiedHelpCount,
       availableResCount,
     };
   }, [filteredAdvisories, districtCorridors, districtReports, districtResources]);
@@ -199,7 +245,7 @@ export const SituationBoardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Permanent 112 Emergency Strip */}
+      {/* 1. Permanent 112 Emergency Strip */}
       <EmergencyStrip />
 
       {/* Offline Banner */}
@@ -224,6 +270,133 @@ export const SituationBoardPage: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* 2. Emergency Actions & Dual Audience Entry Gateway FIRST */}
+      <section aria-label="Emergency Actions and Mode Selection" className="grid gap-4 lg:grid-cols-12">
+        {/* Citizen Mode: I NEED HELP */}
+        <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/60 dark:bg-slate-900">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-600 text-white">
+                <LifeBuoy className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
+                  {t.experience.needHelp}
+                </p>
+                <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100">
+                  {t.experience.citizenMode}
+                </h3>
+              </div>
+            </div>
+            <p className="mt-2.5 text-sm text-slate-600 dark:text-slate-400">
+              {t.experience.needHelpSub}. Works offline via local Outbox and SMS sharing.
+            </p>
+          </div>
+
+          <div className="mt-4 space-y-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Link
+                to="/report?mode=sos"
+                onClick={() => setExperienceMode('citizen')}
+                className="inline-flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 whitespace-nowrap"
+              >
+                <HeartHandshake className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>{t.experience.quickSos}</span>
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+              </Link>
+
+              <Link
+                to="/report?mode=hazard"
+                onClick={() => setExperienceMode('citizen')}
+                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 whitespace-nowrap shrink-0"
+              >
+                <FileWarning className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
+                <span>{t.situationBoard.reportHazardBtn}</span>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Link
+                to="/resources"
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+              >
+                <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
+                <span>Nearby Shelters & Safety Guides</span>
+              </Link>
+              <Link
+                to="/resources#helplines"
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+              >
+                <PhoneCall className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
+                <span>Emergency Contacts</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsOutboxOpen(true)}
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+              >
+                <Inbox className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
+                <span>
+                  {t.nav.myOutbox} ({queuedCount})
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* NGO / Volunteer Mode: I WANT TO HELP */}
+        <div className="lg:col-span-5 flex flex-col justify-between rounded-xl border border-emerald-200 bg-white p-5 dark:border-emerald-900/60 dark:bg-slate-900">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                <HandHeart className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  {t.experience.wantHelp}
+                </p>
+                <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100">
+                  {t.experience.ngoMode}
+                </h3>
+              </div>
+            </div>
+
+            <p className="mt-2.5 text-sm text-slate-600 dark:text-slate-400">
+              {t.experience.wantHelpSub}.
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+              <span className="font-mono tabular-nums font-medium text-slate-900 dark:text-slate-200">
+                {stats.verifiedHelpCount} verified requests
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="font-mono tabular-nums">
+                {stats.openHelpCount} open needs
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="font-mono tabular-nums">
+                {ngoAssignments.length} volunteer pledges
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <Link
+              to="/ngo"
+              onClick={() => setExperienceMode('ngo')}
+              className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 whitespace-nowrap"
+            >
+              <HandHeart className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>Open {t.experience.reliefOps}</span>
+              <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            </Link>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Coordinates volunteer pledges separately from Coordinator Desk & 112 dispatch.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Situation Overview: 4 Stat Cards */}
       <section aria-label="Situation Overview">
@@ -291,40 +464,19 @@ export const SituationBoardPage: React.FC = () => {
         )}
       </section>
 
-      {/* Prominent Request Help CTA */}
-      <section
-        aria-label="Emergency Assistance Actions"
-        className="rounded-xl border border-blue-200 bg-blue-50/70 p-5 dark:border-blue-900/70 dark:bg-blue-950/35"
-      >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
-              {t.situationBoard.ctaHeadline}
-            </h2>
-            <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
-              {t.situationBoard.ctaSub}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <Link
-              to="/report?mode=help"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 whitespace-nowrap shrink-0"
-            >
-              <span>{t.emergencyStrip.requestUrgentHelp}</span>
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <Link
-              to="/report?mode=hazard"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 whitespace-nowrap shrink-0"
-            >
-              <FileWarning className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-              <span>{t.situationBoard.reportHazardBtn}</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Open-Meteo 3-Day Rainfall Indicator */}
+      <RainfallIndicator />
 
-      {/* Disaster Advisories */}
+      {/* 3. Regional Disaster Map (elevated before advisories & corridors) */}
+      <Suspense fallback={<SkeletonCard lines={4} />}>
+        <InteractiveMap
+          corridors={districtCorridors}
+          reports={districtReports}
+          resources={districtResources}
+        />
+      </Suspense>
+
+      {/* 4. Active Verified Advisories */}
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -409,7 +561,7 @@ export const SituationBoardPage: React.FC = () => {
         )}
       </section>
 
-      {/* Lifeline Corridor Board */}
+      {/* 5. Road and Corridor Conditions */}
       <section className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -541,14 +693,7 @@ export const SituationBoardPage: React.FC = () => {
         )}
       </section>
 
-      {/* Interactive Leaflet Map */}
-      <InteractiveMap
-        corridors={districtCorridors}
-        reports={districtReports}
-        resources={districtResources}
-      />
-
-      {/* Community Reports */}
+      {/* 6. Community Assistance Requests & Hazards */}
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -626,6 +771,43 @@ export const SituationBoardPage: React.FC = () => {
                 isConfirmedByUser={confirmedReportIds.includes(rep.id)}
                 onToggleConfirm={(id) => void toggleConfirmReport(id)}
               />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 7. Resource Availability Preview & Safety Guides */}
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {t.resourcesPage.directoryTitle}
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {t.resourcesPage.directorySub}
+            </p>
+          </div>
+          <Link
+            to="/resources"
+            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 whitespace-nowrap shrink-0"
+          >
+            <BookOpen className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+            <span>All Shelters, Helplines & Safety Guides</span>
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        </div>
+
+        {previewResources.length === 0 ? (
+          <EmptyState
+            title="No resource centers listed in this district"
+            description="View all districts to browse nearby relief camps, medical posts, and boat rescue points."
+            actionLabel="Open Full Directory"
+            onAction={() => setSelectedDistrictId('all')}
+          />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {previewResources.map((res) => (
+              <ResourceCard key={res.id} resource={res} />
             ))}
           </div>
         )}
