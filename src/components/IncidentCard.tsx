@@ -20,12 +20,11 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
 }) => {
   const { t } = useApp();
   return (
-    <article className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
+    <article className="ne-surface ne-card-hover flex flex-col justify-between rounded-xl border p-5">
       <div>
-        {/* Title leads card cleanly without badge sandwich */}
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium text-slate-500 dark:text-[#8295b3]">
               {report.mode === 'HELP_REQUEST' ? 'Urgent Help Request' : 'Community Hazard Report'}
               <span aria-hidden="true"> · </span>
               <span>{report.category}</span>
@@ -34,40 +33,40 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                 {formatRelativeAge(report.createdAt)}
               </span>
             </p>
-            <h3 className="mt-1 font-display text-base font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="mt-1 font-display text-base font-semibold text-slate-900 dark:text-[#e6edf7]">
               {report.locality}
             </h3>
           </div>
           <SeverityBadge severity={report.severity} />
         </div>
 
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-600 dark:text-[#9cb0cc]">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-[#6f83a3]" aria-hidden="true" />
           <span>
             {report.corridorOrBlock} · {report.districtName}
           </span>
         </p>
 
-        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
           {report.description}
         </p>
 
         {/* Unboxed metadata rows */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600 dark:text-[#9cb0cc]">
           <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
-            <Users className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+            <Users className="h-3.5 w-3.5 text-slate-400 dark:text-[#6f83a3]" aria-hidden="true" />
             <span>{report.affectedPeopleCount} affected</span>
           </span>
 
           {report.assistanceNeeds.length > 0 && (
             <span className="inline-flex items-center gap-1.5">
-              <HandHeart className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+              <HandHeart className="h-3.5 w-3.5 text-slate-400 dark:text-[#6f83a3]" aria-hidden="true" />
               <span>Needs: {report.assistanceNeeds.join(', ')}</span>
             </span>
           )}
 
           {report.vulnerabilityTags.length > 0 && (
-            <span className="text-amber-700 dark:text-amber-300 font-medium">
+            <span className="font-medium text-amber-700 dark:text-amber-300">
               Priority: {report.vulnerabilityTags.join(' · ')}
             </span>
           )}
@@ -82,7 +81,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
       </div>
 
       {/* Footer status & +1 Confirm */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3.5 dark:border-slate-800">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#dce4f0] pt-3.5 dark:border-[#1f3250]">
         <div className="flex flex-wrap items-center gap-2">
           <TrustBadge
             status={report.verificationStatus}
@@ -96,10 +95,10 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           type="button"
           onClick={() => onToggleConfirm(report.id)}
           aria-pressed={isConfirmedByUser}
-          className={`inline-flex min-h-[36px] cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 whitespace-nowrap shrink-0 ${
+          className={`ne-btn-press inline-flex min-h-[36px] cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 whitespace-nowrap shrink-0 ${
             isConfirmedByUser
-              ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500'
-              : 'border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+              ? 'border-blue-600 bg-blue-600 text-white shadow-xs hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500'
+              : 'border-[#c2cfe2] bg-[#f8fafd] text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]'
           }`}
         >
           <ThumbsUp className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

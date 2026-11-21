@@ -20,6 +20,7 @@ import { CorridorCard } from '../components/CorridorCard';
 import { EmergencyStrip } from '../components/EmergencyStrip';
 import { EmptyState } from '../components/EmptyState';
 import { IncidentCard } from '../components/IncidentCard';
+import { SegmentedTabs } from '../components/MotionPrimitives';
 import { OfflineBanner } from '../components/OfflineBanner';
 import { RainfallIndicator } from '../components/RainfallIndicator';
 import { ResourceCard } from '../components/ResourceCard';
@@ -73,7 +74,6 @@ export const SituationBoardPage: React.FC = () => {
       selectedDistrictId === 'all'
         ? advisories
         : advisories.filter((a) => a.districtId === selectedDistrictId);
-    // Prioritize verified, non-stale advisories first
     return [...base].sort((a, b) => {
       const aVerified = a.verificationStatus === 'VERIFIED' ? 0 : 1;
       const bVerified = b.verificationStatus === 'VERIFIED' ? 0 : 1;
@@ -203,20 +203,33 @@ export const SituationBoardPage: React.FC = () => {
     };
   }, [filteredAdvisories, districtCorridors, districtReports, districtResources]);
 
+  const corridorTabItems = [
+    { key: 'all', label: t.situationBoard.all },
+    { key: 'blocked', label: t.situationBoard.blockedClosed },
+    { key: 'caution', label: t.situationBoard.cautionUnknown },
+    { key: 'passable', label: t.situationBoard.passable },
+  ] as const;
+
+  const reportTabItems = [
+    { key: 'all', label: t.situationBoard.allReports },
+    { key: 'HELP_REQUEST', label: t.situationBoard.helpRequestsOnly },
+    { key: 'HAZARD', label: t.situationBoard.hazardsOnly },
+  ] as const;
+
   return (
     <div className="space-y-6">
       {/* Page Title & District Mobile Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
             {t.tagline}
           </p>
-          <h2 className="mt-0.5 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 text-balance">
+          <h2 className="mt-0.5 font-display text-2xl font-bold tracking-tight text-[#102341] dark:text-[#eef2f7] text-balance">
             {t.situationBoard.heading}
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-[#9cb0cc]">
             {t.situationBoard.focusArea}:{' '}
-            <span className="font-medium text-slate-900 dark:text-slate-200">
+            <span className="font-medium text-slate-900 dark:text-[#e6edf7]">
               {activeDistrict.id === 'all' ? t.controls.allNeDistricts : activeDistrict.name}
             </span>
             {activeDistrict.id !== 'all' ? `, ${activeDistrict.state}` : ''}
@@ -232,7 +245,7 @@ export const SituationBoardPage: React.FC = () => {
               id="mobile-district-select"
               value={selectedDistrictId}
               onChange={(e) => setSelectedDistrictId(e.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              className="ne-input h-10 w-full rounded-lg border px-3 text-xs font-medium"
             >
               {NORTHEAST_DISTRICTS.map((dist) => (
                 <option key={dist.id} value={dist.id}>
@@ -255,7 +268,7 @@ export const SituationBoardPage: React.FC = () => {
       {loadError && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-200 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="h-5 w-5 shrink-0" />
@@ -264,7 +277,7 @@ export const SituationBoardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => void refreshData()}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+            className="ne-btn-press rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
           >
             Retry Load
           </button>
@@ -274,22 +287,22 @@ export const SituationBoardPage: React.FC = () => {
       {/* 2. Emergency Actions & Dual Audience Entry Gateway FIRST */}
       <section aria-label="Emergency Actions and Mode Selection" className="grid gap-4 lg:grid-cols-12">
         {/* Citizen Mode: I NEED HELP */}
-        <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/60 dark:bg-slate-900">
+        <div className="ne-surface lg:col-span-7 flex flex-col justify-between rounded-xl border border-red-200/90 p-5 dark:border-red-500/30">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-600 text-white">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-600 text-white shadow-xs">
                 <LifeBuoy className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
                   {t.experience.needHelp}
                 </p>
-                <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="font-display text-base font-bold text-slate-900 dark:text-[#eef2f7]">
                   {t.experience.citizenMode}
                 </h3>
               </div>
             </div>
-            <p className="mt-2.5 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-2.5 text-sm text-slate-600 dark:text-[#b7c6dc]">
               {t.experience.needHelpSub}. Works offline via local Outbox and SMS sharing.
             </p>
           </div>
@@ -299,7 +312,7 @@ export const SituationBoardPage: React.FC = () => {
               <Link
                 to="/report?mode=sos"
                 onClick={() => setExperienceMode('citizen')}
-                className="inline-flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
               >
                 <HeartHandshake className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>{t.experience.quickSos}</span>
@@ -309,7 +322,7 @@ export const SituationBoardPage: React.FC = () => {
               <Link
                 to="/report?mode=hazard"
                 onClick={() => setExperienceMode('citizen')}
-                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 whitespace-nowrap shrink-0"
+                className="ne-btn-press inline-flex min-h-[46px] items-center justify-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
               >
                 <FileWarning className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
                 <span>{t.situationBoard.reportHazardBtn}</span>
@@ -319,14 +332,14 @@ export const SituationBoardPage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <Link
                 to="/resources"
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
-                <span>Nearby Shelters & Safety Guides</span>
+                <span>Nearby Shelters &amp; Safety Guides</span>
               </Link>
               <Link
                 to="/resources#helplines"
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <PhoneCall className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
                 <span>Emergency Contacts</span>
@@ -334,7 +347,7 @@ export const SituationBoardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsOutboxOpen(true)}
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:bg-slate-800 whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <Inbox className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
                 <span>
@@ -346,28 +359,28 @@ export const SituationBoardPage: React.FC = () => {
         </div>
 
         {/* NGO / Volunteer Mode: I WANT TO HELP */}
-        <div className="lg:col-span-5 flex flex-col justify-between rounded-xl border border-emerald-200 bg-white p-5 dark:border-emerald-900/60 dark:bg-slate-900">
+        <div className="ne-surface lg:col-span-5 flex flex-col justify-between rounded-xl border border-emerald-200/90 p-5 dark:border-emerald-500/30">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
                 <HandHeart className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                   {t.experience.wantHelp}
                 </p>
-                <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="font-display text-base font-bold text-slate-900 dark:text-[#eef2f7]">
                   {t.experience.ngoMode}
                 </h3>
               </div>
             </div>
 
-            <p className="mt-2.5 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-2.5 text-sm text-slate-600 dark:text-[#b7c6dc]">
               {t.experience.wantHelpSub}.
             </p>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
-              <span className="font-mono tabular-nums font-medium text-slate-900 dark:text-slate-200">
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-[#9cb0cc]">
+              <span className="font-mono tabular-nums font-medium text-slate-900 dark:text-[#e6edf7]">
                 {stats.verifiedHelpCount} verified requests
               </span>
               <span aria-hidden="true">·</span>
@@ -385,14 +398,14 @@ export const SituationBoardPage: React.FC = () => {
             <Link
               to="/ngo"
               onClick={() => setExperienceMode('ngo')}
-              className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 whitespace-nowrap"
+              className="ne-btn-press inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-emerald-700 whitespace-nowrap"
             >
               <HandHeart className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>Open {t.experience.reliefOps}</span>
               <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
             </Link>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Coordinates volunteer pledges separately from Coordinator Desk & 112 dispatch.
+            <p className="text-[11px] text-slate-500 dark:text-[#8295b3]">
+              Coordinates volunteer pledges separately from Coordinator Desk &amp; 112 dispatch.
             </p>
           </div>
         </div>
@@ -409,54 +422,54 @@ export const SituationBoardPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+            <div className="ne-surface ne-card-hover rounded-xl border p-4">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-[#9cb0cc]">
                 <span>{t.situationBoard.activeAdvisories}</span>
                 <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
               </div>
-              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-slate-100">
+              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-[#eef2f7]">
                 {stats.activeAdvCount}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8295b3]">
                 {t.situationBoard.activeAdvisoriesSub}
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+            <div className="ne-surface ne-card-hover rounded-xl border p-4">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-[#9cb0cc]">
                 <span>{t.situationBoard.blockedCorridors}</span>
                 <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" aria-hidden="true" />
               </div>
-              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-slate-100">
+              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-[#eef2f7]">
                 {stats.blockedCount}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8295b3]">
                 {t.situationBoard.blockedCorridorsSub}
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+            <div className="ne-surface ne-card-hover rounded-xl border p-4">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-[#9cb0cc]">
                 <span>{t.situationBoard.openHelpRequests}</span>
                 <HeartHandshake className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               </div>
-              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-slate-100">
+              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-[#eef2f7]">
                 {stats.openHelpCount}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8295b3]">
                 {t.situationBoard.openHelpRequestsSub}
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+            <div className="ne-surface ne-card-hover rounded-xl border p-4">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-[#9cb0cc]">
                 <span>{t.situationBoard.availableResources}</span>
                 <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
-              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-slate-100">
+              <p className="mt-2 font-mono text-3xl font-bold text-slate-900 tabular-nums dark:text-[#eef2f7]">
                 {stats.availableResCount}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#8295b3]">
                 {t.situationBoard.availableResourcesSub}
               </p>
             </div>
@@ -467,7 +480,7 @@ export const SituationBoardPage: React.FC = () => {
       {/* Open-Meteo 3-Day Rainfall Indicator */}
       <RainfallIndicator />
 
-      {/* 3. Regional Disaster Map (elevated before advisories & corridors) */}
+      {/* 3. Regional Disaster Map */}
       <Suspense fallback={<SkeletonCard lines={4} />}>
         <InteractiveMap
           corridors={districtCorridors}
@@ -480,10 +493,10 @@ export const SituationBoardPage: React.FC = () => {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.situationBoard.advisoriesTitle}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.situationBoard.advisoriesSub}
             </p>
           </div>
@@ -507,38 +520,38 @@ export const SituationBoardPage: React.FC = () => {
               const stale = isItemStale(adv.issuedAt, adv.isStale, adv.expiresAt);
               const borderBySeverity =
                 adv.severity === 'CRITICAL'
-                  ? 'border-red-300 dark:border-red-900/80'
+                  ? 'border-red-300/90 dark:border-red-500/35'
                   : adv.severity === 'WARNING'
-                  ? 'border-orange-300 dark:border-orange-900/80'
-                  : 'border-amber-300 dark:border-amber-900/80';
+                  ? 'border-orange-300/90 dark:border-orange-500/35'
+                  : 'border-amber-300/90 dark:border-amber-500/30';
 
               return (
                 <article
                   key={adv.id}
-                  className={`flex flex-col justify-between rounded-xl border bg-white p-5 dark:bg-slate-900 ${borderBySeverity}`}
+                  className={`ne-surface ne-card-hover flex flex-col justify-between rounded-xl border p-5 ${borderBySeverity}`}
                 >
                   <div>
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <p className="text-xs font-medium text-slate-500 dark:text-[#8295b3]">
                           {adv.districtName}
                           <span aria-hidden="true"> · </span>
                           <span>{adv.source}</span>
                         </p>
-                        <h3 className="mt-1 font-display text-base font-semibold text-slate-900 dark:text-slate-100">
+                        <h3 className="mt-1 font-display text-base font-semibold text-slate-900 dark:text-[#eef2f7]">
                           {adv.title}
                         </h3>
                       </div>
                       <SeverityBadge severity={adv.severity} />
                     </div>
 
-                    <p className="mt-2.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    <p className="mt-2.5 text-sm leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
                       {adv.instructions}
                     </p>
                   </div>
 
-                  <div className="mt-4 space-y-2.5 border-t border-slate-100 pt-3.5 dark:border-slate-800">
-                    <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-slate-500 tabular-nums dark:text-slate-400">
+                  <div className="mt-4 space-y-2.5 border-t border-[#dce4f0] pt-3.5 dark:border-[#1f3250]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-slate-500 tabular-nums dark:text-[#8295b3]">
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                         {t.situationBoard.issuedLabel}: {formatTimestamp(adv.issuedAt)}
@@ -562,13 +575,13 @@ export const SituationBoardPage: React.FC = () => {
       </section>
 
       {/* 5. Road and Corridor Conditions */}
-      <section className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
+      <section className="ne-surface overflow-hidden rounded-xl border">
+        <div className="flex flex-col gap-3 border-b border-[#dce4f0] px-5 py-4 dark:border-[#1f3250] lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.situationBoard.corridorsTitle}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.situationBoard.corridorsSub}
             </p>
           </div>
@@ -576,7 +589,7 @@ export const SituationBoardPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
               />
               <input
@@ -585,33 +598,17 @@ export const SituationBoardPage: React.FC = () => {
                 onChange={(e) => setCorridorSearch(e.target.value)}
                 placeholder={t.situationBoard.searchCorridorsPlaceholder}
                 aria-label="Search lifeline corridors"
-                className="h-9 w-48 rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                className="ne-input h-9 w-48 rounded-lg border pl-8 pr-3 text-xs"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
-              {(
-                [
-                  ['all', t.situationBoard.all],
-                  ['blocked', t.situationBoard.blockedClosed],
-                  ['caution', t.situationBoard.cautionUnknown],
-                  ['passable', t.situationBoard.passable],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setCorridorFilter(key)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-                    corridorFilter === key
-                      ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-900 dark:text-slate-100'
-                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs
+              items={corridorTabItems}
+              value={corridorFilter}
+              onChange={setCorridorFilter}
+              layoutId="corridor-filter-tabs"
+              ariaLabel="Filter corridors by status"
+            />
           </div>
         </div>
 
@@ -632,7 +629,7 @@ export const SituationBoardPage: React.FC = () => {
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400">
+                <thead className="border-b border-[#dce4f0] bg-[#f8fafd] text-xs font-semibold text-slate-600 dark:border-[#1f3250] dark:bg-[#0d1728] dark:text-[#8295b3]">
                   <tr>
                     <th className="px-5 py-3">{t.situationBoard.tableCorridor}</th>
                     <th className="px-4 py-3">{t.situationBoard.tableDistrict}</th>
@@ -642,30 +639,30 @@ export const SituationBoardPage: React.FC = () => {
                     <th className="px-5 py-3">{t.situationBoard.tableTrust}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-[#dce4f0] dark:divide-[#1f3250]">
                   {filteredCorridors.map((cor) => (
                     <tr
                       key={cor.id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      className="transition-colors hover:bg-[#f8fafd] dark:hover:bg-[#142239]/70"
                     >
                       <td className="px-5 py-3.5 align-top">
-                        <p className="font-medium text-slate-900 dark:text-slate-100">
+                        <p className="font-medium text-slate-900 dark:text-[#e6edf7]">
                           {cor.name}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-[#8295b3]">
                           {cor.corridorType}
                         </p>
                       </td>
-                      <td className="px-4 py-3.5 align-top text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      <td className="px-4 py-3.5 align-top text-xs text-slate-700 dark:text-[#b7c6dc] whitespace-nowrap">
                         {cor.districtName}
                       </td>
                       <td className="px-4 py-3.5 align-top">
                         <StatusPill kind="corridor" value={cor.status} />
                       </td>
-                      <td className="px-4 py-3.5 align-top text-xs leading-relaxed text-slate-600 dark:text-slate-300 max-w-sm">
+                      <td className="px-4 py-3.5 align-top text-xs leading-relaxed text-slate-600 dark:text-[#b7c6dc] max-w-sm">
                         {cor.advisoryNote}
                       </td>
-                      <td className="px-4 py-3.5 align-top font-mono text-xs text-slate-500 tabular-nums whitespace-nowrap dark:text-slate-400">
+                      <td className="px-4 py-3.5 align-top font-mono text-xs text-slate-500 tabular-nums whitespace-nowrap dark:text-[#8295b3]">
                         <span title={formatTimestamp(cor.lastConfirmedAt)}>
                           {formatRelativeAge(cor.lastConfirmedAt)}
                         </span>
@@ -697,10 +694,10 @@ export const SituationBoardPage: React.FC = () => {
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.situationBoard.reportsTitle}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.situationBoard.reportsSub}
             </p>
           </div>
@@ -708,7 +705,7 @@ export const SituationBoardPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
               />
               <input
@@ -717,32 +714,17 @@ export const SituationBoardPage: React.FC = () => {
                 onChange={(e) => setReportSearch(e.target.value)}
                 placeholder={t.situationBoard.searchReportsPlaceholder}
                 aria-label="Search community reports"
-                className="h-9 w-48 rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                className="ne-input h-9 w-48 rounded-lg border pl-8 pr-3 text-xs"
               />
             </div>
 
-            <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
-              {(
-                [
-                  ['all', t.situationBoard.allReports],
-                  ['HELP_REQUEST', t.situationBoard.helpRequestsOnly],
-                  ['HAZARD', t.situationBoard.hazardsOnly],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setReportFilter(key)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-                    reportFilter === key
-                      ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-900 dark:text-slate-100'
-                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs
+              items={reportTabItems}
+              value={reportFilter}
+              onChange={setReportFilter}
+              layoutId="report-filter-tabs"
+              ariaLabel="Filter community reports"
+            />
           </div>
         </div>
 
@@ -780,19 +762,19 @@ export const SituationBoardPage: React.FC = () => {
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.resourcesPage.directoryTitle}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.resourcesPage.directorySub}
             </p>
           </div>
           <Link
             to="/resources"
-            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 whitespace-nowrap shrink-0"
+            className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
           >
             <BookOpen className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
-            <span>All Shelters, Helplines & Safety Guides</span>
+            <span>All Shelters, Helplines &amp; Safety Guides</span>
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </div>

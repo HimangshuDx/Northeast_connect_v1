@@ -9,18 +9,18 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({ lines = 3 }) => {
     <div
       aria-busy="true"
       aria-label="Loading content"
-      className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+      className="rounded-xl border ne-surface p-5"
     >
-      <div className="animate-pulse space-y-3">
+      <div className="space-y-3">
         <div className="flex items-center justify-between gap-4">
-          <div className="h-4 w-2/5 rounded bg-slate-200 dark:bg-slate-800" />
-          <div className="h-4 w-20 rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="h-4 w-2/5 rounded ne-skeleton-bar" />
+          <div className="h-4 w-20 rounded ne-skeleton-bar" />
         </div>
-        <div className="h-5 w-3/4 rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="h-5 w-3/4 rounded ne-skeleton-bar" />
         {Array.from({ length: lines }).map((_, idx) => (
           <div
             key={idx}
-            className={`h-3.5 rounded bg-slate-200 dark:bg-slate-800 ${
+            className={`h-3.5 rounded ne-skeleton-bar ${
               idx === lines - 1 ? 'w-4/6' : 'w-full'
             }`}
           />

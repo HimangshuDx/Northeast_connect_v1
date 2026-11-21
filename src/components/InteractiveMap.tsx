@@ -4,6 +4,7 @@ import { Layers, List, Map as MapIcon, MapPin, AlertTriangle } from 'lucide-reac
 import { CommunityReport, EmergencyResource, LifelineCorridor } from '../types';
 import { NORTHEAST_DISTRICTS } from '../data/sampleData';
 import { useApp } from '../context/AppContext';
+import { SegmentedTabs, ViewCrossfade } from './MotionPrimitives';
 
 interface InteractiveMapProps {
   corridors: LifelineCorridor[];
@@ -191,42 +192,33 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   }, [activeReports, corridors, resources, layerFilter, showListFallback]);
 
+  const layerItems = [
+    { key: 'all', label: 'All Layers' },
+    { key: 'incidents', label: 'Incidents' },
+    { key: 'corridors', label: 'Corridors' },
+    { key: 'resources', label: 'Camps & Medical' },
+  ] as const;
+
   return (
-    <section className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
+    <section className="ne-surface overflow-hidden rounded-xl border">
+      <div className="flex flex-col gap-3 border-b border-[#dce4f0] px-5 py-4 dark:border-[#1f3250] lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Regional Map & Key Locations
+          <h2 className="font-display text-lg font-semibold text-slate-900 dark:text-[#e6edf7]">
+            Regional Map &amp; Key Locations
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-[#8295b3]">
             Sample coordinates via OpenStreetMap · Automatically falls back to offline directory when tiles are unavailable
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-wrap items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
-            {(
-              [
-                ['all', 'All Layers'],
-                ['incidents', 'Incidents'],
-                ['corridors', 'Corridors'],
-                ['resources', 'Camps & Medical'],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setLayerFilter(key)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-                  layerFilter === key
-                    ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-900 dark:text-slate-100'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <SegmentedTabs
+            items={layerItems}
+            value={layerFilter}
+            onChange={setLayerFilter}
+            layoutId="map-layer-tabs"
+            ariaLabel="Map layer filters"
+          />
 
           <button
             type="button"
@@ -238,7 +230,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 setForceListFallback((prev) => !prev);
               }
             }}
-            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 whitespace-nowrap shrink-0"
+            className="ne-btn-press inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
           >
             {showListFallback ? (
               <>
@@ -256,9 +248,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-100 bg-slate-50/80 px-5 py-2.5 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-[#dce4f0] bg-[#f8fafd] px-5 py-2.5 text-xs text-slate-700 dark:border-[#1f3250] dark:bg-[#0d1728] dark:text-[#b7c6dc]">
         <span className="inline-flex items-center gap-1.5 font-medium">
-          <Layers className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+          <Layers className="h-3.5 w-3.5 text-slate-400 dark:text-[#8295b3]" aria-hidden="true" />
           Legend:
         </span>
         <span className="inline-flex items-center gap-1.5">
@@ -293,93 +285,95 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </span>
       </div>
 
-      {showListFallback ? (
-        <div className="p-5">
-          <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-900 dark:border-amber-800/70 dark:bg-amber-950/50 dark:text-amber-200">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            <div>
-              <p className="font-semibold">
-                {!isOnline
-                  ? 'Offline Location List Active'
-                  : tileFailed
-                  ? 'Map tiles could not load — Showing Offline Location Directory'
-                  : 'Showing Structured Location Directory'}
-              </p>
-              <p className="mt-0.5 opacity-90">
-                All coordinates and landmarks remain accessible below without external map tiles.
-              </p>
+      <ViewCrossfade viewKey={showListFallback ? 'list' : 'map'}>
+        {showListFallback ? (
+          <div className="p-5">
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-amber-200/90 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="font-semibold">
+                  {!isOnline
+                    ? 'Offline Location List Active'
+                    : tileFailed
+                    ? 'Map tiles could not load — Showing Offline Location Directory'
+                    : 'Showing Structured Location Directory'}
+                </p>
+                <p className="mt-0.5 opacity-90">
+                  All coordinates and landmarks remain accessible below without external map tiles.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {(layerFilter === 'all' || layerFilter === 'incidents') &&
+                activeReports.map((rep) => (
+                  <div
+                    key={`loc-${rep.id}`}
+                    className="rounded-xl border border-[#dce4f0] bg-[#f8fafd] p-3 dark:border-[#1f3250] dark:bg-[#142239]"
+                  >
+                    <p className="text-[11px] font-semibold text-red-700 dark:text-red-300">
+                      Incident · {rep.category}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-[#e6edf7]">
+                      {rep.locality}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums dark:text-[#8295b3]">
+                      <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      <span>
+                        {rep.districtName} ({rep.coordinates?.lat.toFixed(4)},{' '}
+                        {rep.coordinates?.lng.toFixed(4)})
+                      </span>
+                    </p>
+                  </div>
+                ))}
+
+              {(layerFilter === 'all' || layerFilter === 'corridors') &&
+                corridors.map((cor) => (
+                  <div
+                    key={`loc-${cor.id}`}
+                    className="rounded-xl border border-[#dce4f0] bg-[#f8fafd] p-3 dark:border-[#1f3250] dark:bg-[#142239]"
+                  >
+                    <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                      Corridor · {cor.status.replace('_', ' ')}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-[#e6edf7]">
+                      {cor.name}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums dark:text-[#8295b3]">
+                      <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      <span>
+                        {cor.districtName} ({cor.lat.toFixed(4)}, {cor.lng.toFixed(4)})
+                      </span>
+                    </p>
+                  </div>
+                ))}
+
+              {(layerFilter === 'all' || layerFilter === 'resources') &&
+                resources.map((res) => (
+                  <div
+                    key={`loc-${res.id}`}
+                    className="rounded-xl border border-[#dce4f0] bg-[#f8fafd] p-3 dark:border-[#1f3250] dark:bg-[#142239]"
+                  >
+                    <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                      {res.category} · {res.capacityStatus.replace('_', ' ')}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-[#e6edf7]">
+                      {res.name}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums dark:text-[#8295b3]">
+                      <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      <span>
+                        {res.districtName} ({res.lat.toFixed(4)}, {res.lng.toFixed(4)})
+                      </span>
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
-
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {(layerFilter === 'all' || layerFilter === 'incidents') &&
-              activeReports.map((rep) => (
-                <div
-                  key={`loc-${rep.id}`}
-                  className="rounded-lg border border-slate-200 p-3 dark:border-slate-800"
-                >
-                  <p className="text-[11px] font-semibold text-red-700 dark:text-red-400">
-                    Incident · {rep.category}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    {rep.locality}
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums">
-                    <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    <span>
-                      {rep.districtName} ({rep.coordinates?.lat.toFixed(4)},{' '}
-                      {rep.coordinates?.lng.toFixed(4)})
-                    </span>
-                  </p>
-                </div>
-              ))}
-
-            {(layerFilter === 'all' || layerFilter === 'corridors') &&
-              corridors.map((cor) => (
-                <div
-                  key={`loc-${cor.id}`}
-                  className="rounded-lg border border-slate-200 p-3 dark:border-slate-800"
-                >
-                  <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
-                    Corridor · {cor.status.replace('_', ' ')}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    {cor.name}
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums">
-                    <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    <span>
-                      {cor.districtName} ({cor.lat.toFixed(4)}, {cor.lng.toFixed(4)})
-                    </span>
-                  </p>
-                </div>
-              ))}
-
-            {(layerFilter === 'all' || layerFilter === 'resources') &&
-              resources.map((res) => (
-                <div
-                  key={`loc-${res.id}`}
-                  className="rounded-lg border border-slate-200 p-3 dark:border-slate-800"
-                >
-                  <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                    {res.category} · {res.capacityStatus.replace('_', ' ')}
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    {res.name}
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 font-mono text-xs text-slate-500 tabular-nums">
-                    <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    <span>
-                      {res.districtName} ({res.lat.toFixed(4)}, {res.lng.toFixed(4)})
-                    </span>
-                  </p>
-                </div>
-              ))}
-          </div>
-        </div>
-      ) : (
-        <div ref={mapContainerRef} className="h-[380px] w-full rounded-b-xl" />
-      )}
+        ) : (
+          <div ref={mapContainerRef} className="h-[380px] w-full rounded-b-xl" />
+        )}
+      </ViewCrossfade>
     </section>
   );
 };

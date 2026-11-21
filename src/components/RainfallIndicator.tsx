@@ -30,7 +30,7 @@ function classifyRainfall(mm: number): {
       level: 'High',
       label: 'High (>80 mm)',
       classes:
-        'border-red-200 bg-red-50 text-red-900 dark:border-red-800/70 dark:bg-red-950/50 dark:text-red-200',
+        'border-red-200/90 bg-red-50/90 text-red-900 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-200',
       Icon: CloudLightning,
     };
   }
@@ -39,7 +39,7 @@ function classifyRainfall(mm: number): {
       level: 'Medium',
       label: 'Medium (30–80 mm)',
       classes:
-        'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/70 dark:bg-amber-950/50 dark:text-amber-200',
+        'border-amber-200/90 bg-amber-50/90 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/12 dark:text-amber-200',
       Icon: CloudRain,
     };
   }
@@ -47,7 +47,7 @@ function classifyRainfall(mm: number): {
     level: 'Low',
     label: 'Low (<30 mm)',
     classes:
-      'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800/70 dark:bg-emerald-950/50 dark:text-emerald-200',
+      'border-emerald-200/90 bg-emerald-50/85 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200',
     Icon: CloudDrizzle,
   };
 }
@@ -156,21 +156,21 @@ export const RainfallIndicator: React.FC = () => {
   return (
     <section
       aria-label="District Rainfall Indicator"
-      className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5"
+      className="ne-surface rounded-xl border p-4 sm:p-5"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
+          <h3 className="font-display text-base font-semibold text-slate-900 dark:text-[#e6edf7]">
             3-Day Rainfall Indicator — {displayDistrict}
           </h3>
-          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8295b3]">
             <Info className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span>Rainfall indicator from Open-Meteo. Not an official forecast.</span>
           </p>
         </div>
 
         {usingCacheFallback && data && (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 dark:border-amber-800/70 dark:bg-amber-950/50 dark:text-amber-200">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300/90 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/12 dark:text-amber-200">
             <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span>Cached {formatSyncAge(data.fetchedAt)}</span>
           </span>
@@ -178,7 +178,7 @@ export const RainfallIndicator: React.FC = () => {
       </div>
 
       {!data || data.days.length === 0 ? (
-        <p className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
+        <p className="mt-3 rounded-lg border ne-surface-subtle px-3.5 py-2.5 text-xs text-slate-600 dark:text-[#9cb0cc]">
           Offline or rainfall feed unavailable, and no cached rainfall reading exists for this district yet.
         </p>
       ) : (
@@ -189,7 +189,7 @@ export const RainfallIndicator: React.FC = () => {
             return (
               <div
                 key={day.date}
-                className={`flex items-center justify-between rounded-lg border px-3.5 py-2.5 ${cls.classes}`}
+                className={`flex items-center justify-between rounded-xl border px-3.5 py-2.5 ${cls.classes}`}
               >
                 <div>
                   <p className="text-xs font-medium opacity-85">{formatDayLabel(day.date, idx)}</p>

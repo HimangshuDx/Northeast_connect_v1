@@ -11,6 +11,7 @@ import {
 import { useLocation } from 'react-router-dom';
 import { EmergencyStrip } from '../components/EmergencyStrip';
 import { EmptyState } from '../components/EmptyState';
+import { SegmentedTabs, ViewCrossfade } from '../components/MotionPrimitives';
 import { OfflineBanner } from '../components/OfflineBanner';
 import { ResourceCard } from '../components/ResourceCard';
 import { SkeletonCard } from '../components/SkeletonCard';
@@ -43,6 +44,11 @@ export const ResourcesGuidesPage: React.FC = () => {
     { key: 'Boat Rescue Points', label: t.resourcesPage.boatRescue },
   ];
 
+  const languageTabs = (Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => ({
+    key: code,
+    label: LANGUAGE_LABELS[code].native,
+  }));
+
   const filteredResources = useMemo(() => {
     return resources.filter((res) => {
       if (selectedDistrictId !== 'all' && res.districtId !== selectedDistrictId) return false;
@@ -73,10 +79,10 @@ export const ResourcesGuidesPage: React.FC = () => {
     <div className="space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-[#102341] dark:text-[#eef2f7]">
             {t.resourcesPage.heading}
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-[#9cb0cc]">
             {t.resourcesPage.subtext}
           </p>
         </div>
@@ -90,10 +96,10 @@ export const ResourcesGuidesPage: React.FC = () => {
       <section className="space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.resourcesPage.directoryTitle}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.resourcesPage.directorySub}
             </p>
           </div>
@@ -101,7 +107,7 @@ export const ResourcesGuidesPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
               />
               <input
@@ -110,29 +116,22 @@ export const ResourcesGuidesPage: React.FC = () => {
                 onChange={(e) => setResourceSearch(e.target.value)}
                 placeholder={t.resourcesPage.searchPlaceholder}
                 aria-label="Search emergency resources"
-                className="h-9 w-56 rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                className="ne-input h-9 w-56 rounded-lg border pl-8 pr-3 text-xs"
               />
             </div>
           </div>
         </div>
 
         {/* Category Filter Bar */}
-        <div className="flex flex-wrap gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 dark:border-slate-800 dark:bg-slate-900">
-          {categoryTabs.map((cat) => (
-            <button
-              key={cat.key}
-              type="button"
-              onClick={() => setCategoryFilter(cat.key)}
-              className={`min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-                categoryFilter === cat.key
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs
+          items={categoryTabs}
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+          layoutId="resource-category-tabs"
+          tone="blue"
+          size="md"
+          ariaLabel="Filter emergency resources by category"
+        />
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -162,10 +161,10 @@ export const ResourcesGuidesPage: React.FC = () => {
       {/* Emergency Helpline Cards */}
       <section id="helplines" className="space-y-4 scroll-mt-20">
         <div>
-          <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
             {t.resourcesPage.helplinesTitle}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-[#8295b3]">
             {t.resourcesPage.helplinesSub}
           </p>
         </div>
@@ -174,23 +173,23 @@ export const ResourcesGuidesPage: React.FC = () => {
           {EMERGENCY_HELPLINES.map((line) => (
             <div
               key={line.id}
-              className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+              className="ne-surface ne-card-hover flex flex-col justify-between rounded-xl border p-4"
             >
               <div>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-medium text-slate-500 dark:text-[#8295b3]">
                   {line.coverage}
                 </p>
-                <h4 className="mt-0.5 font-display text-base font-semibold text-slate-900 dark:text-slate-100">
+                <h4 className="mt-0.5 font-display text-base font-semibold text-slate-900 dark:text-[#eef2f7]">
                   {line.name}
                 </h4>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-[#b7c6dc]">
                   {line.description}
                 </p>
               </div>
 
               <a
                 href={`tel:${line.number.replace(/[^+\d]/g, '')}`}
-                className="mt-4 inline-flex min-h-[40px] items-center justify-between rounded-lg border border-blue-200 bg-blue-50/80 px-3.5 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-blue-100 dark:border-blue-800/70 dark:bg-blue-950/50 dark:text-blue-200 dark:hover:bg-blue-900/60"
+                className="ne-btn-press mt-4 inline-flex min-h-[40px] items-center justify-between rounded-lg border border-blue-200 bg-blue-50/85 px-3.5 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-500/35 dark:bg-blue-500/14 dark:text-blue-200 dark:hover:bg-blue-500/22"
               >
                 <span className="inline-flex items-center gap-2">
                   <PhoneCall className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -206,40 +205,27 @@ export const ResourcesGuidesPage: React.FC = () => {
       </section>
 
       {/* Safety Guides Section with Language Switcher */}
-      <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-        <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
+      <section className="ne-surface rounded-xl border p-5 sm:p-6">
+        <div className="flex flex-col gap-4 border-b border-[#dce4f0] pb-4 dark:border-[#1f3250] lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="font-display text-lg font-semibold text-slate-900 dark:text-[#eef2f7]">
               {t.resourcesPage.guidesTitle}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-[#8295b3]">
               {t.resourcesPage.guidesSub}
             </p>
           </div>
 
           {/* Language Selector (synced with AppContext) */}
           <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-slate-400" aria-hidden="true" />
-            <div
-              role="group"
-              aria-label="Safety guide language"
-              className="flex flex-wrap items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800"
-            >
-              {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => setLanguage(code)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
-                    language === code
-                      ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-900 dark:text-slate-100'
-                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
-                  }`}
-                >
-                  {LANGUAGE_LABELS[code].native}
-                </button>
-              ))}
-            </div>
+            <Globe className="h-4 w-4 text-slate-400 dark:text-[#8295b3]" aria-hidden="true" />
+            <SegmentedTabs
+              items={languageTabs}
+              value={language}
+              onChange={setLanguage}
+              layoutId="guide-language-tabs"
+              ariaLabel="Safety guide language"
+            />
           </div>
         </div>
 
@@ -253,10 +239,10 @@ export const ResourcesGuidesPage: React.FC = () => {
                 key={guide.id}
                 type="button"
                 onClick={() => setActiveGuideId(guide.id)}
-                className={`inline-flex min-h-[42px] items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                className={`ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold whitespace-nowrap shrink-0 ${
                   active
-                    ? 'border-blue-600 bg-blue-600 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+                    ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                    : 'border-[#dce4f0] bg-[#f8fafd] text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -266,9 +252,9 @@ export const ResourcesGuidesPage: React.FC = () => {
           })}
         </div>
 
-        {/* Active Guide Content */}
-        <div className="mt-5">
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+        {/* Active Guide Content with Crossfade */}
+        <ViewCrossfade viewKey={`${activeGuide.id}-${language}`} className="mt-5">
+          <p className="text-sm text-slate-700 dark:text-[#b7c6dc]">
             {activeGuide.summary[language]}
           </p>
 
@@ -285,7 +271,7 @@ export const ResourcesGuidesPage: React.FC = () => {
               return (
                 <div
                   key={phaseKey}
-                  className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-950/50"
+                  className="rounded-xl border ne-surface-subtle p-4"
                 >
                   <h4 className={`font-display text-sm font-bold ${badgeStyles}`}>
                     {phase.heading[language]}
@@ -294,10 +280,10 @@ export const ResourcesGuidesPage: React.FC = () => {
                     {phase.items[language].map((item, idx) => (
                       <li
                         key={idx}
-                        className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300"
+                        className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-700 dark:text-[#d5e0f0]"
                       >
                         <CheckSquare
-                          className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+                          className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-[#8295b3]"
                           aria-hidden="true"
                         />
                         <span>{item}</span>
@@ -308,7 +294,7 @@ export const ResourcesGuidesPage: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </ViewCrossfade>
       </section>
     </div>
   );

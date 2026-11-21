@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import {
   AlertCircle,
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
   Sun,
 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { NE_EASE, ViewCrossfade } from '../components/MotionPrimitives';
 import { useApp } from '../context/AppContext';
 import { LANGUAGE_LABELS } from '../data/safetyGuides';
 import {
@@ -138,11 +140,11 @@ export const OrganizationLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden ne-canvas">
       {/* Subtle Regional Topographic Backdrop Band */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[320px] overflow-hidden bg-slate-950"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[320px] overflow-hidden"
       >
         {!imageFailed && (
           <img
@@ -150,27 +152,29 @@ export const OrganizationLoginPage: React.FC = () => {
             alt="Northeast India river valley and topographic contour texture"
             referrerPolicy="no-referrer"
             onError={() => setImageFailed(true)}
-            className="h-full w-full object-cover object-center opacity-40"
+            className="h-full w-full object-cover object-center opacity-15 dark:opacity-25"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/85 to-slate-100 dark:to-slate-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#eaf0f8]/80 via-[#f4f7fb]/90 to-[#f4f7fb] dark:from-[#09111f]/75 dark:via-[#09111f]/88 dark:to-[#09111f]" />
       </div>
 
       {/* Top Portal Bar */}
-      <header className="relative z-10 border-b border-white/10 bg-slate-950/70 backdrop-blur-sm text-white">
+      <header className="relative z-10 border-b border-[#dce4f0] bg-white/85 backdrop-blur-md dark:border-[#1f3250] dark:bg-[#0d1728]/88">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3 min-w-0">
             <Link
               to="/"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-slate-900/80 px-2.5 text-xs font-medium text-slate-200 hover:bg-slate-800 whitespace-nowrap"
+              className="ne-btn-press ne-input inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap"
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.backToRoles}</span>
               <span className="sm:hidden">Roles</span>
             </Link>
             <div className="flex items-center gap-2 min-w-0">
-              <Compass className="h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
-              <span className="truncate font-display text-sm font-bold text-white">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#102341] text-white dark:bg-blue-600">
+                <Compass className="h-4 w-4" aria-hidden="true" />
+              </div>
+              <span className="truncate font-display text-sm font-bold text-slate-900 dark:text-[#e6edf7]">
                 {t.brandName}
               </span>
             </div>
@@ -179,7 +183,7 @@ export const OrganizationLoginPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <a
               href="tel:112"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white hover:bg-red-700 whitespace-nowrap"
+              className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
             >
               <PhoneCall className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.safetyBanner}</span>
@@ -190,10 +194,10 @@ export const OrganizationLoginPage: React.FC = () => {
               value={language}
               onChange={(e) => setLanguage(e.target.value as LanguageCode)}
               aria-label="Select application language"
-              className="h-9 rounded-lg border border-white/15 bg-slate-900/80 px-2 text-xs font-medium text-white"
+              className="ne-input h-9 rounded-lg border px-2 text-xs font-medium"
             >
               {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
-                <option key={code} value={code} className="bg-slate-900 text-white">
+                <option key={code} value={code}>
                   {LANGUAGE_LABELS[code].short}
                 </option>
               ))}
@@ -203,12 +207,12 @@ export const OrganizationLoginPage: React.FC = () => {
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
+              className="ne-btn-press ne-input inline-flex h-9 w-9 items-center justify-center rounded-lg border text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
             >
               {theme === 'dark' ? (
                 <Sun className="h-4 w-4 text-amber-400" aria-hidden="true" />
               ) : (
-                <Moon className="h-4 w-4" aria-hidden="true" />
+                <Moon className="h-4 w-4 text-slate-600" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -219,65 +223,90 @@ export const OrganizationLoginPage: React.FC = () => {
       <main className="relative z-10 mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:py-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start">
           {/* Left Context & Governance Column */}
-          <div className="space-y-5 lg:col-span-5">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/95 p-6 text-white shadow-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: NE_EASE }}
+            className="space-y-5 lg:col-span-5"
+          >
+            <div className="rounded-2xl border border-[#dce4f0] bg-[#edf2f8]/80 p-6 text-slate-900 shadow-xs dark:border-[#1f3250] dark:bg-[#101b2e] dark:text-[#e6edf7]">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
                 <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Authorized Access Only</span>
               </div>
 
-              <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl text-balance">
+              <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#102341] dark:text-[#eef2f7] sm:text-3xl text-balance">
                 {t.portal.loginHeading}
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-[#b7c6dc]">
                 {t.portal.loginSubtext}
               </p>
 
-              <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-950/40 p-3.5 text-xs text-amber-100">
-                <p className="font-semibold text-amber-200">{t.portal.restrictedNotice}</p>
-                <p className="mt-1 leading-relaxed text-amber-100/90">
+              <div className="mt-5 rounded-xl border border-amber-300/80 bg-amber-50/90 p-3.5 text-xs text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+                <p className="font-semibold text-amber-900 dark:text-amber-200">
+                  {t.portal.restrictedNotice}
+                </p>
+                <p className="mt-1 leading-relaxed text-amber-900/85 dark:text-amber-100/85">
                   Public self-registration is disabled. Accounts and roles are provisioned and verified by authorized disaster response administrators.
                 </p>
               </div>
 
-              <div className="mt-5 space-y-2.5 border-t border-slate-800 pt-4 text-xs text-slate-300">
-                <p className="font-semibold uppercase tracking-wider text-slate-400">
+              <div className="mt-5 space-y-2.5 border-t border-[#dce4f0] pt-4 text-xs text-slate-600 dark:border-[#1f3250] dark:text-[#b7c6dc]">
+                <p className="font-semibold uppercase tracking-wider text-slate-500 dark:text-[#8295b3]">
                   Role Access Scope
                 </p>
                 <div className="flex items-start gap-2">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                  <ShieldCheck
+                    className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+                    aria-hidden="true"
+                  />
                   <span>
-                    <strong className="text-white">NGO Member / Volunteer:</strong> Relief Operations Dashboard, verified help request feed, volunteer roster, and inventory.
+                    <strong className="text-slate-900 dark:text-[#eef2f7]">
+                      NGO Member / Volunteer:
+                    </strong>{' '}
+                    Relief Operations Dashboard, verified help request feed, volunteer roster, and inventory.
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
+                  <ShieldCheck
+                    className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400"
+                    aria-hidden="true"
+                  />
                   <span>
-                    <strong className="text-white">Coordinator / Admin:</strong> Coordinator Desk triage, report verification, corridor updates, and audit logs.
+                    <strong className="text-slate-900 dark:text-[#eef2f7]">
+                      Coordinator / Admin:
+                    </strong>{' '}
+                    Coordinator Desk triage, report verification, corridor updates, and audit logs.
                   </span>
                 </div>
               </div>
 
-              <div className="mt-5 border-t border-slate-800 pt-4">
+              <div className="mt-5 border-t border-[#dce4f0] pt-4 dark:border-[#1f3250]">
                 <Link
                   to="/board"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-300 hover:text-blue-200 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
                 >
                   <Globe className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>Looking for Citizen Alerts or Quick SOS? Continue as Citizen →</span>
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Authentication Card + Clearly Separated Demo Mode */}
-          <div className="space-y-6 lg:col-span-7">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, delay: 0.05, ease: NE_EASE }}
+            className="space-y-6 lg:col-span-7"
+          >
             {/* Active Session Notice if already signed in */}
             {authSession.isAuthenticated && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-100">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-300/90 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-500/35 dark:bg-emerald-500/12 dark:text-emerald-100">
                 <div>
                   <p className="font-semibold">
-                    Currently signed in as {authSession.fullName} ({getRoleDisplayLabel(authSession.role)})
+                    Currently signed in as {authSession.fullName} (
+                    {getRoleDisplayLabel(authSession.role)})
                   </p>
                   <p className="text-xs opacity-80">
                     {authSession.organizationName} {authSession.isDemo ? '· DEMO MODE' : ''}
@@ -287,7 +316,7 @@ export const OrganizationLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigate(resolveDestination(authSession.role))}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-700 px-3 text-xs font-semibold text-white hover:bg-emerald-800"
+                    className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"
                   >
                     <span>Continue</span>
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -295,7 +324,7 @@ export const OrganizationLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => void signOutOrganization()}
-                    className="inline-flex h-9 items-center rounded-lg border border-emerald-400/60 px-3 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900"
+                    className="ne-btn-press inline-flex h-9 items-center rounded-lg border border-emerald-400/60 px-3 text-xs font-semibold hover:bg-emerald-100 dark:border-emerald-500/40 dark:hover:bg-emerald-950/60"
                   >
                     Sign Out
                   </button>
@@ -304,9 +333,9 @@ export const OrganizationLoginPage: React.FC = () => {
             )}
 
             {/* Main Sign-In / Password Recovery Form Card */}
-            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+            <section className="ne-surface rounded-2xl border p-6 sm:p-8">
               {resetCallback && (
-                <div className="mb-4 flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 dark:border-blue-500/35 dark:bg-blue-500/12 dark:text-blue-200">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>
                     Password recovery session detected. Complete your reset via the link sent by Supabase Auth, then sign in below.
@@ -315,8 +344,8 @@ export const OrganizationLoginPage: React.FC = () => {
               )}
 
               {!supabaseConfigured && (
-                <div className="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300">
-                  <p className="font-semibold text-slate-900 dark:text-white">
+                <div className="mb-5 rounded-xl border ne-surface-subtle p-3.5 text-xs text-slate-700 dark:text-[#b7c6dc]">
+                  <p className="font-semibold text-slate-900 dark:text-[#eef2f7]">
                     Live Supabase Authentication is not configured in this build
                   </p>
                   <p className="mt-1">
@@ -327,217 +356,219 @@ export const OrganizationLoginPage: React.FC = () => {
                 </div>
               )}
 
-              {view === 'login' ? (
-                <form onSubmit={(e) => void handleSignInSubmit(e)} noValidate className="space-y-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">
-                      Organization Sign In
-                    </h2>
-                    <span className="font-mono text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                      {supabaseConfigured ? 'Supabase Auth Ready' : 'Local Evaluation Mode'}
-                    </span>
-                  </div>
-
-                  {errorMsg && (
-                    <div
-                      role="alert"
-                      className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
-                    >
-                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                      <span>{errorMsg}</span>
-                    </div>
-                  )}
-
-                  <div>
-                    <label
-                      htmlFor="org-email"
-                      className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                    >
-                      Organization Email
-                    </label>
-                    <div className="relative mt-1.5">
-                      <Mail
-                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                        aria-hidden="true"
-                      />
-                      <input
-                        id="org-email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="responder@organization.org"
-                        className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="org-password"
-                      className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                    >
-                      Password
-                    </label>
-                    <div className="relative mt-1.5">
-                      <KeyRound
-                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                        aria-hidden="true"
-                      />
-                      <input
-                        id="org-password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((s) => !s)}
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" aria-hidden="true" />
-                        ) : (
-                          <Eye className="h-4 w-4" aria-hidden="true" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                    <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                      <input
-                        id="remember-me"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600"
-                      />
-                      <span>Remember me on this trusted device</span>
-                    </label>
-
-                    <button
-                      type="button"
-                      onClick={() => setView('forgot')}
-                      className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
-                  >
-                    {submitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                    )}
-                    <span>{submitting ? 'Verifying Credentials...' : 'Sign In'}</span>
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={(e) => void handleRecoverySubmit(e)} noValidate className="space-y-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">
-                      Reset Organization Password
-                    </h2>
-                    <button
-                      type="button"
-                      onClick={() => setView('login')}
-                      className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
-                    >
-                      Back to Sign In
-                    </button>
-                  </div>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
-                    Enter your registered organization email. If Supabase Auth is configured, a password recovery link will be emailed to you.
-                  </p>
-
-                  {errorMsg && (
-                    <div
-                      role="alert"
-                      className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
-                    >
-                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                      <span>{errorMsg}</span>
-                    </div>
-                  )}
-
-                  {recoverySentTo && (
-                    <div className="flex items-start gap-2 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                      <span>
-                        Recovery request submitted for <strong>{recoverySentTo}</strong>. Check your inbox for the reset link.
+              <ViewCrossfade viewKey={view}>
+                {view === 'login' ? (
+                  <form onSubmit={(e) => void handleSignInSubmit(e)} noValidate className="space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="font-display text-xl font-bold text-slate-900 dark:text-[#eef2f7]">
+                        Organization Sign In
+                      </h2>
+                      <span className="font-mono text-[11px] font-medium text-slate-500 dark:text-[#8295b3]">
+                        {supabaseConfigured ? 'Supabase Auth Ready' : 'Local Evaluation Mode'}
                       </span>
                     </div>
-                  )}
 
-                  <div>
-                    <label
-                      htmlFor="recovery-email"
-                      className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                    >
-                      Organization Email
-                    </label>
-                    <div className="relative mt-1.5">
-                      <Mail
-                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                        aria-hidden="true"
-                      />
-                      <input
-                        id="recovery-email"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="responder@organization.org"
-                        className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-                      />
+                    {errorMsg && (
+                      <div
+                        role="alert"
+                        className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-200"
+                      >
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>{errorMsg}</span>
+                      </div>
+                    )}
+
+                    <div>
+                      <label
+                        htmlFor="org-email"
+                        className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-[#9cb0cc]"
+                      >
+                        Organization Email
+                      </label>
+                      <div className="relative mt-1.5">
+                        <Mail
+                          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="org-email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="responder@organization.org"
+                          className="ne-input h-11 w-full rounded-lg border pl-10 pr-3 text-sm"
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-                  >
-                    {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-                    <span>Send Recovery Link</span>
-                  </button>
-                </form>
-              )}
+                    <div>
+                      <label
+                        htmlFor="org-password"
+                        className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-[#9cb0cc]"
+                      >
+                        Password
+                      </label>
+                      <div className="relative mt-1.5">
+                        <KeyRound
+                          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="org-password"
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter your password"
+                          className="ne-input h-11 w-full rounded-lg border pl-10 pr-11 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((s) => !s)}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          className="ne-btn-press absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 hover:bg-[#edf2f8] hover:text-slate-800 dark:text-[#8295b3] dark:hover:bg-[#1e3152] dark:hover:text-[#e6edf7]"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" aria-hidden="true" />
+                          ) : (
+                            <Eye className="h-4 w-4" aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                      <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-slate-700 dark:text-[#b7c6dc]">
+                        <input
+                          id="remember-me"
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-[#2d456b]"
+                        />
+                        <span>Remember me on this trusted device</span>
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setView('forgot')}
+                        className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="ne-btn-press flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {submitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      <span>{submitting ? 'Verifying Credentials...' : 'Sign In'}</span>
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={(e) => void handleRecoverySubmit(e)} noValidate className="space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="font-display text-xl font-bold text-slate-900 dark:text-[#eef2f7]">
+                        Reset Organization Password
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => setView('login')}
+                        className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                      >
+                        Back to Sign In
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-slate-600 dark:text-[#b7c6dc]">
+                      Enter your registered organization email. If Supabase Auth is configured, a password recovery link will be emailed to you.
+                    </p>
+
+                    {errorMsg && (
+                      <div
+                        role="alert"
+                        className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-200"
+                      >
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>{errorMsg}</span>
+                      </div>
+                    )}
+
+                    {recoverySentTo && (
+                      <div className="flex items-start gap-2 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-950 dark:border-emerald-500/35 dark:bg-emerald-500/12 dark:text-emerald-200">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>
+                          Recovery request submitted for <strong>{recoverySentTo}</strong>. Check your inbox for the reset link.
+                        </span>
+                      </div>
+                    )}
+
+                    <div>
+                      <label
+                        htmlFor="recovery-email"
+                        className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-[#9cb0cc]"
+                      >
+                        Organization Email
+                      </label>
+                      <div className="relative mt-1.5">
+                        <Mail
+                          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="recovery-email"
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="responder@organization.org"
+                          className="ne-input h-11 w-full rounded-lg border pl-10 pr-3 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="ne-btn-press flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                      <span>Send Recovery Link</span>
+                    </button>
+                  </form>
+                )}
+              </ViewCrossfade>
             </section>
 
             {/* Clearly Separated Hackathon Demo Mode Section */}
             <section
               aria-label="Hackathon Demo Mode Accounts"
-              className="rounded-2xl border border-amber-300 bg-amber-50/70 p-5 dark:border-amber-800/80 dark:bg-amber-950/25"
+              className="rounded-2xl border border-amber-300/90 bg-amber-50/75 p-5 dark:border-amber-500/30 dark:bg-[#171923]"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-amber-200 px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-amber-950 dark:bg-amber-900 dark:text-amber-100">
+                  <span className="rounded-md bg-amber-200 px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-amber-950 dark:bg-amber-500/20 dark:text-amber-200">
                     DEMO MODE
                   </span>
-                  <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">
+                  <h3 className="font-display text-sm font-bold text-slate-900 dark:text-[#eef2f7]">
                     Hackathon Role Evaluation Accounts
                   </h3>
                 </div>
-                <span className="text-[11px] font-medium text-amber-900 dark:text-amber-200">
+                <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300/90">
                   Separated from live Supabase Auth
                 </span>
               </div>
 
-              <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
                 Use these clearly marked sample demo identities to evaluate role-based access control without creating real accounts. Live deployments use Supabase Auth +{' '}
                 <code className="font-mono">public.organization_profiles</code> (see{' '}
                 <code className="font-mono">docs/AUTH_SETUP.md</code>).
@@ -550,19 +581,19 @@ export const OrganizationLoginPage: React.FC = () => {
                     type="button"
                     disabled={submitting}
                     onClick={() => void handleDemoLaunch(acc.email)}
-                    className="flex flex-col justify-between rounded-xl border border-amber-300/90 bg-white p-3 text-left transition-colors hover:border-blue-500 hover:bg-blue-50/40 dark:border-amber-800/70 dark:bg-slate-900 dark:hover:border-blue-500 dark:hover:bg-slate-800"
+                    className="ne-card-hover ne-btn-press flex flex-col justify-between rounded-xl border border-amber-300/90 bg-white p-3 text-left hover:border-blue-500 hover:bg-blue-50/40 dark:border-[#2d456b] dark:bg-[#101b2e] dark:hover:border-blue-500/70 dark:hover:bg-[#172742]"
                   >
                     <div>
                       <span className="font-mono text-[11px] font-bold uppercase text-blue-700 dark:text-blue-400">
                         {acc.role}
                       </span>
-                      <p className="mt-1 truncate text-xs font-semibold text-slate-900 dark:text-white">
+                      <p className="mt-1 truncate text-xs font-semibold text-slate-900 dark:text-[#eef2f7]">
                         {acc.fullName}
                       </p>
-                      <p className="truncate font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                      <p className="truncate font-mono text-[10px] text-slate-500 dark:text-[#8295b3]">
                         {acc.email}
                       </p>
-                      <p className="mt-1.5 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
+                      <p className="mt-1.5 text-[11px] leading-snug text-slate-600 dark:text-[#b7c6dc]">
                         {acc.description}
                       </p>
                     </div>
@@ -574,7 +605,7 @@ export const OrganizationLoginPage: React.FC = () => {
                 ))}
               </div>
             </section>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

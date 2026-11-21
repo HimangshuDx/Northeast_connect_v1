@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { MotionConfig } from 'motion/react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/AppLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -39,7 +40,7 @@ function RouteFallback() {
 
 function StandaloneFallback() {
   return (
-    <div className="min-h-screen bg-slate-950 p-6">
+    <div className="min-h-screen ne-canvas p-6">
       <div className="mx-auto max-w-4xl">
         <RouteFallback />
       </div>
@@ -49,10 +50,11 @@ function StandaloneFallback() {
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <AppProvider>
-          <Routes>
+    <MotionConfig reducedMotion="user">
+      <ErrorBoundary>
+        <BrowserRouter>
+          <AppProvider>
+            <Routes>
             <Route
               path="/"
               element={
@@ -111,6 +113,7 @@ export default function App() {
         </AppProvider>
       </BrowserRouter>
     </ErrorBoundary>
+    </MotionConfig>
   );
 }
 

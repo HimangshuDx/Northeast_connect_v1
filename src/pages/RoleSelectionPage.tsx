@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   ArrowRight,
   Building2,
@@ -14,6 +15,7 @@ import {
   Sun,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { NE_EASE } from '../components/MotionPrimitives';
 import { useApp } from '../context/AppContext';
 import { LANGUAGE_LABELS } from '../data/safetyGuides';
 import { getRoleDisplayLabel } from '../services/authService';
@@ -69,11 +71,11 @@ export const RoleSelectionPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col">
-      {/* Atmospheric Northeast India Regional Backdrop */}
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f1f5f9] text-slate-900 dark:bg-[#09111f] dark:text-[#e6edf7]">
+      {/* Full-Width Dark Navy Hero Backdrop with Subtle Landscape, Topographic Lines & Smooth Transition */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[440px] sm:h-[470px] overflow-hidden bg-slate-950"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[500px] sm:h-[540px] overflow-hidden bg-[#0a1a35] dark:bg-[#071124]"
       >
         {!imageFailed && (
           <img
@@ -81,43 +83,54 @@ export const RoleSelectionPage: React.FC = () => {
             alt="Topographic river valley and hill landscape of Northeast India"
             referrerPolicy="no-referrer"
             onError={() => setImageFailed(true)}
-            className="h-full w-full object-cover object-center opacity-50 dark:opacity-45"
+            className="h-[82%] w-full object-cover object-center opacity-22 saturate-75 dark:opacity-20"
           />
         )}
-        {/* SVG Topographic Fallback & Cartographic Grid */}
+
+        {/* Subtle SVG Cartographic / Topographic Map Contour Lines */}
         <svg
-          className="absolute inset-0 h-full w-full opacity-25"
+          className="absolute inset-0 h-[85%] w-full opacity-35 dark:opacity-25"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
-          viewBox="0 0 1200 480"
+          viewBox="0 0 1200 460"
         >
           <path
-            d="M-40 310 C 180 230, 320 350, 560 270 C 780 190, 960 290, 1240 200"
+            d="M-40 280 C 170 205, 330 325, 570 245 C 790 175, 975 275, 1240 185"
             fill="none"
-            stroke="#60a5fa"
-            strokeWidth="1.2"
+            stroke="rgba(147, 197, 253, 0.34)"
+            strokeWidth="1.1"
           />
           <path
-            d="M-40 355 C 210 280, 380 390, 620 310 C 840 240, 1020 340, 1240 250"
+            d="M-40 330 C 200 255, 370 365, 610 290 C 835 220, 1010 320, 1240 235"
             fill="none"
-            stroke="#93c5fd"
+            stroke="rgba(125, 211, 252, 0.24)"
             strokeWidth="0.9"
           />
           <path
-            d="M-40 255 C 160 190, 340 285, 590 215 C 820 150, 990 235, 1240 155"
+            d="M-40 215 C 165 155, 355 250, 595 180 C 815 115, 995 205, 1240 130"
             fill="none"
-            stroke="#38bdf8"
+            stroke="rgba(191, 219, 254, 0.22)"
+            strokeWidth="0.8"
+          />
+          <path
+            d="M-40 150 C 210 105, 420 185, 670 120 C 885 65, 1055 140, 1240 85"
+            fill="none"
+            stroke="rgba(147, 197, 253, 0.16)"
             strokeWidth="0.8"
           />
         </svg>
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/80 to-slate-100 dark:to-slate-950" />
+
+        {/* Deep Navy Atmospheric Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#08162d]/72 via-[#0d2244]/82 via-50% to-[#f1f5f9] dark:from-[#060f1f]/75 dark:via-[#0b1b36]/84 dark:via-50% dark:to-[#09111f]" />
+        {/* Smooth Lower Feather Blend into Off-White / Midnight Canvas */}
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent via-[#f1f5f9]/78 to-[#f1f5f9] dark:via-[#09111f]/78 dark:to-[#09111f]" />
       </div>
 
       {/* Top Public-Sector Header Bar */}
-      <header className="relative z-10 border-b border-white/10 bg-slate-950/60 backdrop-blur-sm text-white">
+      <header className="relative z-10 border-b border-white/10 bg-[#08162d]/85 text-white backdrop-blur-md dark:border-[#1c2e4a] dark:bg-[#071122]/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm ring-1 ring-white/20">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-400/30 bg-blue-500/15 text-sky-300">
               <Compass className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
@@ -133,15 +146,15 @@ export const RoleSelectionPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <a
               href="tel:112"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-red-700 whitespace-nowrap"
+              className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
             >
               <PhoneCall className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.safetyBanner}</span>
               <span className="sm:hidden font-mono">112</span>
             </a>
 
-            <div className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-slate-900/80 px-2.5 text-white">
-              <Globe className="h-3.5 w-3.5 shrink-0 text-blue-400" aria-hidden="true" />
+            <div className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 text-white transition-colors hover:bg-white/15">
+              <Globe className="h-3.5 w-3.5 shrink-0 text-sky-300" aria-hidden="true" />
               <label htmlFor="portal-lang-select" className="sr-only">
                 {t.controls.languageLabel}
               </label>
@@ -153,7 +166,11 @@ export const RoleSelectionPage: React.FC = () => {
                 className="bg-transparent text-xs font-medium text-white focus:outline-none"
               >
                 {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
-                  <option key={code} value={code} className="bg-slate-900 text-white">
+                  <option
+                    key={code}
+                    value={code}
+                    className="bg-white text-slate-900 dark:bg-[#101b2e] dark:text-[#e6edf7]"
+                  >
                     {LANGUAGE_LABELS[code].native}
                   </option>
                 ))}
@@ -164,12 +181,12 @@ export const RoleSelectionPage: React.FC = () => {
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
+              className="ne-btn-press inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-slate-100 transition-colors hover:bg-white/15"
             >
               {theme === 'dark' ? (
-                <Sun className="h-4 w-4 text-amber-400" aria-hidden="true" />
+                <Sun className="h-4 w-4 text-amber-300" aria-hidden="true" />
               ) : (
-                <Moon className="h-4 w-4" aria-hidden="true" />
+                <Moon className="h-4 w-4 text-slate-100" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -177,34 +194,42 @@ export const RoleSelectionPage: React.FC = () => {
       </header>
 
       {/* Main Role Selection Container */}
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 py-8 sm:px-6 sm:py-12">
-        {/* Hero Branding Block */}
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-300">
-            Northeast India Disaster Coordination Portal
+      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 py-10 sm:px-6 sm:py-12">
+        {/* Centered Hero Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: NE_EASE }}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-300 sm:text-xs">
+            NORTHEAST INDIA DISASTER COORDINATION PORTAL
           </p>
-          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-white sm:text-5xl text-balance">
+          <h1 className="mt-2.5 font-display text-3xl font-bold tracking-tight text-white sm:text-5xl text-balance">
             {t.brandName}
           </h1>
-          <p className="mt-3 text-base font-semibold text-blue-100 sm:text-lg">
+          <p className="mt-3 text-base font-medium text-slate-100 sm:text-lg">
             {t.tagline}
           </p>
-          <p className="mt-1.5 text-sm text-slate-200 sm:text-base">
+          <p className="mt-1.5 text-sm text-slate-300 sm:text-base">
             {t.portal.subtitle}
           </p>
-        </div>
+        </motion.div>
 
-        {/* Active Partner Session Banner (only shown if already authenticated) */}
+        {/* Active Partner Session Banner (shown only if already signed in) */}
         {authSession.isAuthenticated && (
-          <div className="mx-auto mt-6 flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-400/40 bg-slate-900/90 px-4 py-3 text-white shadow-md backdrop-blur-sm">
+          <div className="mx-auto mt-6 flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 rounded-xl border border-white/15 bg-[#0f2547]/90 px-4 py-3 text-white shadow-sm backdrop-blur-sm dark:border-[#2d456b] dark:bg-[#101e36]/95">
             <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-              <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" aria-hidden="true" />
+              <ShieldCheck
+                className="h-4 w-4 shrink-0 text-emerald-400"
+                aria-hidden="true"
+              />
               <span>
                 Signed in as <strong>{authSession.fullName}</strong> (
                 {getRoleDisplayLabel(authSession.role)})
               </span>
               {authSession.isDemo && (
-                <span className="rounded bg-amber-500/20 px-2 py-0.5 font-mono text-[11px] font-semibold text-amber-200 ring-1 ring-amber-400/40">
+                <span className="rounded bg-amber-400/20 px-2 py-0.5 font-mono text-[11px] font-semibold text-amber-200">
                   DEMO MODE
                 </span>
               )}
@@ -213,7 +238,7 @@ export const RoleSelectionPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePartnerAccess}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                className="ne-btn-press inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
               >
                 <span>
                   {canAccessCoordinator ? 'Open Coordinator Desk' : 'Open Relief Operations'}
@@ -223,7 +248,7 @@ export const RoleSelectionPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => void signOutOrganization()}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/20 px-2.5 text-xs font-medium text-slate-200 hover:bg-white/10"
+                className="ne-btn-press inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 text-xs font-medium text-white hover:bg-white/15"
               >
                 <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Sign Out</span>
@@ -232,35 +257,35 @@ export const RoleSelectionPage: React.FC = () => {
           </div>
         )}
 
-        {/* Two Large, Visually Distinct Access Cards */}
+        {/* Two Equally Sized Side-by-Side Access Cards */}
         <section
           aria-label="Choose your access mode"
-          className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2"
+          className="mt-8 grid grid-cols-1 items-stretch gap-6 sm:mt-10 lg:grid-cols-2"
         >
-          {/* OPTION A: CITIZEN / PUBLIC ACCESS */}
-          <article className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          {/* LEFT CARD — CITIZEN ACCESS */}
+          <article className="flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.10),0_2px_6px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-150 hover:border-slate-300 hover:shadow-[0_16px_36px_-10px_rgba(15,23,42,0.14)] dark:border-[#1f3250] dark:bg-[#101b2e] dark:shadow-[0_14px_34px_-8px_rgba(2,6,23,0.65)] dark:hover:border-[#2d456b] sm:p-8">
             <div>
               <div className="flex items-start justify-between gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:ring-blue-800">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-200/80 dark:bg-blue-500/15 dark:text-blue-300 dark:ring-blue-500/30">
                   <LifeBuoy className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Public Access · No Account Required
+                <span className="text-right text-[11px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+                  PUBLIC ACCESS · NO ACCOUNT REQUIRED
                 </span>
               </div>
 
-              <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-[#eef2f7]">
                 {t.portal.citizenTitle}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-[#b7c6dc]">
                 {t.portal.citizenDescription}
               </p>
 
-              <ul className="mt-6 space-y-2.5 border-t border-slate-200 pt-5 dark:border-slate-800">
+              <ul className="mt-6 space-y-2.5 border-t border-slate-200/80 pt-5 dark:border-[#1f3250]">
                 {CITIZEN_FEATURES.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200"
+                    className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-[#d5e0f0]"
                   >
                     <CheckCircle2
                       className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400"
@@ -272,28 +297,28 @@ export const RoleSelectionPage: React.FC = () => {
               </ul>
             </div>
 
-            <div className="mt-8 space-y-2.5">
+            <div className="mt-8 space-y-3">
               <button
                 type="button"
                 onClick={handleContinueAsCitizen}
-                className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                className="ne-btn-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs hover:bg-blue-700"
               >
                 <span>{t.portal.citizenCta}</span>
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
 
-              <div className="flex items-center justify-between gap-3 pt-1 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-xs">
                 <Link
                   to="/report?mode=sos"
                   onClick={() => setExperienceMode('citizen')}
                   className="font-semibold text-red-700 hover:underline dark:text-red-400"
                 >
-                  Quick SOS / Request Urgent Help →
+                  Quick SOS / Request Urgent Help
                 </Link>
                 <Link
                   to="/resources"
                   onClick={() => setExperienceMode('citizen')}
-                  className="font-medium text-slate-600 hover:underline dark:text-slate-400"
+                  className="font-medium text-slate-600 hover:underline dark:text-[#9cb0cc]"
                 >
                   Shelters &amp; 112 Helplines
                 </Link>
@@ -301,30 +326,30 @@ export const RoleSelectionPage: React.FC = () => {
             </div>
           </article>
 
-          {/* OPTION B: NGO / RESPONSE ORGANIZATION */}
-          <article className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          {/* RIGHT CARD — RESPONSE PARTNER */}
+          <article className="flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.10),0_2px_6px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-150 hover:border-slate-300 hover:shadow-[0_16px_36px_-10px_rgba(15,23,42,0.14)] dark:border-[#1f3250] dark:bg-[#101b2e] dark:shadow-[0_14px_34px_-8px_rgba(2,6,23,0.65)] dark:hover:border-[#2d456b] sm:p-8">
             <div>
               <div className="flex items-start justify-between gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white ring-1 ring-slate-700 dark:bg-slate-800 dark:text-blue-300 dark:ring-slate-700">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0f2547] text-white ring-1 ring-[#1a3968] dark:bg-[#172742] dark:text-blue-300 dark:ring-[#2d456b]">
                   <Building2 className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
-                  Authorized Personnel · Role Verified
+                <span className="text-right text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-blue-300">
+                  AUTHORIZED PERSONNEL · ROLE VERIFIED
                 </span>
               </div>
 
-              <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-[#eef2f7]">
                 {t.portal.partnerTitle}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-[#b7c6dc]">
                 {t.portal.partnerDescription}
               </p>
 
-              <ul className="mt-6 space-y-2.5 border-t border-slate-200 pt-5 dark:border-slate-800">
+              <ul className="mt-6 space-y-2.5 border-t border-slate-200/80 pt-5 dark:border-[#1f3250]">
                 {PARTNER_FEATURES.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200"
+                    className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-[#d5e0f0]"
                   >
                     <CheckCircle2
                       className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
@@ -336,11 +361,11 @@ export const RoleSelectionPage: React.FC = () => {
               </ul>
             </div>
 
-            <div className="mt-8 space-y-2.5">
+            <div className="mt-8 space-y-3">
               <button
                 type="button"
                 onClick={handlePartnerAccess}
-                className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-slate-800 dark:ring-1 dark:ring-slate-700 dark:hover:bg-slate-700"
+                className="ne-btn-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#0f2547] px-5 py-3 text-sm font-semibold text-white shadow-xs hover:bg-[#163461] dark:bg-[#1a2f52] dark:ring-1 dark:ring-[#2d456b] dark:hover:bg-[#223b66]"
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 <span>
@@ -351,7 +376,7 @@ export const RoleSelectionPage: React.FC = () => {
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
 
-              <p className="pt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="pt-0.5 text-xs leading-relaxed text-slate-500 dark:text-[#8295b3]">
                 {t.portal.restrictedNotice} NGO &amp; Volunteer roles access Relief Operations; Coordinator Desk requires Coordinator clearance.
               </p>
             </div>
@@ -361,7 +386,7 @@ export const RoleSelectionPage: React.FC = () => {
         {/* Persistent Safety Notice & Honest Scope Disclosure */}
         <section
           aria-label="Emergency notice and platform scope"
-          className="mt-8 rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-xs text-slate-700 shadow-xs dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 sm:px-5"
+          className="mt-8 rounded-xl border border-slate-200/90 bg-white px-4 py-3.5 text-xs text-slate-700 shadow-xs dark:border-[#1f3250] dark:bg-[#101b2e] dark:text-[#b7c6dc] sm:px-5"
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2.5">
@@ -376,7 +401,7 @@ export const RoleSelectionPage: React.FC = () => {
                 {t.portal.scopeNote}
               </span>
             </div>
-            <span className="shrink-0 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="shrink-0 font-mono text-[11px] text-slate-500 dark:text-[#8295b3]">
               Offline-ready · Outbox &amp; SMS fallback
             </span>
           </div>

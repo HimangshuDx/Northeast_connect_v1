@@ -25,24 +25,24 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-red-600 dark:bg-red-950/70 dark:text-red-400">
+        <div className="ne-canvas flex min-h-screen items-center justify-center p-6">
+          <div className="ne-surface w-full max-w-md rounded-2xl border p-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 dark:border-red-800/40 dark:bg-red-950/50 dark:text-red-400">
               <AlertTriangle className="h-6 w-6" aria-hidden="true" />
             </div>
-            <h1 className="mt-4 font-display text-lg font-bold">Something went wrong</h1>
-            <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
+            <h1 className="mt-4 font-display text-lg font-bold text-slate-900 dark:text-[#e6edf7]">Something went wrong</h1>
+            <p className="mt-1.5 text-sm text-slate-600 dark:text-[#9fb2cc]">
               Northeast Connect encountered an unexpected error. Your saved Outbox items remain stored locally on this device.
             </p>
             {this.state.message && (
-              <p className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+              <p className="ne-surface-subtle mt-3 rounded-xl border px-3 py-2 font-mono text-xs text-slate-600 dark:text-[#94a7c4]">
                 {this.state.message}
               </p>
             )}
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              className="ne-btn-press mt-5 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               <span>Reload Application</span>
