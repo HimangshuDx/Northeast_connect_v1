@@ -2,7 +2,7 @@
 
 **Stay Informed. Stay Connected. Stay Prepared.**
 
-Northeast Connect is an offline-first, community-driven disaster management and emergency coordination web application designed for Northeast India (Hackathon Project — PS05). It helps residents, travelers, volunteers, and emergency coordinators monitor flood and landslide advisories, track lifeline highway/bridge/ferry passability, submit hazard or urgent rescue requests while offline, and coordinate field response.
+Northeast Connect is an offline-first, community-driven disaster management and emergency coordination web application designed for Northeast India (Promptwares Hackathon Project — PS05). It helps residents, travelers, volunteers, and emergency coordinators monitor flood and landslide advisories, track lifeline highway/bridge/ferry passability, submit hazard or urgent rescue requests while offline, and coordinate field response.
 
 > **Prototype & Demo Data Notice:** This prototype runs locally with realistic **Sample Demo Data** across Northeast Indian districts. All sample records are explicitly badged as `Sample Demo Data`, and simulated offline/SMS features clearly disclose their boundaries (e.g., *"Opens your SMS app. We cannot confirm delivery."*).
 
