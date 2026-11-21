@@ -277,7 +277,7 @@ export const SituationBoardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => void refreshData()}
-            className="ne-btn-press rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+            className="ne-btn-press inline-flex min-h-[44px] items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700"
           >
             Retry Load
           </button>
@@ -332,14 +332,14 @@ export const SituationBoardPage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <Link
                 to="/resources"
-                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-2 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
                 <span>Nearby Shelters &amp; Safety Guides</span>
               </Link>
               <Link
                 to="/resources#helplines"
-                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-2 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <PhoneCall className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true" />
                 <span>Emergency Contacts</span>
@@ -347,7 +347,7 @@ export const SituationBoardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsOutboxOpen(true)}
-                className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
+                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-3 py-2 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap"
               >
                 <Inbox className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true" />
                 <span>
@@ -587,7 +587,7 @@ export const SituationBoardPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search
                 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
@@ -598,7 +598,7 @@ export const SituationBoardPage: React.FC = () => {
                 onChange={(e) => setCorridorSearch(e.target.value)}
                 placeholder={t.situationBoard.searchCorridorsPlaceholder}
                 aria-label="Search lifeline corridors"
-                className="ne-input h-9 w-48 rounded-lg border pl-8 pr-3 text-xs"
+                className="ne-input min-h-[44px] w-full rounded-lg border pl-8 pr-3 text-xs sm:w-48"
               />
             </div>
 
@@ -703,7 +703,7 @@ export const SituationBoardPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search
                 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
@@ -714,7 +714,7 @@ export const SituationBoardPage: React.FC = () => {
                 onChange={(e) => setReportSearch(e.target.value)}
                 placeholder={t.situationBoard.searchReportsPlaceholder}
                 aria-label="Search community reports"
-                className="ne-input h-9 w-48 rounded-lg border pl-8 pr-3 text-xs"
+                className="ne-input min-h-[44px] w-full rounded-lg border pl-8 pr-3 text-xs sm:w-48"
               />
             </div>
 
@@ -771,7 +771,7 @@ export const SituationBoardPage: React.FC = () => {
           </div>
           <Link
             to="/resources"
-            className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
+            className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
           >
             <BookOpen className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             <span>All Shelters, Helplines &amp; Safety Guides</span>

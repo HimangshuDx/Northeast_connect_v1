@@ -39,14 +39,14 @@ export const EmergencyStrip: React.FC = () => {
           <a
             href="tel:112"
             onClick={handleCallClick}
-            className="ne-btn-press inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-xs hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white whitespace-nowrap shrink-0 dark:bg-red-600 dark:text-white dark:hover:bg-red-500"
+            className="ne-btn-press inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-xs hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white whitespace-nowrap shrink-0 dark:bg-red-600 dark:text-white dark:hover:bg-red-500"
           >
             <PhoneCall className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{t.emergencyStrip.call112Now}</span>
           </a>
           <Link
             to="/report?mode=sos"
-            className="ne-btn-press inline-flex min-h-[40px] items-center justify-center rounded-lg border border-white/30 bg-red-800/70 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white whitespace-nowrap shrink-0 dark:border-red-400/30 dark:bg-red-950/70 dark:text-red-100 dark:hover:bg-red-900/80"
+            className="ne-btn-press inline-flex min-h-[44px] items-center justify-center rounded-lg border border-white/30 bg-red-800/70 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white whitespace-nowrap shrink-0 dark:border-red-400/30 dark:bg-red-950/70 dark:text-red-100 dark:hover:bg-red-900/80"
           >
             {t.emergencyStrip.requestUrgentHelp}
           </Link>

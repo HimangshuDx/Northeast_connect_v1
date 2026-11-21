@@ -110,6 +110,7 @@ export interface DataAdapter {
     profile: Omit<VolunteerProfile, 'updatedAt'>
   ): Promise<VolunteerProfile>;
   recordSyncTimestamp(): Promise<string>;
+  isUsingLocalFallback?(): boolean;
   subscribeToChanges?(onChange: () => void): () => void;
 }
 

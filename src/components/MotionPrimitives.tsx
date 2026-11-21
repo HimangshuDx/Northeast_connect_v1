@@ -102,13 +102,13 @@ export function SegmentedTabs<T extends string>({
   const inactiveTextStyle =
     'text-slate-600 hover:text-slate-900 dark:text-[#94a7c4] dark:hover:text-[#e6edf7]';
 
-  const heightClass = size === 'md' ? 'min-h-[40px] px-3.5 py-2' : 'min-h-[34px] px-2.5 py-1';
+  const heightClass = size === 'md' ? 'min-h-[44px] px-3.5 py-2' : 'min-h-[44px] px-3 py-1.5';
 
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={`inline-flex flex-wrap items-center gap-1 rounded-xl border border-[#dce4f0] bg-[#edf2f8] p-1 dark:border-[#1f3250] dark:bg-[#0d1728] ${className}`}
+      className={`inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-[#dce4f0] bg-[#edf2f8] p-1 dark:border-[#1f3250] dark:bg-[#0d1728] ${className}`}
     >
       {items.map((item) => {
         const active = item.key === value;

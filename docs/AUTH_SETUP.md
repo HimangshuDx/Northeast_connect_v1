@@ -8,13 +8,13 @@ Northeast Connect separates **open Citizen public-safety access** from **authent
 
 | Role | Entry Path | Permitted Routes | Notes |
 | --- | --- | --- | --- |
-| `CITIZEN` (Guest) | **Continue as Citizen** (`/`) | `/board`, `/citizen`, `/report`, `/resources`, My Outbox | Zero login barrier; can view advisories, shelters, 112 helplines, and submit Quick SOS / hazard reports offline or online. |
-| `NGO_MEMBER` | **Organization Login** (`/login`) | `/ngo` (+ Citizen routes) | Accesses Relief Operations Dashboard, verified help requests, and team inventory. **Explicitly blocked from `/coordinator`.** |
-| `VOLUNTEER` | **Organization Login** (`/login`) | `/ngo` (+ Citizen routes) | Accesses Relief Operations Dashboard & team availability. **Explicitly blocked from `/coordinator`.** |
-| `COORDINATOR` | **Organization Login** (`/login`) | `/coordinator`, `/ngo` (+ Citizen routes) | Full Coordinator Desk triage, verification, corridor/resource updates, and audit logs. |
-| `ADMIN` | **Organization Login** (`/login`) | `/coordinator`, `/ngo` (+ Citizen routes) | Administrative clearance including `organization_profiles` management. |
+| `CITIZEN` (Guest) | **Continue as Citizen** (`/`) | `/board`, `/citizen`, `/report`, `/resources`, My Outbox | Zero login barrier; views masked `reports_public`, advisories, shelters, and `112` helplines; submits Quick SOS or hazard reports offline or online. |
+| `NGO_MEMBER` | **Organization Login** (`/login`) | `/ngo` (+ Citizen routes) | Accesses Relief Operations Dashboard, verified help requests, and their own team assignments/profile. **Blocked from `/coordinator` and unmasked base `reports`.** |
+| `VOLUNTEER` | **Organization Login** (`/login`) | `/ngo` (+ Citizen routes) | Accesses Relief Operations Dashboard & team availability. **Blocked from `/coordinator`.** |
+| `COORDINATOR` | **Organization Login** (`/login`) | `/coordinator`, `/ngo` (+ Citizen routes) | Full Coordinator Desk triage, report verification, corridor/resource updates, unmasked caller contacts, and audit logs. |
+| `ADMIN` | **Organization Login** (`/login`) | `/coordinator`, `/ngo` (+ Citizen routes) | Full Coordinator Desk access plus `organization_profiles` administration. |
 
-> **Security Principle:** In live Supabase mode, roles are never trusted from browser state. After `supabase.auth.signInWithPassword()`, the client queries `public.organization_profiles` (`is_active = true`) and Postgres Row Level Security (`public.current_user_role()`) enforces database-level authorization.
+> **Security Principle:** In live Supabase mode (`VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY` set), **demo bypass is disabled**. Coordinator Desk and NGO Operations require real Supabase Auth sign-in (`supabase.auth.signInWithPassword()`), and Postgres RLS (`public.current_user_role()` / `public.is_coordinator()`) checks **either** `public.organization_profiles` (`is_active = true`) **or** server-signed JWT `auth.jwt() -> 'app_metadata' ->> 'role'`. Never trust client `user_metadata` or `sessionStorage` for permissions.
 
 ---
 
@@ -31,29 +31,31 @@ Never place `service_role` keys or database passwords in frontend code or `VITE_
 
 ---
 
-## 3. Provisioning Database Schema & Real Organization Users
+## 3. Exact Steps to Create a Coordinator User & Set `app_metadata.role`
 
-1. Run `supabase/schema.sql` in the **Supabase SQL Editor**. This creates `public.organization_profiles`, `public.current_user_role()`, `public.is_response_partner()`, and `public.is_coordinator_or_admin()`.
-2. (Optional demo seed) Run `supabase/seed.sql` for regional Northeast India sample advisories, corridors, and resources.
-3. In **Supabase Dashboard → Authentication → Users**, click **Add User** (or invite user via email) for each authorized partner.
-   - Open self-registration is intentionally disabled in the UI.
-4. Copy each created user's `UUID` (`auth.users.id`) and assign their authoritative role in `public.organization_profiles`:
+1. Run `supabase/schema.sql` in the **Supabase SQL Editor** (safe and idempotent to re-run).
+2. *(Optional demo seed)* Run `supabase/seed.sql` for sample Northeast India advisories, corridors, reports, and resources.
+3. In **Supabase Dashboard → Authentication → Users**, click **Add User → Create new user**:
+   - Enter email (e.g., `coordinator@asdma-demo.org`) and a strong password, and keep **Auto Confirm User** checked.
+   - Note the created user's `UUID` (`auth.users.id`).
+4. Set `app_metadata.role` so the Supabase Auth JWT carries `"role": "COORDINATOR"` AND register the user in `public.organization_profiles` (run **SQL Option A** in the Supabase SQL Editor, or **Option B** with the Admin API from a trusted terminal):
+
+### Option A — Supabase SQL Editor (recommended)
 
 ```sql
--- Example: Provision an NGO Member (allowed on /ngo, denied on /coordinator)
-insert into public.organization_profiles (user_id, email, full_name, organization_name, role, district_id, is_active)
-values (
-  'REPLACE_WITH_AUTH_USER_UUID',
-  'ngo.lead@example.org',
-  'Ananya Das',
-  'Brahmaputra River Relief Collective',
-  'NGO_MEMBER',
-  'kamrup-metro',
-  true
-);
+-- Replace UUID, email, and name with your created user's details:
+update auth.users
+set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
+  || jsonb_build_object(
+       'role', 'COORDINATOR',
+       'organization_name', 'Kamrup District Disaster Control Room',
+       'district_id', 'kamrup-metro'
+     )
+where id = 'REPLACE_WITH_AUTH_USER_UUID';
 
--- Example: Provision a Disaster Coordinator (allowed on /coordinator and /ngo)
-insert into public.organization_profiles (user_id, email, full_name, organization_name, role, district_id, is_active)
+insert into public.organization_profiles (
+  user_id, email, full_name, organization_name, role, district_id, is_active
+)
 values (
   'REPLACE_WITH_AUTH_USER_UUID',
   'coordinator@asdma-demo.org',
@@ -62,17 +64,35 @@ values (
   'COORDINATOR',
   'kamrup-metro',
   true
-);
+)
+on conflict (user_id) do update
+set role = excluded.role,
+    organization_name = excluded.organization_name,
+    is_active = true,
+    updated_at = now();
 ```
 
+*(For an NGO partner or volunteer instead, replace `'COORDINATOR'` with `'NGO_MEMBER'` or `'VOLUNTEER'`.)*
+
+### Option B — Supabase Admin API (`service_role` from a trusted server/terminal only)
+
+```bash
+curl -X PUT "https://YOUR_PROJECT_REF.supabase.co/auth/v1/admin/users/REPLACE_WITH_AUTH_USER_UUID" \
+  -H "apikey: YOUR_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"app_metadata": {"role": "COORDINATOR", "district_id": "kamrup-metro"}}'
+```
+
+*(Note: After updating `app_metadata` in Postgres or via the Admin API, sign out and sign back in so the user's JWT refreshes with the new claim.)*
+
 5. For **Forgot Password** recovery links, add `${YOUR_APP_ORIGIN}/login?reset=1` (e.g., `http://localhost:3000/login?reset=1`) under **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**.
-6. Before real production launch, uncomment the **PRODUCTION HARDENING SQL** block at the bottom of `supabase/schema.sql` so only `COORDINATOR` / `ADMIN` sessions read unmasked `public.reports` and modify corridors, resources, and audit logs.
 
 ---
 
-## 4. Hackathon Demo Mode (Zero-Config Evaluation)
+## 4. Zero-Config Local Mode (`Demo Only`)
 
-When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not configured (or when evaluating locally), `/login` displays a clearly separated **`DEMO MODE`** section with three sample identities (also seeded in `public.demo_account_directory` and synced to `public.organization_profiles` via `supabase/seed.sql` once created in Supabase Auth):
+When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are **not** set, the app runs in local device-only mode (`LocalAdapter`) and `/login` enables three clearly marked **`DEMO ONLY`** accounts stored only in your browser:
 
 | Demo account | Role |
 | --- | --- |
@@ -80,5 +100,4 @@ When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not configured (or whe
 | `demo.volunteer@northeastconnect.demo` | `VOLUNTEER` |
 | `demo.coordinator@northeastconnect.demo` | `COORDINATOR` |
 
-Active demo sessions display an explicit **`DEMO MODE`** badge across the header, sidebar, and dashboards so evaluators never confuse demo accounts with live Supabase authentication.
-
+When Supabase **is** configured, those demo bypass buttons are automatically disabled so every partner and coordinator login goes through real Supabase Auth + Postgres RLS.

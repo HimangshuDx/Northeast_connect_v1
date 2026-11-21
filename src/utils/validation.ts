@@ -170,14 +170,19 @@ export function validateReportPayload(
   if (
     !Number.isInteger(affectedPeopleCount) ||
     affectedPeopleCount < 1 ||
-    affectedPeopleCount > 100000
+    affectedPeopleCount > 500
   ) {
-    throw new ValidationError('Affected people count must be a whole number between 1 and 100,000.');
+    throw new ValidationError('Affected people count must be a whole number between 1 and 500.');
   }
 
   const contactPhone = (data.contactPhone ?? '').trim();
   const phoneDigits = contactPhone.replace(/\D/g, '');
-  if (phoneDigits.length < 10 || phoneDigits.length > 15 || contactPhone.length > 25) {
+  if (
+    phoneDigits.length < 10 ||
+    phoneDigits.length > 15 ||
+    contactPhone.length > 25 ||
+    !/^[+0-9() -]{10,25}$/.test(contactPhone)
+  ) {
     throw new ValidationError('Enter a valid 10–15 digit contact phone number.');
   }
 

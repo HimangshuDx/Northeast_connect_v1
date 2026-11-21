@@ -24,3 +24,9 @@ export const dataService: DataAdapter = isSupabaseConfigured
   ? createSupabaseAdapter(supabaseUrl, supabaseAnonKey, getSupabaseClient() ?? undefined)
   : new LocalAdapter();
 
+export function getActiveDataSourceMode(): 'supabase' | 'local' {
+  if (!isSupabaseConfigured) return 'local';
+  if (dataService.isUsingLocalFallback?.()) return 'local';
+  return 'supabase';
+}
+

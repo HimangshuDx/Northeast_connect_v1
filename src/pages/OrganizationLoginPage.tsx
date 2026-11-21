@@ -161,17 +161,17 @@ export const OrganizationLoginPage: React.FC = () => {
       {/* Top Portal Bar */}
       <header className="relative z-10 border-b border-[#dce4f0] bg-white/85 backdrop-blur-md dark:border-[#1f3250] dark:bg-[#0d1728]/88">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
             <Link
               to="/"
-              className="ne-btn-press ne-input inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap"
+              className="ne-btn-press ne-input inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-3 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap"
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.backToRoles}</span>
               <span className="sm:hidden">Roles</span>
             </Link>
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#102341] text-white dark:bg-blue-600">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#102341] text-white dark:bg-blue-600">
                 <Compass className="h-4 w-4" aria-hidden="true" />
               </div>
               <span className="truncate font-display text-sm font-bold text-slate-900 dark:text-[#e6edf7]">
@@ -180,10 +180,10 @@ export const OrganizationLoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <a
               href="tel:112"
-              className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
             >
               <PhoneCall className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.safetyBanner}</span>
@@ -194,7 +194,7 @@ export const OrganizationLoginPage: React.FC = () => {
               value={language}
               onChange={(e) => setLanguage(e.target.value as LanguageCode)}
               aria-label="Select application language"
-              className="ne-input h-9 rounded-lg border px-2 text-xs font-medium"
+              className="ne-input min-h-[44px] rounded-lg border px-2 text-xs font-medium"
             >
               {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
                 <option key={code} value={code}>
@@ -207,7 +207,7 @@ export const OrganizationLoginPage: React.FC = () => {
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="ne-btn-press ne-input inline-flex h-9 w-9 items-center justify-center rounded-lg border text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+              className="ne-btn-press ne-input inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border text-slate-700 hover:bg-[#edf2f8] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
             >
               {theme === 'dark' ? (
                 <Sun className="h-4 w-4 text-amber-400" aria-hidden="true" />
@@ -281,10 +281,10 @@ export const OrganizationLoginPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-5 border-t border-[#dce4f0] pt-4 dark:border-[#1f3250]">
+              <div className="mt-4 border-t border-[#dce4f0] pt-3 dark:border-[#1f3250]">
                 <Link
                   to="/board"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
                 >
                   <Globe className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>Looking for Citizen Alerts or Quick SOS? Continue as Citizen →</span>
@@ -316,7 +316,7 @@ export const OrganizationLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigate(resolveDestination(authSession.role))}
-                    className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"
+                    className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-xs font-semibold text-white hover:bg-emerald-700"
                   >
                     <span>Continue</span>
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -324,7 +324,7 @@ export const OrganizationLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => void signOutOrganization()}
-                    className="ne-btn-press inline-flex h-9 items-center rounded-lg border border-emerald-400/60 px-3 text-xs font-semibold hover:bg-emerald-100 dark:border-emerald-500/40 dark:hover:bg-emerald-950/60"
+                    className="ne-btn-press inline-flex min-h-[44px] items-center rounded-lg border border-emerald-400/60 px-3.5 text-xs font-semibold hover:bg-emerald-100 dark:border-emerald-500/40 dark:hover:bg-emerald-950/60"
                   >
                     Sign Out
                   </button>
@@ -423,13 +423,13 @@ export const OrganizationLoginPage: React.FC = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Enter your password"
-                          className="ne-input h-11 w-full rounded-lg border pl-10 pr-11 text-sm"
+                          className="ne-input h-11 w-full rounded-lg border pl-10 pr-12 text-sm"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((s) => !s)}
                           aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          className="ne-btn-press absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 hover:bg-[#edf2f8] hover:text-slate-800 dark:text-[#8295b3] dark:hover:bg-[#1e3152] dark:hover:text-[#e6edf7]"
+                          className="ne-btn-press absolute right-0.5 top-1/2 inline-flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-[#edf2f8] hover:text-slate-800 dark:text-[#9cb0cc] dark:hover:bg-[#1e3152] dark:hover:text-[#e6edf7]"
                         >
                           {showPassword ? (
                             <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -441,7 +441,7 @@ export const OrganizationLoginPage: React.FC = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                      <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-slate-700 dark:text-[#b7c6dc]">
+                      <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 text-xs text-slate-700 dark:text-[#b7c6dc]">
                         <input
                           id="remember-me"
                           type="checkbox"
@@ -455,7 +455,7 @@ export const OrganizationLoginPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setView('forgot')}
-                        className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                        className="inline-flex min-h-[44px] items-center px-1 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
                       >
                         Forgot password?
                       </button>
@@ -483,7 +483,7 @@ export const OrganizationLoginPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setView('login')}
-                        className="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                        className="inline-flex min-h-[44px] items-center px-1 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
                       >
                         Back to Sign In
                       </button>
@@ -549,61 +549,71 @@ export const OrganizationLoginPage: React.FC = () => {
               </ViewCrossfade>
             </section>
 
-            {/* Clearly Separated Hackathon Demo Mode Section */}
+            {/* Clearly Separated Demo-Only Evaluation Section (disabled when live Supabase is connected) */}
             <section
-              aria-label="Hackathon Demo Mode Accounts"
+              aria-label="Demo Only Role Evaluation Accounts"
               className="rounded-2xl border border-amber-300/90 bg-amber-50/75 p-5 dark:border-amber-500/30 dark:bg-[#171923]"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="rounded-md bg-amber-200 px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-amber-950 dark:bg-amber-500/20 dark:text-amber-200">
-                    DEMO MODE
+                    DEMO ONLY
                   </span>
                   <h3 className="font-display text-sm font-bold text-slate-900 dark:text-[#eef2f7]">
-                    Hackathon Role Evaluation Accounts
+                    Local Evaluation Accounts
                   </h3>
                 </div>
                 <span className="text-[11px] font-medium text-amber-900 dark:text-amber-300/90">
-                  Separated from live Supabase Auth
+                  {supabaseConfigured
+                    ? 'Disabled in live Supabase mode'
+                    : 'Local device storage only'}
                 </span>
               </div>
 
-              <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
-                Use these clearly marked sample demo identities to evaluate role-based access control without creating real accounts. Live deployments use Supabase Auth +{' '}
-                <code className="font-mono">public.organization_profiles</code> (see{' '}
-                <code className="font-mono">docs/AUTH_SETUP.md</code>).
-              </p>
+              {supabaseConfigured ? (
+                <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
+                  Demo bypass is disabled because this build is connected to live Supabase. Sign in above with a real organization or coordinator account provisioned in Supabase Auth (see{' '}
+                  <code className="font-mono">docs/AUTH_SETUP.md</code>).
+                </p>
+              ) : (
+                <>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-700 dark:text-[#b7c6dc]">
+                    Use these clearly marked <strong>demo only</strong> identities to evaluate role-based access control on this device without creating real accounts. Live Supabase deployments enforce Postgres RLS and real Supabase Auth (see{' '}
+                    <code className="font-mono">docs/AUTH_SETUP.md</code>).
+                  </p>
 
-              <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                {DEMO_ACCOUNTS.map((acc) => (
-                  <button
-                    key={acc.email}
-                    type="button"
-                    disabled={submitting}
-                    onClick={() => void handleDemoLaunch(acc.email)}
-                    className="ne-card-hover ne-btn-press flex flex-col justify-between rounded-xl border border-amber-300/90 bg-white p-3 text-left hover:border-blue-500 hover:bg-blue-50/40 dark:border-[#2d456b] dark:bg-[#101b2e] dark:hover:border-blue-500/70 dark:hover:bg-[#172742]"
-                  >
-                    <div>
-                      <span className="font-mono text-[11px] font-bold uppercase text-blue-700 dark:text-blue-400">
-                        {acc.role}
-                      </span>
-                      <p className="mt-1 truncate text-xs font-semibold text-slate-900 dark:text-[#eef2f7]">
-                        {acc.fullName}
-                      </p>
-                      <p className="truncate font-mono text-[10px] text-slate-500 dark:text-[#8295b3]">
-                        {acc.email}
-                      </p>
-                      <p className="mt-1.5 text-[11px] leading-snug text-slate-600 dark:text-[#b7c6dc]">
-                        {acc.description}
-                      </p>
-                    </div>
-                    <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400">
-                      <span>Launch Demo</span>
-                      <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                    </span>
-                  </button>
-                ))}
-              </div>
+                  <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                    {DEMO_ACCOUNTS.map((acc) => (
+                      <button
+                        key={acc.email}
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => void handleDemoLaunch(acc.email)}
+                        className="ne-card-hover ne-btn-press flex min-h-[44px] flex-col justify-between rounded-xl border border-amber-300/90 bg-white p-3 text-left hover:border-blue-500 hover:bg-blue-50/40 dark:border-[#2d456b] dark:bg-[#101b2e] dark:hover:border-blue-500/70 dark:hover:bg-[#172742]"
+                      >
+                        <div>
+                          <span className="font-mono text-[11px] font-bold uppercase text-blue-700 dark:text-blue-400">
+                            {acc.role}
+                          </span>
+                          <p className="mt-1 truncate text-xs font-semibold text-slate-900 dark:text-[#eef2f7]">
+                            {acc.fullName}
+                          </p>
+                          <p className="truncate font-mono text-[10px] text-slate-500 dark:text-[#8295b3]">
+                            {acc.email}
+                          </p>
+                          <p className="mt-1.5 text-[11px] leading-snug text-slate-600 dark:text-[#b7c6dc]">
+                            {acc.description}
+                          </p>
+                        </div>
+                        <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400">
+                          <span>Launch Demo Only</span>
+                          <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </section>
           </motion.div>
         </div>

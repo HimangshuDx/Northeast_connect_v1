@@ -95,7 +95,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           type="button"
           onClick={() => onToggleConfirm(report.id)}
           aria-pressed={isConfirmedByUser}
-          className={`ne-btn-press inline-flex min-h-[36px] cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 whitespace-nowrap shrink-0 ${
+          className={`ne-btn-press inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-lg border px-3.5 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 whitespace-nowrap shrink-0 ${
             isConfirmedByUser
               ? 'border-blue-600 bg-blue-600 text-white shadow-xs hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500'
               : 'border-[#c2cfe2] bg-[#f8fafd] text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]'

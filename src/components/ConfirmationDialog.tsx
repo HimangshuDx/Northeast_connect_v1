@@ -84,9 +84,9 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                 type="button"
                 onClick={onCancel}
                 aria-label="Close dialog"
-                className="ne-btn-press rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-[#8295b3] dark:hover:bg-[#1c2d49] dark:hover:text-[#e6edf7]"
+                className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-[#9cb0cc] dark:hover:bg-[#1c2d49] dark:hover:text-[#e6edf7]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -94,14 +94,14 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
               <button
                 type="button"
                 onClick={onCancel}
-                className="ne-btn-press min-h-[40px] rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+                className="ne-btn-press min-h-[44px] rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
               >
                 {cancelLabel}
               </button>
               <button
                 type="button"
                 onClick={onConfirm}
-                className={`ne-btn-press min-h-[40px] rounded-lg px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                className={`ne-btn-press min-h-[44px] rounded-lg px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 ${
                   destructive
                     ? 'bg-red-600 hover:bg-red-700 focus-visible:outline-red-500'
                     : 'bg-blue-600 hover:bg-blue-700 focus-visible:outline-blue-500'

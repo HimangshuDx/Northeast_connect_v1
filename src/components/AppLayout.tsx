@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
+  Database,
   FilePlus2,
   Globe,
   HandHeart,
@@ -57,10 +58,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     outbox,
     setIsOutboxOpen,
     authSession,
+    dataSourceMode,
     canAccessNgo,
     canAccessCoordinator,
     signOutOrganization,
   } = useApp();
+
+  const dataSourceLabel =
+    dataSourceMode === 'supabase'
+      ? 'Shared database (Supabase)'
+      : 'This device only (demo mode)';
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [, setSyncTick] = useState(0);
@@ -196,14 +203,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               onClick={() => setSidebarCollapsed((c) => !c)}
               aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              className={`ne-btn-press inline-flex items-center justify-center rounded-lg text-slate-500 hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#8295b3] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7] ${
-                sidebarCollapsed ? 'h-7 w-9' : 'shrink-0 p-1.5'
+              className={`ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-600 hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#9cb0cc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7] ${
+                sidebarCollapsed ? 'w-11' : 'shrink-0'
               }`}
             >
               {sidebarCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -219,7 +226,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <button
                   type="button"
                   onClick={() => handleSwitchExperience('citizen')}
-                  className={`ne-btn-press flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap ${
+                  className={`ne-btn-press flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap ${
                     experienceMode === 'citizen' && !isCoordinatorRoute
                       ? 'bg-red-600 text-white shadow-xs'
                       : 'text-slate-700 hover:bg-white/75 dark:text-[#b7c6dc] dark:hover:bg-[#172742]'
@@ -231,7 +238,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <button
                   type="button"
                   onClick={() => handleSwitchExperience('ngo')}
-                  className={`ne-btn-press flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap ${
+                  className={`ne-btn-press flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap ${
                     experienceMode === 'ngo' && !isCoordinatorRoute
                       ? 'bg-emerald-600 text-white shadow-xs'
                       : 'text-slate-700 hover:bg-white/75 dark:text-[#b7c6dc] dark:hover:bg-[#172742]'
@@ -247,11 +254,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => handleSwitchExperience('citizen')}
+                aria-label={t.experience.citizenMode}
                 title={t.experience.citizenMode}
-                className={`ne-btn-press flex h-9 w-9 items-center justify-center rounded-lg ${
+                className={`ne-btn-press flex h-11 w-11 items-center justify-center rounded-lg ${
                   experienceMode === 'citizen' && !isCoordinatorRoute
                     ? 'bg-red-600 text-white'
-                    : 'text-slate-600 hover:bg-[#edf2f8] dark:text-[#8295b3] dark:hover:bg-[#172742]'
+                    : 'text-slate-600 hover:bg-[#edf2f8] dark:text-[#9cb0cc] dark:hover:bg-[#172742]'
                 }`}
               >
                 <LifeBuoy className="h-4 w-4" aria-hidden="true" />
@@ -259,11 +267,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <button
                 type="button"
                 onClick={() => handleSwitchExperience('ngo')}
+                aria-label={t.experience.ngoMode}
                 title={t.experience.ngoMode}
-                className={`ne-btn-press flex h-9 w-9 items-center justify-center rounded-lg ${
+                className={`ne-btn-press flex h-11 w-11 items-center justify-center rounded-lg ${
                   experienceMode === 'ngo' && !isCoordinatorRoute
                     ? 'bg-emerald-600 text-white'
-                    : 'text-slate-600 hover:bg-[#edf2f8] dark:text-[#8295b3] dark:hover:bg-[#172742]'
+                    : 'text-slate-600 hover:bg-[#edf2f8] dark:text-[#9cb0cc] dark:hover:bg-[#172742]'
                 }`}
               >
                 <HandHeart className="h-4 w-4" aria-hidden="true" />
@@ -291,7 +300,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   to={item.to}
                   title={sidebarCollapsed ? item.label : undefined}
                   className={() =>
-                    `ne-btn-press flex min-h-[40px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                    `ne-btn-press flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                       isManualActive
                         ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/80 dark:bg-blue-500/14 dark:text-blue-300 dark:ring-blue-500/25'
                         : 'text-slate-700 hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]'
@@ -306,7 +315,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
             <div className="mt-3 border-t border-[#dce4f0] pt-3 dark:border-[#1f3250]">
               {!sidebarCollapsed && (
-                <p className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#7e91b0]">
+                <p className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-[#8fa3c2]">
                   {t.experience.ngoMode}
                 </p>
               )}
@@ -314,7 +323,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 to={ngoNavItem.to}
                 title={sidebarCollapsed ? ngoNavItem.label : undefined}
                 className={({ isActive }) =>
-                  `ne-btn-press flex min-h-[40px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                  `ne-btn-press flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive
                       ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80 dark:bg-emerald-500/14 dark:text-emerald-300 dark:ring-emerald-500/25'
                       : 'text-slate-700 hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]'
@@ -328,7 +337,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
             <div className="mt-3 border-t border-[#dce4f0] pt-3 dark:border-[#1f3250]">
               {!sidebarCollapsed && (
-                <p className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#7e91b0]">
+                <p className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-[#8fa3c2]">
                   {t.experience.adminSeparator}
                 </p>
               )}
@@ -342,7 +351,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     : undefined
                 }
                 className={({ isActive }) =>
-                  `ne-btn-press flex min-h-[40px] items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                  `ne-btn-press flex min-h-[44px] items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive
                       ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/80 dark:bg-blue-500/14 dark:text-blue-300 dark:ring-blue-500/25'
                       : 'text-slate-700 hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]'
@@ -354,7 +363,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   {!sidebarCollapsed && <span className="truncate">{adminNavItem.label}</span>}
                 </span>
                 {!sidebarCollapsed && !canAccessCoordinator && (
-                  <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-[#7e91b0]" aria-hidden="true" />
+                  <Lock className="h-3.5 w-3.5 shrink-0 text-slate-500 dark:text-[#8fa3c2]" aria-hidden="true" />
                 )}
               </NavLink>
 
@@ -362,7 +371,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 type="button"
                 onClick={() => setIsOutboxOpen(true)}
                 title={sidebarCollapsed ? t.nav.myOutbox : undefined}
-                className={`ne-btn-press mt-1 flex min-h-[40px] w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7] whitespace-nowrap ${
+                className={`ne-btn-press mt-1 flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-[#edf2f8] hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7] whitespace-nowrap ${
                   sidebarCollapsed ? 'justify-center px-2' : 'justify-between'
                 }`}
               >
@@ -375,7 +384,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     className={`font-mono text-xs tabular-nums rounded-md px-1.5 py-0.5 ${
                       queuedCount > 0
                         ? 'bg-amber-100 text-amber-900 dark:bg-amber-500/18 dark:text-amber-200'
-                        : 'bg-[#edf2f8] text-slate-600 dark:bg-[#172742] dark:text-[#8295b3]'
+                        : 'bg-[#edf2f8] text-slate-700 dark:bg-[#172742] dark:text-[#9cb0cc]'
                     }`}
                   >
                     {queuedCount}
@@ -402,29 +411,29 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <p className="mt-0.5 truncate text-[11px] text-slate-500 dark:text-[#8295b3]">
                   {getRoleDisplayLabel(authSession.role)}
                 </p>
-                <div className="mt-2 flex items-center justify-between gap-2 border-t border-[#dce4f0] pt-2 dark:border-[#1f3250]">
+                <div className="mt-1 flex items-center justify-between gap-2 border-t border-[#dce4f0] pt-1 dark:border-[#1f3250]">
                   <Link
                     to="/"
-                    className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:text-white"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 px-1 text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-[#b7c6dc] dark:hover:text-white"
                   >
-                    <Home className="h-3 w-3" aria-hidden="true" />
+                    <Home className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Role Home</span>
                   </Link>
                   {authSession.isAuthenticated ? (
                     <button
                       type="button"
                       onClick={() => void signOutOrganization()}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-700 hover:underline dark:text-red-400"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 px-1 text-xs font-semibold text-red-700 hover:underline dark:text-red-400"
                     >
-                      <LogOut className="h-3 w-3" aria-hidden="true" />
+                      <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
                       <span>Sign Out</span>
                     </button>
                   ) : (
                     <Link
                       to="/login"
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 px-1 text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400"
                     >
-                      <LogIn className="h-3 w-3" aria-hidden="true" />
+                      <LogIn className="h-3.5 w-3.5" aria-hidden="true" />
                       <span>Partner Login</span>
                     </Link>
                   )}
@@ -436,7 +445,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               type="button"
               onClick={() => setSimulatedOffline(!simulatedOffline)}
               title="Toggle offline mode to test local device storage and Outbox queuing"
-              className={`ne-btn-press flex min-h-[38px] w-full items-center gap-2.5 rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap ${
+              className={`ne-btn-press flex min-h-[44px] w-full items-center gap-2.5 rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap ${
                 !isOnline
                   ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/35 dark:bg-amber-500/12 dark:text-amber-200'
                   : 'border-[#dce4f0] bg-[#f8fafd] text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152]'
@@ -461,7 +470,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <button
               type="button"
               onClick={toggleTheme}
-              className={`ne-btn-press flex min-h-[38px] w-full items-center gap-2.5 rounded-lg border border-[#dce4f0] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap ${
+              className={`ne-btn-press flex min-h-[44px] w-full items-center gap-2.5 rounded-lg border border-[#dce4f0] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap ${
                 sidebarCollapsed ? 'justify-center px-2' : ''
               }`}
             >
@@ -474,6 +483,28 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <span>{theme === 'dark' ? t.controls.switchToLight : t.controls.switchToDark}</span>
               )}
             </button>
+
+            {!sidebarCollapsed && (
+              <div
+                aria-label="Data source status"
+                className="flex items-center gap-2 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-2.5 py-2 text-[11px] text-slate-600 dark:border-[#1f3250] dark:bg-[#09111f] dark:text-[#9cb0cc]"
+              >
+                <Database
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    dataSourceMode === 'supabase'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                  aria-hidden="true"
+                />
+                <div className="min-w-0 leading-tight">
+                  <span className="block font-semibold text-slate-800 dark:text-[#e6edf7]">
+                    Data source
+                  </span>
+                  <span className="block truncate">{dataSourceLabel}</span>
+                </div>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -481,10 +512,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Top Workspace Bar */}
           <header className="sticky top-0 z-20 border-b border-[#dce4f0] bg-white/92 backdrop-blur-sm dark:border-[#1f3250] dark:bg-[#0d1728]/92">
-            {/* Mobile Compact Header (<= 52px) */}
-            <div className="flex h-13 items-center justify-between gap-2 px-3 sm:px-4 md:hidden">
-              <Link to="/board" className="flex items-center gap-2 min-w-0">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#102341] text-white dark:bg-blue-600">
+            {/* Mobile Compact Header */}
+            <div className="flex min-h-[56px] items-center justify-between gap-2 px-3 py-1.5 sm:px-4 md:hidden">
+              <Link to="/board" className="flex min-w-0 items-center gap-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#102341] text-white dark:bg-blue-600">
                   <Compass className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <span className="truncate font-display text-sm font-bold text-slate-900 dark:text-[#e6edf7]">
@@ -492,7 +523,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </span>
               </Link>
 
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <label htmlFor="mobile-lang-select" className="sr-only">
                   {t.controls.languageLabel}
                 </label>
@@ -501,7 +532,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as LanguageCode)}
                   aria-label="Select application language"
-                  className="ne-input h-9 rounded-lg border px-2 text-xs font-medium"
+                  className="ne-input min-h-[44px] max-w-[70px] rounded-lg border px-2 text-xs font-semibold"
                 >
                   {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
                     <option key={code} value={code}>
@@ -513,10 +544,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <button
                   type="button"
                   onClick={() => setIsOutboxOpen(true)}
-                  aria-label="Open My Outbox"
-                  className="ne-btn-press inline-flex h-9 items-center gap-1 rounded-lg border border-[#c2cfe2] bg-white px-2 text-xs font-medium text-slate-700 dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7]"
+                  aria-label={`Open My Outbox (${queuedCount} queued)`}
+                  className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-lg border border-[#c2cfe2] bg-white px-2 text-xs font-medium text-slate-700 dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7]"
                 >
-                  <Inbox className="h-3.5 w-3.5" />
+                  <Inbox className="h-4 w-4" aria-hidden="true" />
                   <span className="font-mono tabular-nums">{queuedCount}</span>
                 </button>
 
@@ -524,7 +555,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   to="/coordinator"
                   aria-label={t.nav.coordinatorDesk}
                   title={t.nav.coordinatorDesk}
-                  className={`ne-btn-press inline-flex h-9 w-9 items-center justify-center rounded-lg border ${
+                  className={`ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border ${
                     isCoordinatorRoute
                       ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-300'
                       : 'border-[#c2cfe2] bg-white text-slate-700 dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7]'
@@ -537,20 +568,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   type="button"
                   onClick={toggleTheme}
                   aria-label="Toggle color theme"
-                  className="ne-btn-press inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#c2cfe2] bg-white text-slate-700 dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7]"
+                  className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-[#c2cfe2] bg-white text-slate-700 dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7]"
                 >
                   {theme === 'dark' ? (
-                    <Sun className="h-4 w-4 text-amber-400" />
+                    <Sun className="h-4 w-4 text-amber-400" aria-hidden="true" />
                   ) : (
-                    <Moon className="h-4 w-4" />
+                    <Moon className="h-4 w-4" aria-hidden="true" />
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Desktop Header Row */}
-            <div className="hidden md:flex items-center justify-between gap-4 px-6 py-3">
-              <div className="flex items-center gap-2.5 min-w-0">
+            {/* Desktop & Tablet Header Row */}
+            <div className="hidden md:flex md:flex-wrap lg:flex-nowrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6 lg:py-3">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <span
                   className={`text-xs font-semibold uppercase tracking-wider whitespace-nowrap shrink-0 ${
                     isCoordinatorRoute
@@ -568,9 +599,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </h1>
               </div>
 
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 {/* Language Switcher */}
-                <div className="ne-input inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5">
+                <div className="ne-input inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-2.5">
                   <Globe className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                   <label htmlFor="desktop-lang-select" className="sr-only">
                     {t.controls.languageLabel}
@@ -597,7 +628,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   id="desktop-district-select"
                   value={selectedDistrictId}
                   onChange={(e) => setSelectedDistrictId(e.target.value)}
-                  className="ne-input h-9 max-w-[190px] rounded-lg border px-2.5 text-xs font-medium"
+                  className="ne-input min-h-[44px] max-w-[180px] rounded-lg border px-2.5 text-xs font-medium"
                 >
                   {NORTHEAST_DISTRICTS.map((dist) => (
                     <option key={dist.id} value={dist.id}>
@@ -607,7 +638,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </select>
 
                 <div
-                  className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium whitespace-nowrap shrink-0 ${
+                  className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium whitespace-nowrap shrink-0 ${
                     isOnline
                       ? 'border-emerald-200/90 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/12 dark:text-emerald-300'
                       : 'border-amber-300/90 bg-amber-50 text-amber-900 dark:border-amber-500/35 dark:bg-amber-500/12 dark:text-amber-200'
@@ -625,7 +656,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   type="button"
                   onClick={() => void refreshData()}
                   title={`Refresh cached snapshot (${formatTimestamp(lastSyncedAt)})`}
-                  className="ne-btn-press hidden lg:inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-2.5 text-xs text-slate-600 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
+                  className="ne-btn-press hidden lg:inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#dce4f0] bg-[#f8fafd] px-2.5 text-xs text-slate-600 hover:bg-[#edf2f8] dark:border-[#1f3250] dark:bg-[#142239] dark:text-[#b7c6dc] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
                 >
                   <RefreshCw className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   <span className="font-mono tabular-nums">
@@ -636,7 +667,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 {isNgoRoute ? (
                   <Link
                     to="/report?mode=sos"
-                    className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-500/35 dark:bg-red-500/14 dark:text-red-300 dark:hover:bg-red-500/20 whitespace-nowrap shrink-0"
+                    className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-500/35 dark:bg-red-500/14 dark:text-red-300 dark:hover:bg-red-500/20 whitespace-nowrap shrink-0"
                   >
                     <LifeBuoy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <span>{t.controls.requestHelp}</span>
@@ -644,7 +675,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 ) : (
                   <Link
                     to="/report?mode=sos"
-                    className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3.5 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap shrink-0"
+                    className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-600 px-3.5 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap shrink-0"
                   >
                     <FilePlus2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <span>{t.controls.requestHelp}</span>
@@ -655,11 +686,36 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </header>
 
           {/* Main Content with Smooth Route Transition */}
-          <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 py-5 pb-24 sm:px-6 md:py-6 md:pb-10">
+          <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 py-5 pb-24 sm:px-6 md:py-6 md:pb-8">
             <PageTransition routeKey={location.pathname}>
               {children}
             </PageTransition>
           </main>
+
+          {/* Compact Footer with Explicit Data Source Indicator */}
+          <footer className="border-t border-[#dce4f0] bg-white/75 px-4 py-3 pb-20 text-xs text-slate-600 dark:border-[#1f3250] dark:bg-[#0d1728]/75 dark:text-[#9cb0cc] sm:px-6 md:pb-3">
+            <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <Database
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    dataSourceMode === 'supabase'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span>
+                  Data source:{' '}
+                  <strong className="text-slate-900 dark:text-[#eef2f7]">
+                    {dataSourceLabel}
+                  </strong>
+                </span>
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-[#8295b3]">
+                Emergency Helpline: <a href="tel:112" className="font-mono font-semibold underline">112</a> · Offline-first safety coordination
+              </span>
+            </div>
+          </footer>
         </div>
       </div>
 

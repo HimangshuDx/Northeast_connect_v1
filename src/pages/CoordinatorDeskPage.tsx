@@ -55,12 +55,14 @@ export const CoordinatorDeskPage: React.FC = () => {
     updateResourceCapacity,
     resetDemoData,
     authSession,
+    supabaseConfigured,
     signOutOrganization,
     t,
   } = useApp();
 
   const navigate = useNavigate();
   const coordinatorName = authSession.fullName || 'Duty Coordinator';
+  const isLocalDemoSession = authSession.isDemo || !supabaseConfigured;
 
   const [activeTab, setActiveTab] = useState<DeskTab>('inbox');
 
@@ -171,9 +173,9 @@ export const CoordinatorDeskPage: React.FC = () => {
             <h2 className="font-display text-2xl font-bold tracking-tight text-[#102341] dark:text-[#eef2f7]">
               {t.coordinatorPage.title}
             </h2>
-            {authSession.isDemo && (
+            {isLocalDemoSession && (
               <span className="rounded bg-amber-100 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-900 dark:bg-amber-500/20 dark:text-amber-200">
-                DEMO MODE
+                DEMO ONLY
               </span>
             )}
             <DemoDataNoticeBadge />
@@ -188,19 +190,21 @@ export const CoordinatorDeskPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setConfirmResetOpen(true)}
-            className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
-          >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t.coordinatorPage.resetDemo}</span>
-          </button>
+          {isLocalDemoSession && (
+            <button
+              type="button"
+              onClick={() => setConfirmResetOpen(true)}
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{t.coordinatorPage.resetDemo}</span>
+            </button>
+          )}
 
           <button
             type="button"
             onClick={() => void handleLogout()}
-            className="ne-btn-press inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+            className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
             <span>Sign Out</span>
@@ -265,7 +269,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                 aria-label="Filter inbox by district"
                 value={districtFilter}
                 onChange={(e) => setDistrictFilter(e.target.value)}
-                className="ne-input h-9 rounded-lg border px-3 text-xs font-medium"
+                className="ne-input min-h-[44px] w-full rounded-lg border px-3 text-xs font-medium sm:w-auto"
               >
                 {NORTHEAST_DISTRICTS.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -278,7 +282,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                 aria-label="Filter inbox by report type"
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as 'all' | 'HAZARD' | 'HELP_REQUEST')}
-                className="ne-input h-9 rounded-lg border px-3 text-xs font-medium"
+                className="ne-input min-h-[44px] w-full rounded-lg border px-3 text-xs font-medium sm:w-auto"
               >
                 <option value="all">All Report Types</option>
                 <option value="HELP_REQUEST">Urgent Help Requests</option>
@@ -289,7 +293,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                 aria-label="Filter inbox by verification status"
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value as 'all' | TrustStatus)}
-                className="ne-input h-9 rounded-lg border px-3 text-xs font-medium"
+                className="ne-input min-h-[44px] w-full rounded-lg border px-3 text-xs font-medium sm:w-auto"
               >
                 <option value="all">All Verification Statuses</option>
                 <option value="UNVERIFIED">Unverified</option>
@@ -381,7 +385,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                             type="button"
                             disabled={busyAction !== null}
                             onClick={() => setConfirmDeleteReportOpen(true)}
-                            className="ne-btn-press inline-flex min-h-[32px] items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-300 dark:hover:bg-red-500/20"
+                            className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-300 dark:hover:bg-red-500/20"
                           >
                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             <span>Delete</span>
@@ -440,7 +444,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                                   setBusyAction(null);
                                 }
                               }}
-                              className={`ne-btn-press min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
+                              className={`ne-btn-press min-h-[44px] rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${
                                 selectedReport.verificationStatus === val
                                   ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
                                   : 'border-[#c2cfe2] bg-white text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#101b2e] dark:text-[#d5e0f0] dark:hover:bg-[#1e3152]'
@@ -482,7 +486,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                                   setBusyAction(null);
                                 }
                               }}
-                              className={`ne-btn-press min-h-[34px] rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
+                              className={`ne-btn-press min-h-[44px] rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${
                                 selectedReport.assistanceStatus === val
                                   ? 'border-emerald-600 bg-emerald-600 text-white shadow-xs'
                                   : 'border-[#c2cfe2] bg-white text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#101b2e] dark:text-[#d5e0f0] dark:hover:bg-[#1e3152]'
@@ -521,7 +525,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                               setBusyAction(null);
                             }
                           }}
-                          className="ne-input mt-1.5 h-10 w-full rounded-lg border px-3 text-xs font-medium disabled:opacity-60"
+                          className="ne-input mt-1.5 min-h-[44px] w-full rounded-lg border px-3 text-xs font-medium disabled:opacity-60"
                         >
                           <option value="">Unassigned</option>
                           {RESPONSE_UNITS.filter(Boolean).map((unit) => (
@@ -547,7 +551,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                             disabled={busyAction !== null}
                             value={mergeTargetId}
                             onChange={(e) => setMergeTargetId(e.target.value)}
-                            className="ne-input h-10 min-w-0 flex-1 rounded-lg border px-2.5 text-xs disabled:opacity-60"
+                            className="ne-input min-h-[44px] min-w-0 flex-1 rounded-lg border px-2.5 text-xs disabled:opacity-60"
                           >
                             <option value="">
                               {mergeCandidates.length === 0
@@ -564,7 +568,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                             type="button"
                             disabled={!mergeTargetId || busyAction !== null}
                             onClick={() => setConfirmMergeOpen(true)}
-                            className="ne-btn-press h-10 rounded-lg border border-[#c2cfe2] bg-white px-3 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] disabled:opacity-40 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7]"
+                            className="ne-btn-press min-h-[44px] rounded-lg border border-[#c2cfe2] bg-white px-3.5 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] disabled:opacity-40 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7]"
                           >
                             Merge
                           </button>
@@ -606,7 +610,7 @@ export const CoordinatorDeskPage: React.FC = () => {
                             setBusyAction(null);
                           }
                         }}
-                        className="mt-2 flex gap-2"
+                        className="mt-2 flex flex-col gap-2 sm:flex-row"
                       >
                         <input
                           type="text"
@@ -617,12 +621,12 @@ export const CoordinatorDeskPage: React.FC = () => {
                           }}
                           placeholder="Add verification log, dispatch ETA, or callback result..."
                           aria-label="Internal coordinator note"
-                          className="ne-input h-10 flex-1 rounded-lg border px-3 text-xs"
+                          className="ne-input min-h-[44px] flex-1 rounded-lg border px-3 text-xs"
                         />
                         <button
                           type="submit"
                           disabled={busyAction !== null}
-                          className="ne-btn-press inline-flex h-10 items-center gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                          className="ne-btn-press inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                         >
                           {busyAction === 'note' ? (
                             <>

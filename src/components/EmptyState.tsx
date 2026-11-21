@@ -29,7 +29,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <button
           type="button"
           onClick={onAction}
-          className="ne-btn-press mt-4 inline-flex min-h-[40px] items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          className="ne-btn-press mt-4 inline-flex min-h-[44px] items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
           {actionLabel}
         </button>

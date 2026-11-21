@@ -24,7 +24,7 @@ import {
   DataSnapshot,
   SubmitReportPayload,
 } from '../services/dataAdapter';
-import { dataService } from '../services/dataService';
+import { dataService, getActiveDataSourceMode } from '../services/dataService';
 import { getSupabaseClient, isSupabaseConfigured } from '../services/supabaseClient';
 import {
   AssistanceStatus,
@@ -122,6 +122,7 @@ interface AppContextValue {
   authSession: AuthSessionState;
   authLoading: boolean;
   supabaseConfigured: boolean;
+  dataSourceMode: 'supabase' | 'local';
   canAccessNgo: boolean;
   canAccessCoordinator: boolean;
   signInOrganization: (
@@ -239,6 +240,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [authSession, setAuthSession] = useState<AuthSessionState>(GUEST_CITIZEN_SESSION);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const [dataSourceMode, setDataSourceMode] = useState<'supabase' | 'local'>(() =>
+    getActiveDataSourceMode()
+  );
 
   const isOnline = realOnline && !simulatedOffline;
   const isOnlineRef = useRef(isOnline);
@@ -308,6 +312,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setVolunteerProfile(snap.volunteerProfile);
     }
     setLastSyncedAt(snap.lastSyncedAt);
+    setDataSourceMode(getActiveDataSourceMode());
     saveCachedSnapshot(snap);
   }, []);
 
@@ -413,8 +418,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     async (payload: Omit<SubmitReportPayload, 'isOnline'>) => {
       try {
         const result = await dataService.submitReport({ ...payload, isOnline });
-        const snap = await dataService.loadSnapshot();
-        applySnapshot(snap);
+        try {
+          const snap = await dataService.loadSnapshot();
+          applySnapshot(snap);
+        } catch {
+          // Even if background snapshot reload fails offline/on 500, keep Outbox item in state
+          setOutbox((prev) => [
+            result.outboxItem,
+            ...prev.filter(
+              (o) =>
+                o.id !== result.outboxItem.id &&
+                o.clientUuid !== result.outboxItem.clientUuid
+            ),
+          ]);
+          if (result.syncedReport) {
+            setReports((prev) => [
+              result.syncedReport!,
+              ...prev.filter((r) => r.id !== result.syncedReport!.id),
+            ]);
+          }
+          setDataSourceMode(getActiveDataSourceMode());
+        }
         if (result.outboxItem.syncStatus === 'SYNCED') {
           addToast({
             type: 'success',
@@ -1099,6 +1123,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       authSession,
       authLoading,
       supabaseConfigured: isSupabaseConfigured,
+      dataSourceMode,
       canAccessNgo,
       canAccessCoordinator,
       signInOrganization,
@@ -1156,6 +1181,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       saveVolunteerProfile,
       authSession,
       authLoading,
+      dataSourceMode,
       canAccessNgo,
       canAccessCoordinator,
       signInOrganization,

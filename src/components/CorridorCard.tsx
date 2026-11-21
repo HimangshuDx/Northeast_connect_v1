@@ -44,7 +44,7 @@ export const CorridorCard: React.FC<CorridorCardProps> = ({ corridor }) => {
           <span>Confirmed {formatRelativeAge(corridor.lastConfirmedAt)}</span>
         </span>
       </div>
-      <div className="mt-1.5 flex items-center gap-1 font-mono text-[11px] text-slate-400 tabular-nums dark:text-[#6f83a3]">
+      <div className="mt-1.5 flex items-center gap-1 font-mono text-[11px] text-slate-600 tabular-nums dark:text-[#9cb0cc]">
         <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
         <span>
           {corridor.lat.toFixed(4)}, {corridor.lng.toFixed(4)}

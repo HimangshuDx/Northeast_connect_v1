@@ -143,17 +143,17 @@ export const RoleSelectionPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <a
               href="tel:112"
-              className="ne-btn-press inline-flex h-9 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-red-700 whitespace-nowrap"
             >
               <PhoneCall className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span className="hidden sm:inline">{t.portal.safetyBanner}</span>
               <span className="sm:hidden font-mono">112</span>
             </a>
 
-            <div className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 text-white transition-colors hover:bg-white/15">
+            <div className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 text-white transition-colors hover:bg-white/15">
               <Globe className="h-3.5 w-3.5 shrink-0 text-sky-300" aria-hidden="true" />
               <label htmlFor="portal-lang-select" className="sr-only">
                 {t.controls.languageLabel}
@@ -163,7 +163,7 @@ export const RoleSelectionPage: React.FC = () => {
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as LanguageCode)}
                 aria-label="Select application language"
-                className="bg-transparent text-xs font-medium text-white focus:outline-none"
+                className="max-w-[74px] sm:max-w-none bg-transparent text-xs font-medium text-white focus:outline-none"
               >
                 {(Object.keys(LANGUAGE_LABELS) as LanguageCode[]).map((code) => (
                   <option
@@ -181,7 +181,7 @@ export const RoleSelectionPage: React.FC = () => {
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="ne-btn-press inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-slate-100 transition-colors hover:bg-white/15"
+              className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-white/15 bg-white/10 text-slate-100 transition-colors hover:bg-white/15"
             >
               {theme === 'dark' ? (
                 <Sun className="h-4 w-4 text-amber-300" aria-hidden="true" />
@@ -195,9 +195,9 @@ export const RoleSelectionPage: React.FC = () => {
 
       {/* Main Role Selection Container */}
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 py-10 sm:px-6 sm:py-12">
-        {/* Centered Hero Header Section */}
+        {/* Centered Hero Header Section (immediately visible, not gated behind opacity animation) */}
         <motion.div
-          initial={{ opacity: 0, y: 6 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, ease: NE_EASE }}
           className="mx-auto max-w-3xl text-center"
@@ -211,8 +211,8 @@ export const RoleSelectionPage: React.FC = () => {
           <p className="mt-3 text-base font-medium text-slate-100 sm:text-lg">
             {t.tagline}
           </p>
-          <p className="mt-1.5 text-sm text-slate-300 sm:text-base">
-            {t.portal.subtitle}
+          <p className="mt-1.5 text-sm text-slate-200 sm:text-base">
+            Real-time flood &amp; landslide alerts, safe shelters, and offline-ready emergency help for Northeast India.
           </p>
         </motion.div>
 
@@ -234,11 +234,11 @@ export const RoleSelectionPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={handlePartnerAccess}
-                className="ne-btn-press inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 text-xs font-semibold text-white hover:bg-blue-700"
               >
                 <span>
                   {canAccessCoordinator ? 'Open Coordinator Desk' : 'Open Relief Operations'}
@@ -248,7 +248,7 @@ export const RoleSelectionPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => void signOutOrganization()}
-                className="ne-btn-press inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 text-xs font-medium text-white hover:bg-white/15"
+                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 text-xs font-medium text-white hover:bg-white/15"
               >
                 <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Sign Out</span>
@@ -297,30 +297,34 @@ export const RoleSelectionPage: React.FC = () => {
               </ul>
             </div>
 
-            <div className="mt-8 space-y-3">
-              <button
-                type="button"
-                onClick={handleContinueAsCitizen}
-                className="ne-btn-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs hover:bg-blue-700"
-              >
-                <span>{t.portal.citizenCta}</span>
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-xs">
+            <div className="mt-8 space-y-2.5">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 <Link
                   to="/report?mode=sos"
                   onClick={() => setExperienceMode('citizen')}
-                  className="font-semibold text-red-700 hover:underline dark:text-red-400"
+                  className="ne-btn-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-xs hover:bg-red-700"
                 >
-                  Quick SOS / Request Urgent Help
+                  <span>Request help</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
                 </Link>
+
+                <button
+                  type="button"
+                  onClick={handleContinueAsCitizen}
+                  className="ne-btn-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xs hover:bg-blue-700"
+                >
+                  <span>View situation</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 <Link
                   to="/resources"
                   onClick={() => setExperienceMode('citizen')}
-                  className="font-medium text-slate-600 hover:underline dark:text-[#9cb0cc]"
+                  className="inline-flex min-h-[44px] items-center font-medium text-slate-700 hover:underline dark:text-[#b7c6dc]"
                 >
-                  Shelters &amp; 112 Helplines
+                  Shelters, Relief Camps &amp; 112 Helplines →
                 </Link>
               </div>
             </div>
@@ -376,7 +380,7 @@ export const RoleSelectionPage: React.FC = () => {
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
 
-              <p className="pt-0.5 text-xs leading-relaxed text-slate-500 dark:text-[#8295b3]">
+              <p className="pt-0.5 text-xs leading-relaxed text-slate-600 dark:text-[#9cb0cc]">
                 {t.portal.restrictedNotice} NGO &amp; Volunteer roles access Relief Operations; Coordinator Desk requires Coordinator clearance.
               </p>
             </div>
@@ -394,14 +398,14 @@ export const RoleSelectionPage: React.FC = () => {
               <span>
                 <a
                   href="tel:112"
-                  className="font-bold text-red-700 underline underline-offset-2 hover:text-red-800 dark:text-red-400"
+                  className="inline-flex min-h-[44px] items-center font-bold text-red-700 underline underline-offset-2 hover:text-red-800 dark:text-red-400"
                 >
                   {t.portal.safetyBanner}
                 </a>{' '}
                 {t.portal.scopeNote}
               </span>
             </div>
-            <span className="shrink-0 font-mono text-[11px] text-slate-500 dark:text-[#8295b3]">
+            <span className="shrink-0 font-mono text-[11px] text-slate-600 dark:text-[#9cb0cc]">
               Offline-ready · Outbox &amp; SMS fallback
             </span>
           </div>

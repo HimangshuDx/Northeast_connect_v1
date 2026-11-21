@@ -1133,7 +1133,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               type="button"
               onClick={() => setGeoError(null)}
               aria-label="Dismiss location notice"
-              className="inline-flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-md hover:bg-amber-200/60 dark:hover:bg-amber-500/20"
+              className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-md hover:bg-amber-200/60 dark:hover:bg-amber-500/20"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>

@@ -67,9 +67,9 @@ export const ToastContainer: React.FC = () => {
                 type="button"
                 onClick={() => dismissToast(toast.id)}
                 aria-label="Dismiss notification"
-                className="ne-btn-press rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]"
+                className="ne-btn-press -mr-1.5 -mt-1.5 inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-[#9cb0cc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </motion.div>
           );

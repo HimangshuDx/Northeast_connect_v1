@@ -515,8 +515,8 @@ export const NgoOperationsPage: React.FC = () => {
                   ariaLabel="Filter by verification status"
                 />
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="relative">
+                <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+                  <div className="relative w-full sm:w-auto">
                     <Search
                       className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                       aria-hidden="true"
@@ -527,7 +527,7 @@ export const NgoOperationsPage: React.FC = () => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search locality, highway..."
                       aria-label="Search assistance requests"
-                      className="ne-input h-9 w-48 rounded-lg border pl-8 pr-3 text-xs"
+                      className="ne-input min-h-[44px] w-full rounded-lg border pl-8 pr-3 text-xs sm:w-48"
                     />
                   </div>
 
@@ -535,7 +535,7 @@ export const NgoOperationsPage: React.FC = () => {
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
                     aria-label="Filter by emergency type"
-                    className="ne-input h-9 rounded-lg border px-2.5 text-xs font-medium"
+                    className="ne-input min-h-[44px] w-full rounded-lg border px-2.5 text-xs font-medium sm:w-auto"
                   >
                     <option value="all">All Emergency Types</option>
                     {CATEGORIES.map((cat) => (
@@ -549,7 +549,7 @@ export const NgoOperationsPage: React.FC = () => {
                     value={needFilter}
                     onChange={(e) => setNeedFilter(e.target.value)}
                     aria-label="Filter by assistance need"
-                    className="ne-input h-9 rounded-lg border px-2.5 text-xs font-medium"
+                    className="ne-input min-h-[44px] w-full rounded-lg border px-2.5 text-xs font-medium sm:w-auto"
                   >
                     <option value="all">All Relief Needs</option>
                     {ASSISTANCE_NEEDS.map((need) => (
@@ -703,7 +703,7 @@ export const NgoOperationsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setActiveTab('assignments')}
-                              className="ne-btn-press inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-emerald-600 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/50 dark:bg-emerald-500/15 dark:text-emerald-200 whitespace-nowrap shrink-0"
+                              className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-emerald-600 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/50 dark:bg-emerald-500/15 dark:text-emerald-200 whitespace-nowrap shrink-0"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                               <span>Active Pledge · Manage Progress</span>
@@ -712,7 +712,7 @@ export const NgoOperationsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => openPledgeDialog(rep)}
-                              className="ne-btn-press inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 whitespace-nowrap shrink-0"
+                              className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 whitespace-nowrap shrink-0"
                             >
                               <HandHeart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                               <span>Pledge Team Response</span>
@@ -820,7 +820,7 @@ export const NgoOperationsPage: React.FC = () => {
                                     draftNote
                                   )
                                 }
-                                className={`ne-btn-press min-h-[40px] rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                                className={`ne-btn-press min-h-[44px] rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                                   active
                                     ? 'border-emerald-600 bg-emerald-600 text-white shadow-xs'
                                     : 'border-[#dce4f0] bg-[#f8fafd] text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#d5e0f0] dark:hover:bg-[#1e3152]'
@@ -846,7 +846,7 @@ export const NgoOperationsPage: React.FC = () => {
                           }
                           placeholder="Update field status note (e.g., boat launched, 12 kits handed over)..."
                           aria-label="Field operation note"
-                          className="ne-input h-10 flex-1 rounded-lg border px-3 text-xs"
+                          className="ne-input min-h-[44px] flex-1 rounded-lg border px-3 text-xs"
                         />
 
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -859,7 +859,7 @@ export const NgoOperationsPage: React.FC = () => {
                                 draftNote
                               )
                             }
-                            className="ne-btn-press min-h-[40px] rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap"
+                            className="ne-btn-press min-h-[44px] rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap"
                           >
                             Save Note
                           </button>
@@ -867,7 +867,7 @@ export const NgoOperationsPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setReleaseCandidate(assignment)}
-                            className="ne-btn-press min-h-[40px] rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-300 dark:hover:bg-red-500/20 whitespace-nowrap"
+                            className="ne-btn-press min-h-[44px] rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-500/35 dark:bg-red-500/12 dark:text-red-300 dark:hover:bg-red-500/20 whitespace-nowrap"
                           >
                             Release Task
                           </button>
@@ -1003,7 +1003,7 @@ export const NgoOperationsPage: React.FC = () => {
                       key={opt.value}
                       type="button"
                       onClick={() => setProfAvailability(opt.value)}
-                      className={`ne-btn-press min-h-[40px] rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                      className={`ne-btn-press min-h-[44px] rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                         profAvailability === opt.value
                           ? opt.activeClass
                           : 'border-[#dce4f0] bg-[#f8fafd] text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#d5e0f0]'
@@ -1039,7 +1039,7 @@ export const NgoOperationsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-emerald-700 disabled:opacity-60"
+                  className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-emerald-700 disabled:opacity-60"
                 >
                   <span>{isSavingProfile ? 'Saving...' : 'Save Availability & Inventory'}</span>
                 </button>
@@ -1096,7 +1096,7 @@ export const NgoOperationsPage: React.FC = () => {
                   Check open capacity before transporting evacuees or routing supply convoys.
                 </p>
               </div>
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Search
                   className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                   aria-hidden="true"
@@ -1107,7 +1107,7 @@ export const NgoOperationsPage: React.FC = () => {
                   onChange={(e) => setResourceSearch(e.target.value)}
                   placeholder="Search camp or supplies..."
                   aria-label="Search regional resources"
-                  className="ne-input h-9 w-56 rounded-lg border pl-8 pr-3 text-xs"
+                  className="ne-input min-h-[44px] w-full rounded-lg border pl-8 pr-3 text-xs sm:w-56"
                 />
               </div>
             </div>
@@ -1174,9 +1174,9 @@ export const NgoOperationsPage: React.FC = () => {
                   type="button"
                   onClick={() => setPledgeTargetReport(null)}
                   aria-label="Close modal"
-                  className="ne-btn-press rounded-lg p-1.5 text-slate-500 hover:bg-[#edf2f8] dark:text-[#8295b3] dark:hover:bg-[#1e3152]"
+                  className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-500 hover:bg-[#edf2f8] dark:text-[#9cb0cc] dark:hover:bg-[#1e3152]"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
 
@@ -1262,14 +1262,14 @@ export const NgoOperationsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setPledgeTargetReport(null)}
-                    className="ne-btn-press min-h-[40px] rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+                    className="ne-btn-press min-h-[44px] rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isPledging}
-                    className="ne-btn-press min-h-[40px] rounded-lg bg-emerald-600 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                    className="ne-btn-press min-h-[44px] rounded-lg bg-emerald-600 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
                   >
                     {isPledging ? 'Recording Pledge...' : 'Confirm NGO Pledge'}
                   </button>

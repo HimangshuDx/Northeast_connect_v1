@@ -260,8 +260,8 @@ export const ReportHelpPage: React.FC = () => {
           'Please provide a situation description between 12 and 2,000 characters.';
       }
       const parsedCount = Number(affectedPeopleCount);
-      if (!Number.isInteger(parsedCount) || parsedCount < 1 || parsedCount > 100000) {
-        nextErrors.affectedPeopleCount = 'Enter a whole number between 1 and 100,000 affected people.';
+      if (!Number.isInteger(parsedCount) || parsedCount < 1 || parsedCount > 500) {
+        nextErrors.affectedPeopleCount = 'Enter a whole number between 1 and 500 affected people.';
       }
       if (mode === 'HELP_REQUEST' && assistanceNeeds.length === 0) {
         nextErrors.assistanceNeeds = 'Select at least one type of assistance needed.';
@@ -271,7 +271,12 @@ export const ReportHelpPage: React.FC = () => {
     if (targetStep === 3) {
       const trimmedPhone = contactPhone.trim();
       const digits = trimmedPhone.replace(/\D/g, '');
-      if (digits.length < 10 || digits.length > 15 || trimmedPhone.length > 25) {
+      if (
+        digits.length < 10 ||
+        digits.length > 15 ||
+        trimmedPhone.length > 25 ||
+        !/^[+0-9() -]{10,25}$/.test(trimmedPhone)
+      ) {
         nextErrors.contactPhone = 'Enter a valid 10–15 digit mobile or helpline callback number.';
       }
       const trimmedName = reporterName.trim();
@@ -294,15 +299,20 @@ export const ReportHelpPage: React.FC = () => {
       nextErrors.locality = 'Enter your locality, village, or nearest landmark (2–200 characters).';
     }
     const parsedCount = Number(affectedPeopleCount);
-    if (!Number.isInteger(parsedCount) || parsedCount < 1 || parsedCount > 100000) {
-      nextErrors.affectedPeopleCount = 'Enter number of people needing help (1–100,000).';
+    if (!Number.isInteger(parsedCount) || parsedCount < 1 || parsedCount > 500) {
+      nextErrors.affectedPeopleCount = 'Enter number of people needing help (1–500).';
     }
     if (assistanceNeeds.length === 0) {
       nextErrors.assistanceNeeds = 'Select at least one urgent need.';
     }
     const trimmedPhone = contactPhone.trim();
     const digits = trimmedPhone.replace(/\D/g, '');
-    if (digits.length < 10 || digits.length > 15 || trimmedPhone.length > 25) {
+    if (
+      digits.length < 10 ||
+      digits.length > 15 ||
+      trimmedPhone.length > 25 ||
+      !/^[+0-9() -]{10,25}$/.test(trimmedPhone)
+    ) {
       nextErrors.contactPhone = 'Enter a valid 10–15 digit phone number so teams can reach you.';
     }
     const trimmedName = reporterName.trim();
@@ -503,10 +513,11 @@ export const ReportHelpPage: React.FC = () => {
   if (submittedOutboxItem) {
     const savedOffline = submittedOutboxItem.syncStatus !== 'SYNCED';
     return (
-      <AnimatedReveal className="mx-auto max-w-2xl space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <EmergencyStrip />
 
-        <div className="ne-surface rounded-2xl border p-6 sm:p-8">
+        <AnimatedReveal>
+          <div className="ne-surface rounded-2xl border p-6 sm:p-8">
           {savedOffline ? (
             <div className="rounded-xl border border-amber-300/90 bg-amber-50 p-4 text-amber-950 dark:border-amber-500/35 dark:bg-[#1e1a14] dark:text-amber-100">
               <div className="flex items-start gap-3">
@@ -564,7 +575,7 @@ export const ReportHelpPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsOutboxOpen(true)}
-              className="ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
               <Inbox className="h-4 w-4" aria-hidden="true" />
               <span>{t.reportPage.openOutbox}</span>
@@ -579,7 +590,7 @@ export const ReportHelpPage: React.FC = () => {
                   description: 'Opens your SMS app. We cannot confirm delivery.',
                 })
               }
-              className="ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
             >
               <MessageSquareShare className="h-4 w-4" aria-hidden="true" />
               <span>{t.reportPage.shareSms}</span>
@@ -587,7 +598,7 @@ export const ReportHelpPage: React.FC = () => {
 
             <Link
               to="/board"
-              className="ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+              className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
             >
               <span>{t.reportPage.returnBoard}</span>
             </Link>
@@ -595,7 +606,7 @@ export const ReportHelpPage: React.FC = () => {
             <button
               type="button"
               onClick={resetForm}
-              className="ml-auto text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="ml-auto inline-flex min-h-[44px] items-center px-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
             >
               {t.reportPage.submitAnother}
             </button>
@@ -605,7 +616,8 @@ export const ReportHelpPage: React.FC = () => {
             {t.reportPage.smsNotice}
           </p>
         </div>
-      </AnimatedReveal>
+        </AnimatedReveal>
+      </div>
     );
   }
 
@@ -779,7 +791,7 @@ export const ReportHelpPage: React.FC = () => {
                   type="button"
                   onClick={handleCaptureGps}
                   disabled={gpsStatus === 'locating'}
-                  className="ne-btn-press inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+                  className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
                 >
                   {gpsStatus === 'locating' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -855,7 +867,7 @@ export const ReportHelpPage: React.FC = () => {
                     id="sos-affected"
                     type="number"
                     min={1}
-                    max={5000}
+                    max={500}
                     value={affectedPeopleCount}
                     onChange={(e) => setAffectedPeopleCount(e.target.value)}
                     className="ne-input mt-1.5 h-11 w-full rounded-lg border px-3.5 font-mono text-sm tabular-nums"
@@ -1006,7 +1018,7 @@ export const ReportHelpPage: React.FC = () => {
                     onClick={() => {
                       if (num < step || validateStep(step)) setStep(num);
                     }}
-                    className={`ne-btn-press rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors ${
+                    className={`ne-btn-press min-h-[44px] rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors ${
                       step === num
                         ? 'bg-blue-600 text-white shadow-xs'
                         : step > num
@@ -1110,7 +1122,7 @@ export const ReportHelpPage: React.FC = () => {
                             type="button"
                             onClick={handleCaptureGps}
                             disabled={gpsStatus === 'locating'}
-                            className="ne-btn-press inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+                            className="ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#c2cfe2] bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
                           >
                             {gpsStatus === 'locating' ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -1191,7 +1203,7 @@ export const ReportHelpPage: React.FC = () => {
                             id="report-affected"
                             type="number"
                             min={1}
-                            max={5000}
+                            max={500}
                             value={affectedPeopleCount}
                             onChange={(e) => setAffectedPeopleCount(e.target.value)}
                             className="ne-input mt-1.5 h-11 w-full rounded-lg border px-3.5 font-mono text-sm tabular-nums"
@@ -1269,7 +1281,7 @@ export const ReportHelpPage: React.FC = () => {
                                 type="button"
                                 aria-pressed={active}
                                 onClick={() => toggleVulnerability(tag)}
-                                className={`ne-btn-press min-h-[38px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                                className={`ne-btn-press min-h-[44px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                                   active
                                     ? 'border-amber-600 bg-amber-50 text-amber-900 dark:border-amber-500/60 dark:bg-amber-500/15 dark:text-amber-200'
                                     : 'border-[#c2cfe2] bg-white text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#d5e0f0]'
@@ -1297,7 +1309,7 @@ export const ReportHelpPage: React.FC = () => {
                                 type="button"
                                 aria-pressed={active}
                                 onClick={() => toggleAssistanceNeed(need)}
-                                className={`ne-btn-press min-h-[38px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                                className={`ne-btn-press min-h-[44px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                                   active
                                     ? 'border-blue-600 bg-blue-600 text-white'
                                     : 'border-[#c2cfe2] bg-white text-slate-700 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#d5e0f0]'

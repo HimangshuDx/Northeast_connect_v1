@@ -42,7 +42,6 @@ import {
 const OUTBOX_STORAGE_KEY = 'ne_connect_supabase_outbox_v1';
 const SNAPSHOT_CACHE_KEY = 'ne_connect_supabase_cache_v1';
 const DEVICE_TOKEN_KEY = 'ne_connect_device_token_v1';
-const COORD_AUTH_KEY = 'ne_connect_coord_auth';
 
 function isMissingSchemaError(err: unknown): boolean {
   if (!err || typeof err !== 'object') return false;
@@ -53,6 +52,27 @@ function isMissingSchemaError(err: unknown): boolean {
     code === '42P01' ||
     msg.includes('schema cache') ||
     msg.includes('does not exist')
+  );
+}
+
+function isMissingRpcError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = (err as { code?: string }).code;
+  const msg = ((err as { message?: string }).message ?? '').toLowerCase();
+  return code === 'PGRST202' || code === '42883' || msg.includes('could not find the function');
+}
+
+function isPermissionDeniedError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = (err as { code?: string }).code;
+  const status = (err as { status?: number }).status;
+  const msg = ((err as { message?: string }).message ?? '').toLowerCase();
+  return (
+    code === '42501' ||
+    status === 401 ||
+    status === 403 ||
+    msg.includes('permission denied') ||
+    msg.includes('row-level security')
   );
 }
 
@@ -104,14 +124,14 @@ interface ReportRow {
   vulnerability_tags: CommunityReport['vulnerabilityTags'] | null;
   assistance_needs: CommunityReport['assistanceNeeds'] | null;
   contact_phone: string;
-  reporter_name: string;
+  reporter_name?: string | null;
   reporting_for_others: boolean;
   created_at: string;
   verification_status: TrustStatus;
   assistance_status: AssistanceStatus;
   confirmations: number;
   assigned_unit: string | null;
-  internal_notes: CoordinatorNote[] | null;
+  internal_notes?: CoordinatorNote[] | null;
   merged_into_id: string | null;
   merged_report_ids: string[] | null;
   is_demo_data: boolean;
@@ -180,14 +200,6 @@ function getDeviceToken(): string {
     return token;
   } catch {
     return 'ephemeral-device';
-  }
-}
-
-function isCoordinatorSessionActive(): boolean {
-  try {
-    return sessionStorage.getItem(COORD_AUTH_KEY) === '1';
-  } catch {
-    return false;
   }
 }
 
@@ -296,7 +308,7 @@ function mapReport(row: ReportRow): CommunityReport {
     vulnerabilityTags: row.vulnerability_tags ?? [],
     assistanceNeeds: row.assistance_needs ?? [],
     contactPhone: row.contact_phone,
-    reporterName: row.reporter_name,
+    reporterName: row.reporter_name ?? 'Protected / Coordinator Only',
     reportingForOthers: row.reporting_for_others,
     createdAt: row.created_at,
     verificationStatus: row.verification_status,
@@ -389,8 +401,48 @@ export class SupabaseAdapter implements DataAdapter {
       });
   }
 
-  private get reportReadSource(): string {
-    return isCoordinatorSessionActive() ? 'reports' : 'reports_public';
+  isUsingLocalFallback(): boolean {
+    return this.schemaMissing;
+  }
+
+  private async resolveAuthContext(): Promise<{
+    userId: string | null;
+    isPartner: boolean;
+    isCoordinator: boolean;
+  }> {
+    try {
+      const {
+        data: { session },
+      } = await this.client.auth.getSession();
+      if (!session?.user) {
+        return { userId: null, isPartner: false, isCoordinator: false };
+      }
+
+      const { data: prof } = await this.client
+        .from('organization_profiles')
+        .select('role, is_active')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      const jwtRole =
+        typeof session.user.app_metadata?.role === 'string'
+          ? session.user.app_metadata.role.trim().toUpperCase()
+          : '';
+      const profRow = prof as { role?: string; is_active?: boolean } | null;
+      const effectiveRole =
+        profRow && profRow.is_active ? profRow.role : jwtRole;
+
+      const isCoordinator =
+        effectiveRole === 'COORDINATOR' || effectiveRole === 'ADMIN';
+      const isPartner =
+        isCoordinator ||
+        effectiveRole === 'NGO_MEMBER' ||
+        effectiveRole === 'VOLUNTEER';
+
+      return { userId: session.user.id, isPartner, isCoordinator };
+    } catch {
+      return { userId: null, isPartner: false, isCoordinator: false };
+    }
   }
 
   private checkSchemaMissing(err: unknown): boolean {
@@ -420,21 +472,75 @@ export class SupabaseAdapter implements DataAdapter {
     const outbox = readLocalOutbox();
 
     try {
-      const [advRes, corRes, repRes, resRes, logRes, confRes] = await Promise.all([
+      const authCtx = await this.resolveAuthContext();
+      const reportSource = authCtx.isCoordinator ? 'reports' : 'reports_public';
+
+      const [advRes, corRes, repRes, resRes] = await Promise.all([
         this.client.from('advisories').select('*').order('issued_at', { ascending: false }),
         this.client.from('corridors').select('*').order('last_confirmed_at', { ascending: false }),
-        this.client.from(this.reportReadSource).select('*').order('created_at', { ascending: false }),
+        this.client.from(reportSource).select('*').order('created_at', { ascending: false }),
         this.client.from('resources').select('*').order('name', { ascending: true }),
-        this.client.from('audit_logs').select('*').order('timestamp', { ascending: false }).limit(50),
-        this.client.from('confirmations').select('report_id').eq('device_token', deviceToken),
       ]);
 
       if (advRes.error) throw advRes.error;
       if (corRes.error) throw corRes.error;
-      if (repRes.error) throw repRes.error;
       if (resRes.error) throw resRes.error;
-      if (logRes.error) throw logRes.error;
-      if (confRes.error) throw confRes.error;
+
+      let reportRows: ReportRow[] = [];
+      if (repRes.error) {
+        if (reportSource === 'reports' && isPermissionDeniedError(repRes.error)) {
+          const fallbackRep = await this.client
+            .from('reports_public')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (fallbackRep.error) throw fallbackRep.error;
+          reportRows = (fallbackRep.data ?? []) as ReportRow[];
+        } else {
+          throw repRes.error;
+        }
+      } else {
+        reportRows = (repRes.data ?? []) as ReportRow[];
+      }
+
+      // Audit logs: coordinator-only under hardened RLS
+      let auditLogs: AuditLogEntry[] = [];
+      if (authCtx.isCoordinator) {
+        const logRes = await this.client
+          .from('audit_logs')
+          .select('*')
+          .order('timestamp', { ascending: false })
+          .limit(50);
+        if (logRes.error) {
+          if (!isPermissionDeniedError(logRes.error) && !isMissingSchemaError(logRes.error)) {
+            throw logRes.error;
+          }
+        } else {
+          auditLogs = ((logRes.data ?? []) as AuditLogRow[]).map(mapAuditLog);
+        }
+      }
+
+      // Confirmations: use security-definer RPC scoped strictly to deviceToken
+      let confirmedReportIds: string[] = [];
+      const confRpc = await this.client.rpc('get_confirmed_report_ids', {
+        p_device_token: deviceToken,
+      });
+      if (confRpc.error) {
+        if (isMissingRpcError(confRpc.error)) {
+          const confRes = await this.client
+            .from('confirmations')
+            .select('report_id')
+            .eq('device_token', deviceToken);
+          if (!confRes.error) {
+            confirmedReportIds = ((confRes.data ?? []) as { report_id: string }[]).map(
+              (c) => c.report_id
+            );
+          }
+        } else if (!isPermissionDeniedError(confRpc.error)) {
+          throw confRpc.error;
+        }
+      } else if (Array.isArray(confRpc.data)) {
+        confirmedReportIds = confRpc.data as string[];
+      }
 
       let ngoAssignments: NgoAssignment[] = [];
       let volunteerProfile: VolunteerProfile = { ...INITIAL_VOLUNTEER_PROFILE };
@@ -443,10 +549,17 @@ export class SupabaseAdapter implements DataAdapter {
         const localSnap = await this.localFallback.loadSnapshot();
         ngoAssignments = localSnap.ngoAssignments ?? [];
         volunteerProfile = localSnap.volunteerProfile ?? volunteerProfile;
-      } else {
+      } else if (authCtx.isPartner) {
+        const ownProfileId = authCtx.userId
+          ? `vol-${authCtx.userId.slice(0, 16)}`
+          : 'default-ngo-team';
         const [ngoRes, profRes] = await Promise.all([
           this.client.from('ngo_assignments').select('*').order('accepted_at', { ascending: false }),
-          this.client.from('volunteer_profiles').select('*').eq('id', 'default-ngo-team').maybeSingle(),
+          this.client
+            .from('volunteer_profiles')
+            .select('*')
+            .in('id', [ownProfileId, 'default-ngo-team'])
+            .limit(2),
         ]);
 
         if (
@@ -457,11 +570,14 @@ export class SupabaseAdapter implements DataAdapter {
           ngoAssignments = localSnap.ngoAssignments ?? [];
           volunteerProfile = localSnap.volunteerProfile ?? volunteerProfile;
         } else {
-          if (ngoRes.error) throw ngoRes.error;
-          if (profRes.error) throw profRes.error;
+          if (ngoRes.error && !isPermissionDeniedError(ngoRes.error)) throw ngoRes.error;
+          if (profRes.error && !isPermissionDeniedError(profRes.error)) throw profRes.error;
           ngoAssignments = ((ngoRes.data ?? []) as NgoAssignmentRow[]).map(mapNgoAssignment);
-          if (profRes.data) {
-            volunteerProfile = mapVolunteerProfile(profRes.data as VolunteerProfileRow);
+          const profileRows = (profRes.data ?? []) as VolunteerProfileRow[];
+          const preferredProfile =
+            profileRows.find((p) => p.id === ownProfileId) ?? profileRows[0];
+          if (preferredProfile) {
+            volunteerProfile = mapVolunteerProfile(preferredProfile);
           }
         }
       }
@@ -469,11 +585,11 @@ export class SupabaseAdapter implements DataAdapter {
       const snapshot: DataSnapshot = {
         advisories: (advRes.data as AdvisoryRow[]).map(mapAdvisory),
         corridors: (corRes.data as CorridorRow[]).map(mapCorridor),
-        reports: (repRes.data as ReportRow[]).map(mapReport),
+        reports: reportRows.map(mapReport),
         resources: (resRes.data as ResourceRow[]).map(mapResource),
         outbox,
-        auditLogs: (logRes.data as AuditLogRow[]).map(mapAuditLog),
-        confirmedReportIds: (confRes.data as { report_id: string }[]).map((c) => c.report_id),
+        auditLogs,
+        confirmedReportIds,
         ngoAssignments,
         volunteerProfile,
         lastSyncedAt: new Date().toISOString(),
@@ -509,6 +625,44 @@ export class SupabaseAdapter implements DataAdapter {
   ): Promise<CommunityReport> {
     const validated = validateReportPayload(reportData);
     const id = existingReportId ?? generateId('rep');
+    const submittedAt = createdAt ?? validated.createdAt ?? new Date().toISOString();
+
+    // Primary hardened path: security-definer RPC performs ON CONFLICT (client_uuid) DO NOTHING
+    // and returns the masked `reports_public` row without giving anon SELECT/UPDATE on base `reports`.
+    const rpcRes = await this.client.rpc('submit_public_report', {
+      p_id: id,
+      p_client_uuid: clientUuid,
+      p_mode: validated.mode,
+      p_district_id: validated.districtId,
+      p_district_name: validated.districtName,
+      p_corridor_or_block: validated.corridorOrBlock,
+      p_locality: validated.locality,
+      p_coordinates_lat: validated.coordinates?.lat ?? null,
+      p_coordinates_lng: validated.coordinates?.lng ?? null,
+      p_category: validated.category,
+      p_severity: validated.severity,
+      p_description: validated.description,
+      p_affected_people_count: validated.affectedPeopleCount,
+      p_vulnerability_tags: validated.vulnerabilityTags,
+      p_assistance_needs: validated.assistanceNeeds,
+      p_contact_phone: validated.contactPhone,
+      p_reporter_name: validated.reporterName,
+      p_reporting_for_others: validated.reportingForOthers,
+      p_created_at: submittedAt,
+    });
+
+    if (!rpcRes.error && rpcRes.data) {
+      const rpcRow = Array.isArray(rpcRes.data) ? rpcRes.data[0] : rpcRes.data;
+      if (rpcRow) {
+        return mapReport(rpcRow as ReportRow);
+      }
+    }
+
+    if (rpcRes.error && !isMissingRpcError(rpcRes.error)) {
+      throw rpcRes.error;
+    }
+
+    // Fallback when RPC is not installed yet: direct INSERT (no .select() since anon has no base SELECT)
     const row = {
       id,
       client_uuid: clientUuid,
@@ -528,20 +682,41 @@ export class SupabaseAdapter implements DataAdapter {
       contact_phone: validated.contactPhone,
       reporter_name: validated.reporterName,
       reporting_for_others: validated.reportingForOthers,
-      created_at: createdAt ?? validated.createdAt ?? new Date().toISOString(),
+      created_at: submittedAt,
+      verification_status: 'UNVERIFIED' as const,
+      assistance_status: 'SUBMITTED' as const,
+      confirmations: 1,
+      assigned_unit: null,
+      internal_notes: [] as CoordinatorNote[],
+      merged_into_id: null,
+      merged_report_ids: [] as string[],
       is_demo_data: false,
       is_stale: false,
       updated_at: new Date().toISOString(),
     };
 
-    const { data, error } = await this.client
-      .from('reports')
-      .upsert(row, { onConflict: 'client_uuid' })
-      .select('*')
-      .single();
+    const { error: insertErr } = await this.client.from('reports').insert(row);
+    if (insertErr && (insertErr as { code?: string }).code !== '23505') {
+      throw insertErr;
+    }
 
-    if (error) throw error;
-    return mapReport(data as ReportRow);
+    const { data: pubRow } = await this.client
+      .from('reports_public')
+      .select('*')
+      .eq('client_uuid', clientUuid)
+      .maybeSingle();
+
+    if (pubRow) {
+      return mapReport(pubRow as ReportRow);
+    }
+
+    return mapReport({
+      ...row,
+      contact_phone:
+        validated.contactPhone.length > 5
+          ? `${validated.contactPhone.slice(0, -5)}XXXXX`
+          : 'XXXXX',
+    });
   }
 
   async submitReport(payload: SubmitReportPayload): Promise<{
@@ -740,35 +915,53 @@ export class SupabaseAdapter implements DataAdapter {
 
     try {
       const deviceToken = getDeviceToken();
-      const { data: existing, error: findErr } = await this.client
-        .from('confirmations')
-        .select('id')
-        .eq('report_id', validId)
-        .eq('device_token', deviceToken)
-        .maybeSingle();
+      const authCtx = await this.resolveAuthContext();
+      const readSource = authCtx.isCoordinator ? 'reports' : 'reports_public';
 
-      if (findErr) throw findErr;
+      const { data: rpcConfirmed, error: rpcErr } = await this.client.rpc(
+        'toggle_report_confirmation',
+        {
+          p_report_id: validId,
+          p_device_token: deviceToken,
+        }
+      );
 
       let confirmed: boolean;
-      if (existing) {
-        const { error: delErr } = await this.client
-          .from('confirmations')
-          .delete()
-          .eq('id', (existing as { id: string }).id);
-        if (delErr) throw delErr;
-        confirmed = false;
-      } else {
-        const { error: insErr } = await this.client
-          .from('confirmations')
-          .insert({ report_id: validId, device_token: deviceToken });
-        if (insErr && (insErr as { code?: string }).code !== '23505') {
-          throw insErr;
+      if (rpcErr) {
+        if (!isMissingRpcError(rpcErr)) {
+          throw rpcErr;
         }
-        confirmed = true;
+        const { data: existing, error: findErr } = await this.client
+          .from('confirmations')
+          .select('id')
+          .eq('report_id', validId)
+          .eq('device_token', deviceToken)
+          .maybeSingle();
+
+        if (findErr) throw findErr;
+
+        if (existing) {
+          const { error: delErr } = await this.client
+            .from('confirmations')
+            .delete()
+            .eq('id', (existing as { id: string }).id);
+          if (delErr) throw delErr;
+          confirmed = false;
+        } else {
+          const { error: insErr } = await this.client
+            .from('confirmations')
+            .insert({ report_id: validId, device_token: deviceToken });
+          if (insErr && (insErr as { code?: string }).code !== '23505') {
+            throw insErr;
+          }
+          confirmed = true;
+        }
+      } else {
+        confirmed = Boolean(rpcConfirmed);
       }
 
       const { data: updatedRow, error: repErr } = await this.client
-        .from(this.reportReadSource)
+        .from(readSource)
         .select('*')
         .eq('id', validId)
         .single();
@@ -1231,6 +1424,11 @@ export class SupabaseAdapter implements DataAdapter {
     }
 
     try {
+      const authCtx = await this.resolveAuthContext();
+      if (!authCtx.userId || !authCtx.isPartner) {
+        throw new Error('Sign in with an authorized NGO, Volunteer, or Coordinator account to accept tasks.');
+      }
+
       const { data: existingRows, error: dupErr } = await this.client
         .from('ngo_assignments')
         .select('id, organization, task_status')
@@ -1267,6 +1465,7 @@ export class SupabaseAdapter implements DataAdapter {
           accepted_at: now,
           updated_at: now,
           is_demo_data: false,
+          owner_user_id: authCtx.userId,
         })
         .select('*')
         .single();
@@ -1361,12 +1560,22 @@ export class SupabaseAdapter implements DataAdapter {
       return this.localFallback.saveVolunteerProfile(validated);
     }
 
+    const authCtx = await this.resolveAuthContext();
+    if (!authCtx.userId || !authCtx.isPartner) {
+      throw new Error('Sign in with an authorized NGO, Volunteer, or Coordinator account to update team availability.');
+    }
+
+    const scopedProfileId =
+      validated.id === 'default-ngo-team'
+        ? `vol-${authCtx.userId.slice(0, 16)}`
+        : validated.id;
+
     const now = new Date().toISOString();
     const { data, error } = await this.client
       .from('volunteer_profiles')
       .upsert(
         {
-          id: validated.id,
+          id: scopedProfileId,
           name: validated.name,
           organization: validated.organization,
           district_id: validated.districtId,
@@ -1375,6 +1584,7 @@ export class SupabaseAdapter implements DataAdapter {
           team_size: validated.teamSize,
           resource_inventory: validated.resourceInventory,
           updated_at: now,
+          owner_user_id: authCtx.userId,
         },
         { onConflict: 'id' }
       )

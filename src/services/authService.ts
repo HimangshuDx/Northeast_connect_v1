@@ -158,43 +158,90 @@ interface OrgProfileRow {
   is_active: boolean;
 }
 
-async function fetchOrganizationProfile(userId: string): Promise<OrganizationProfile | null> {
+function extractAppMetadataRole(user: {
+  app_metadata?: Record<string, unknown>;
+}): OrganizationProfile['role'] | null {
+  const rawRole =
+    typeof user.app_metadata?.role === 'string'
+      ? user.app_metadata.role.trim().toUpperCase()
+      : '';
+  if (VALID_ORG_ROLES.has(rawRole as OrganizationProfile['role'])) {
+    return rawRole as OrganizationProfile['role'];
+  }
+  return null;
+}
+
+async function fetchOrganizationProfile(user: {
+  id: string;
+  email?: string;
+  app_metadata?: Record<string, unknown>;
+  user_metadata?: Record<string, unknown>;
+}): Promise<OrganizationProfile | null> {
   const client = getSupabaseClient();
   if (!client) return null;
 
   const { data, error } = await client
     .from('organization_profiles')
     .select('user_id, email, full_name, organization_name, role, district_id, is_active')
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .maybeSingle();
+
+  if (data) {
+    const row = data as OrgProfileRow;
+    if (!row.is_active || !VALID_ORG_ROLES.has(row.role)) {
+      return null;
+    }
+    return {
+      userId: row.user_id,
+      email: row.email,
+      fullName: row.full_name,
+      organizationName: row.organization_name,
+      role: row.role,
+      districtId: row.district_id,
+      isActive: row.is_active,
+    };
+  }
+
+  // Fallback: trust server-assigned JWT app_metadata.role (never user_metadata)
+  const jwtRole = extractAppMetadataRole(user);
+  if (jwtRole) {
+    const fullName =
+      typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim()
+        ? user.user_metadata.full_name.trim()
+        : (user.email?.split('@')[0] ?? 'Authorized Responder');
+    const orgName =
+      typeof user.app_metadata?.organization_name === 'string' &&
+      user.app_metadata.organization_name.trim()
+        ? user.app_metadata.organization_name.trim()
+        : 'Northeast Connect Control Room';
+    return {
+      userId: user.id,
+      email: user.email ?? '',
+      fullName,
+      organizationName: orgName,
+      role: jwtRole,
+      districtId:
+        typeof user.app_metadata?.district_id === 'string'
+          ? user.app_metadata.district_id
+          : null,
+      isActive: true,
+    };
+  }
 
   if (error) {
     throw new Error(
       `Could not verify organization role from database (${error.message}).`
     );
   }
-  if (!data) return null;
-
-  const row = data as OrgProfileRow;
-  if (!row.is_active || !VALID_ORG_ROLES.has(row.role)) {
-    return null;
-  }
-
-  return {
-    userId: row.user_id,
-    email: row.email,
-    fullName: row.full_name,
-    organizationName: row.organization_name,
-    role: row.role,
-    districtId: row.district_id,
-    isActive: row.is_active,
-  };
+  return null;
 }
 
 export async function getCurrentAuthSession(): Promise<AuthSessionState> {
   const client = getSupabaseClient();
 
   if (client && isSupabaseConfigured) {
+    // In live Supabase mode, never allow browser-local demo sessionStorage bypass
+    clearDemoAuthStorage();
     try {
       const {
         data: { session },
@@ -213,33 +260,37 @@ export async function getCurrentAuthSession(): Promise<AuthSessionState> {
         if (rememberPreference === 'session' && !tabActive) {
           await client.auth.signOut();
           syncCoordinatorSessionFlag('CITIZEN');
-        } else {
-          const profile = await fetchOrganizationProfile(session.user.id);
-          if (!profile) {
-            await client.auth.signOut();
-            syncCoordinatorSessionFlag('CITIZEN');
-            return GUEST_CITIZEN_SESSION;
-          }
-          clearDemoAuthStorage();
-          syncCoordinatorSessionFlag(profile.role);
-          return {
-            userId: profile.userId,
-            email: profile.email,
-            fullName: profile.fullName,
-            organizationName: profile.organizationName,
-            role: profile.role,
-            districtId: profile.districtId,
-            mode: 'supabase',
-            isDemo: false,
-            isAuthenticated: true,
-          };
+          return GUEST_CITIZEN_SESSION;
         }
+
+        const profile = await fetchOrganizationProfile(session.user);
+        if (!profile) {
+          await client.auth.signOut();
+          syncCoordinatorSessionFlag('CITIZEN');
+          return GUEST_CITIZEN_SESSION;
+        }
+        syncCoordinatorSessionFlag(profile.role);
+        return {
+          userId: profile.userId,
+          email: profile.email,
+          fullName: profile.fullName,
+          organizationName: profile.organizationName,
+          role: profile.role,
+          districtId: profile.districtId,
+          mode: 'supabase',
+          isDemo: false,
+          isAuthenticated: true,
+        };
       }
     } catch {
-      // Fall through cleanly if offline or organization_profiles is not yet migrated
+      // Fall back to unauthenticated citizen guest session on network/schema error
     }
+
+    syncCoordinatorSessionFlag('CITIZEN');
+    return GUEST_CITIZEN_SESSION;
   }
 
+  // Zero-config LocalAdapter mode: demo accounts work locally and are clearly marked DEMO ONLY
   const demoSession = readDemoSession();
   if (demoSession) {
     syncCoordinatorSessionFlag(demoSession.role);
@@ -267,7 +318,7 @@ export async function signInWithSupabase(
   if (!client || !isSupabaseConfigured) {
     throw new Error(
       supabaseConfigError ??
-        'Supabase Authentication is not configured in this environment. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, or use the clearly labeled Hackathon Demo Mode below.'
+        'Supabase Authentication is not configured in this environment. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, or use the clearly labeled Demo Only accounts below.'
     );
   }
 
@@ -287,12 +338,12 @@ export async function signInWithSupabase(
     // ignore
   }
 
-  const profile = await fetchOrganizationProfile(data.user.id);
+  const profile = await fetchOrganizationProfile(data.user);
   if (!profile) {
     await client.auth.signOut();
     syncCoordinatorSessionFlag('CITIZEN');
     throw new Error(
-      'Your account signed in, but no active organization role exists in public.organization_profiles. Ask a Disaster Control Administrator to assign your organization role.'
+      'Your account signed in, but no active organization role exists in public.organization_profiles or JWT app_metadata.role. Ask an administrator to assign your role.'
     );
   }
 
@@ -316,20 +367,17 @@ export async function signInWithDemoAccount(
   demoEmail: string,
   rememberMe = false
 ): Promise<AuthSessionState> {
+  if (isSupabaseConfigured) {
+    throw new Error(
+      'Demo accounts are disabled when live Supabase is connected. Sign in with a real Supabase Auth organization account.'
+    );
+  }
+
   const matched = DEMO_ACCOUNTS.find(
     (acc) => acc.email.toLowerCase() === demoEmail.trim().toLowerCase()
   );
   if (!matched) {
     throw new Error('Selected demo account is not recognized.');
-  }
-
-  const client = getSupabaseClient();
-  if (client && isSupabaseConfigured) {
-    try {
-      await client.auth.signOut();
-    } catch {
-      // ignore
-    }
   }
 
   clearDemoAuthStorage();

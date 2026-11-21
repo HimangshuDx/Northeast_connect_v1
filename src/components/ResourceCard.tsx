@@ -58,7 +58,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
 
         <a
           href={`tel:${resource.contactPhone.replace(/[^+\d]/g, '')}`}
-          className="ne-btn-press inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-[#c2cfe2] bg-[#f8fafd] px-4 py-2 text-sm font-medium text-slate-900 hover:bg-[#edf2f8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
+          className="ne-btn-press inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-[#c2cfe2] bg-[#f8fafd] px-4 py-2 text-sm font-medium text-slate-900 hover:bg-[#edf2f8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]"
         >
           <PhoneCall className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
           <span>Call Post</span>

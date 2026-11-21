@@ -77,13 +77,18 @@
     font-family: var(--font-mono);
   }
 
+  *:focus-visible,
   button:focus-visible,
   a:focus-visible,
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #2563eb;
     outline-offset: 2px;
+  }
+
+  .dark *:focus-visible {
+    outline-color: #60a5fa;
   }
 }
 

@@ -104,8 +104,8 @@ export const ResourcesGuidesPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <div className="relative w-full sm:w-auto">
               <Search
                 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-[#8295b3]"
                 aria-hidden="true"
@@ -116,7 +116,7 @@ export const ResourcesGuidesPage: React.FC = () => {
                 onChange={(e) => setResourceSearch(e.target.value)}
                 placeholder={t.resourcesPage.searchPlaceholder}
                 aria-label="Search emergency resources"
-                className="ne-input h-9 w-56 rounded-lg border pl-8 pr-3 text-xs"
+                className="ne-input min-h-[44px] w-full rounded-lg border pl-8 pr-3 text-xs sm:w-56"
               />
             </div>
           </div>
@@ -189,7 +189,7 @@ export const ResourcesGuidesPage: React.FC = () => {
 
               <a
                 href={`tel:${line.number.replace(/[^+\d]/g, '')}`}
-                className="ne-btn-press mt-4 inline-flex min-h-[40px] items-center justify-between rounded-lg border border-blue-200 bg-blue-50/85 px-3.5 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-500/35 dark:bg-blue-500/14 dark:text-blue-200 dark:hover:bg-blue-500/22"
+                className="ne-btn-press mt-4 inline-flex min-h-[44px] items-center justify-between rounded-lg border border-blue-200 bg-blue-50/85 px-3.5 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-500/35 dark:bg-blue-500/14 dark:text-blue-200 dark:hover:bg-blue-500/22"
               >
                 <span className="inline-flex items-center gap-2">
                   <PhoneCall className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -239,7 +239,7 @@ export const ResourcesGuidesPage: React.FC = () => {
                 key={guide.id}
                 type="button"
                 onClick={() => setActiveGuideId(guide.id)}
-                className={`ne-btn-press inline-flex min-h-[42px] items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold whitespace-nowrap shrink-0 ${
+                className={`ne-btn-press inline-flex min-h-[44px] items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold whitespace-nowrap shrink-0 ${
                   active
                     ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
                     : 'border-[#dce4f0] bg-[#f8fafd] text-slate-800 hover:bg-[#edf2f8] dark:border-[#2d456b] dark:bg-[#142239] dark:text-[#e6edf7] dark:hover:bg-[#1e3152]'

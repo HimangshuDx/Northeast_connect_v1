@@ -109,9 +109,9 @@ export const OutboxDrawer: React.FC = () => {
                   type="button"
                   onClick={() => setIsOutboxOpen(false)}
                   aria-label="Close My Outbox"
-                  className="ne-btn-press rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-[#8295b3] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]"
+                  className="ne-btn-press inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#9cb0cc] dark:hover:bg-[#172742] dark:hover:text-[#e6edf7]"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
 
@@ -136,7 +136,7 @@ export const OutboxDrawer: React.FC = () => {
                       type="button"
                       disabled={pendingOrFailed.length === 0}
                       onClick={() => void syncPendingOutbox()}
-                      className="ne-btn-press inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap shrink-0"
+                      className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap shrink-0"
                     >
                       <RefreshCw className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       <span>
@@ -208,7 +208,7 @@ export const OutboxDrawer: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => void retryOutboxItem(item.id)}
-                                className="ne-btn-press inline-flex min-h-[34px] items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 whitespace-nowrap shrink-0"
+                                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 whitespace-nowrap shrink-0"
                               >
                                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                                 <span>{t.outbox.retry}</span>
@@ -217,7 +217,7 @@ export const OutboxDrawer: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleEdit(item)}
-                                className="ne-btn-press inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
+                                className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
                               >
                                 <Edit3 className="h-3.5 w-3.5" aria-hidden="true" />
                                 <span>{t.outbox.edit}</span>
@@ -229,7 +229,7 @@ export const OutboxDrawer: React.FC = () => {
                             href={buildSmsShareUrl(item)}
                             onClick={handleSmsClick}
                             title="Opens your SMS app. We cannot confirm delivery."
-                            className="ne-btn-press inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
+                            className="ne-btn-press inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#c2cfe2] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-[#2d456b] dark:bg-[#172742] dark:text-[#e6edf7] dark:hover:bg-[#1e3152] whitespace-nowrap shrink-0"
                           >
                             <MessageSquareShare className="h-3.5 w-3.5" aria-hidden="true" />
                             <span>{t.outbox.shareSms}</span>
@@ -238,7 +238,7 @@ export const OutboxDrawer: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setDeleteTarget(item)}
-                            className="ne-btn-press ml-auto inline-flex min-h-[34px] items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-500/35 dark:text-red-300 dark:hover:bg-red-950/50 whitespace-nowrap shrink-0"
+                            className="ne-btn-press ml-auto inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-500/35 dark:text-red-300 dark:hover:bg-red-950/50 whitespace-nowrap shrink-0"
                           >
                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             <span>{t.outbox.deleteBtn}</span>

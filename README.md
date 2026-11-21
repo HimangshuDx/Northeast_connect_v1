@@ -2,18 +2,34 @@
 
 **Stay Informed. Stay Connected. Stay Prepared.**
 
+**Live Demo:** https://northeastconnect-gamma.vercel.app/
+
 Northeast Connect is an offline-first, community-driven disaster management and emergency coordination web application designed for Northeast India (Promptwares Hackathon Project — PS05). It helps residents, travelers, volunteers, and emergency coordinators monitor flood and landslide advisories, track lifeline highway/bridge/ferry passability, submit hazard or urgent rescue requests while offline, and coordinate field response.
 
-> **Prototype & Demo Data Notice:** This prototype runs locally with realistic **Sample Demo Data** across Northeast Indian districts. All sample records are explicitly badged as `Sample Demo Data`, and simulated offline/SMS features clearly disclose their boundaries (e.g., *"Opens your SMS app. We cannot confirm delivery."*).
+> **Prototype & Demo Data Notice:** When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not configured, this app runs locally on your device (`This device only (demo mode)`) with **Sample Demo Data** across Northeast Indian districts. When Supabase is configured (`Shared database (Supabase)`), demo bypass is disabled and Postgres Row Level Security enforces role-based access control.
+
+---
+
+## Screenshots
+
+Target screenshots directory: [`docs/screenshots/`](docs/screenshots/README.md)
+
+| Screen | File | What It Shows |
+| --- | --- | --- |
+| Situation Board | `docs/screenshots/01-situation-board.png` | Disaster advisories, Lifeline Corridor table/cards, and Community Reports feed |
+| Report / Request Help | `docs/screenshots/02-report-form.png` | Quick SOS & 3-Step Hazard / Urgent Help request workflow |
+| Outbox Offline State | `docs/screenshots/03-outbox-offline.png` | My Outbox drawer queuing failed/offline reports (*"Saved on your device. Not yet sent."*) |
+| Map With Route | `docs/screenshots/04-map-route.png` | Interactive Leaflet map with `"Locate me"` GPS dot and route preview |
+| Coordinator Desk | `docs/screenshots/05-coordinator-desk.png` | Split Verification vs. Assistance Workflow triage and audit logs |
 
 ---
 
 ## Core Features
 
 ### 1. Role Selection & Organization Portal (`/`, `/login`)
-- **Role Selection Landing Page (`/`):** Clear entry choice between **I'm a Citizen** (instant guest access with zero sign-up barriers) and **I'm a Response Partner** (authorized portal login).
-- **Organization & Response Partner Portal (`/login`):** Supabase email/password authentication with show/hide password toggle, **Remember Me** device preference, **Forgot Password** email recovery (`resetPasswordForEmail`), and a clearly labeled **`DEMO MODE`** evaluation panel (`NGO_MEMBER`, `VOLUNTEER`, `COORDINATOR`).
-- **Role-Based Access Control (RBAC):** Authoritative role verification via `public.organization_profiles`. `NGO_MEMBER` and `VOLUNTEER` access Relief Operations (`/ngo`) and are **strictly denied** access to Coordinator Desk (`/coordinator`), which requires `COORDINATOR` or `ADMIN`. See [`docs/AUTH_SETUP.md`](docs/AUTH_SETUP.md).
+- **Role Selection Landing Page (`/`):** Clear one-line overview and entry choice between **I'm a Citizen** (direct **Request help** and **View situation** actions with zero sign-up barriers) and **I'm a Response Partner** (authorized portal login).
+- **Organization & Response Partner Portal (`/login`):** Supabase email/password authentication with show/hide password toggle, **Remember Me** device preference, **Forgot Password** email recovery (`resetPasswordForEmail`), and a clearly labeled **`DEMO ONLY`** local evaluation panel (`NGO_MEMBER`, `VOLUNTEER`, `COORDINATOR`) that is automatically disabled when live Supabase is connected.
+- **Role-Based Access Control (RBAC):** Authoritative role verification via `public.organization_profiles` and server-assigned JWT `app_metadata.role`. `NGO_MEMBER` and `VOLUNTEER` access Relief Operations (`/ngo`) and are **strictly denied** access to Coordinator Desk (`/coordinator`), which requires `COORDINATOR` or `ADMIN`. See [`docs/AUTH_SETUP.md`](docs/AUTH_SETUP.md) and [`supabase/SECURITY.md`](supabase/SECURITY.md).
 
 ### 2. Situation Board (`/board`, `/citizen`)
 - **Permanent 112 Emergency Strip:** Clickable `tel:112` call action and quick link to **Request Urgent Help**.
@@ -23,21 +39,13 @@ Northeast Connect is an offline-first, community-driven disaster management and 
 - **Interactive Regional Map:** Built with **Leaflet** and **OpenStreetMap** featuring layer filters (`Incidents`, `Corridors`, `Camps & Medical`), typed markers, a mobile-collapsible legend, **"Locate me"** GPS positioning, **OSRM route preview** on marker click, and automatic/manual fallback to a structured **Offline Location Directory** when offline or if map tiles fail to load. Items lacking coordinates are safely listed under **No coordinates available**.
 - **Community Reports Feed:** Searchable incident cards with vulnerability/assistance details and interactive **+1 Confirm** endorsement counts.
 
-#### Map Location & Routing (How It Works & Limitations)
-- **My Location (`Locate me`):** Uses browser Geolocation (`getCurrentPosition` + `watchPosition`) to display your approximate position as a pulsing blue dot with an accuracy ring. **Note:** Browser Geolocation requires **HTTPS** (or `http://localhost` during local development) and user permission.
-- **Route Preview:** Clicking any map marker opens its details (`name`, `type`, trust badge, status, last confirmed time, `tel:` link) and a **Show route from my location** button. Routes are fetched from the **free public OSRM demo server** (`https://router.project-osrm.org/route/v1/`) with distance, estimated duration, a **Driving / Walking** toggle (`foot` profile when supported, otherwise estimated walking pace), and an **Open in Google Maps** external link.
-- **Limitations & Offline Fallback:**
-  - The public OSRM demo server is intended for evaluation only and is **not guaranteed for heavy load or offline use**.
-  - When offline or if OSRM is unavailable, the map draws a **dashed straight line**, calculates straight-line (Haversine) distance, and displays *"Straight-line distance only. Road route unavailable."*
-  - **Safety Notice:** Any displayed route is a suggestion only and does **not** account for flooded, landslide-blocked, or closed roads. Always check the **Lifeline Corridor Board** and local authorities before travelling.
-
 ### 3. Report / Request Help (`/report`)
 - **Dual Mode:** Choose **Quick SOS (1-Step)**, **Report a Hazard**, or **Request Urgent Help (3-Step)**.
 - **3-Step Guided Form:**
   1. **Location:** District, Block/Highway Corridor, Locality/Landmark, optional browser GPS coordinate capture, and *"I am reporting for others"* toggle.
-  2. **Situation & Needs:** Category, severity level, affected people count, vulnerability tags (`Elderly`, `Infants`, `Pregnant`, `Medical Need`, `Disabled`), and assistance needs (`Rescue`, `Medical`, `Food / Water`, `Shelter`).
+  2. **Situation & Needs:** Category, severity level, affected people count (`1–500`), vulnerability tags (`Elderly`, `Infants`, `Pregnant`, `Medical Need`, `Disabled`), and assistance needs (`Rescue`, `Medical`, `Food / Water`, `Shelter`).
   3. **Contact & Review:** Inline phone/reporter validation and pre-submission summary.
-- **Offline-First Confirmation:** When offline (or using the **Simulate Offline** toggle), submissions display *"Saved on your device. Not yet sent."* and are queued in **My Outbox**.
+- **Offline-First Confirmation & Deduplication:** When offline (or if a server request fails), submissions save locally with *"Saved on your device. Not yet sent."* and retry using an idempotent `client_uuid` key.
 
 ### 4. My Outbox (Slide-Over Drawer)
 - Tracks `Pending`, `Syncing`, `Synced`, and `Failed` submissions stored locally on the device.
@@ -50,22 +58,45 @@ Northeast Connect is an offline-first, community-driven disaster management and 
 
 ### 6. Relief Operations (`/ngo`) & Coordinator Desk (`/coordinator`)
 - **Relief Operations Dashboard (`/ngo`):** Protected for authenticated `NGO_MEMBER`, `VOLUNTEER`, `COORDINATOR`, and `ADMIN` roles. Supports priority-sorted verified assistance requests, task pledges (`PLEDGED` → `EN_ROUTE` → `ON_SITE` → `RELIEF_DELIVERED`), volunteer availability, and field inventory.
-- **Coordinator Desk (`/coordinator`):** Protected exclusively for `COORDINATOR` and `ADMIN` roles. Separates **Verification Status** (`UNVERIFIED`, `UNDER REVIEW`, `VERIFIED`, `REJECTED`) from **Assistance Workflow** (`SUBMITTED`, `ACCEPTED`, `DISPATCHED`, `RESOLVED`), manages corridors/resources, and logs audit history.
+- **Coordinator Desk (`/coordinator`):** Protected exclusively for `COORDINATOR` and `ADMIN` roles. Separates **Verification Status** (`UNVERIFIED`, `UNDER REVIEW`, `VERIFIED`, `REJECTED`) from **Assistance Workflow** (`SUBMITTED`, `ACCEPTED`, `DISPATCHED`, `RESOLVED`), manages corridors/resources, views unmasked caller contacts, and logs audit history.
 
 ### 7. Multilingual Support & Dual Theme
 - **4 Languages:** Global language selector supporting **English (default)**, **Assamese (অসমীয়া)**, **Hindi (हिन्दी)**, and **Bengali (বাংলা)** across the Role Selection portal, navigation, pages, controls, and Safety Guides, persisted in `localStorage`.
 - **Dark & Light Themes:** Deep navy/slate dark theme (default) and high-contrast light theme toggleable across all screens.
-- **Offline Simulation Mode:** Built-in **Simulate Offline** control in the sidebar to test offline queuing, Outbox retries, and map tile fallback without disconnecting your network.
+- **Data Source Indicator & Offline Simulation:** Visible **Data source** badge (`Shared database (Supabase)` vs `This device only (demo mode)`) plus a **Simulate Offline** control in the sidebar.
+
+---
+
+## Known Limitations
+
+- **Browser Geolocation requires HTTPS:** The **"Locate me"** map button and GPS form capture rely on `navigator.geolocation`, which modern browsers block on insecure `http://` origins (except `http://localhost`). Deploy over HTTPS in production.
+- **Public OSRM demo server for route previews:** Driving/walking routes on the map call the free public OSRM demo endpoint (`https://router.project-osrm.org/route/v1/`). It is unsuitable for heavy production traffic and requires network connectivity. When offline or unreachable, the map falls back to a dashed straight line and Haversine distance (`"Straight-line distance only. Road route unavailable."`).
+- **Routes do not account for live road closures:** As displayed in the map notice, any plotted route is a suggestion only and does **not** automatically reroute around flooded, landslide-blocked, or closed corridors. Always verify the **Lifeline Corridor Board** and local authorities.
+- **Local demo mode stays on one device:** Without `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, data is persisted in `localStorage` on your device only (`This device only (demo mode)`) and is not shared across devices or browsers.
+- **Anonymous submission rate limiting:** Anonymous citizens can report emergencies without signing in. Postgres RLS enforces column allow-lists, formats, and safe defaults, but edge/API rate limiting (e.g., Supabase Edge Functions or reverse-proxy throttling) is still recommended before broad public launch.
+- **SMS sharing cannot verify delivery:** Clicking **Share via SMS** opens the device's native SMS composer via `sms:?body=...`; the web app cannot detect whether the text was actually sent.
+
+---
+
+## How AI Tools Were Used
+
+AI coding assistance was used iteratively as an engineering pair-programmer for scaffolding UI layouts, translating safety guides and interface labels across English, Assamese, Hindi, and Bengali, writing Supabase Postgres RLS policies and migration SQL, and debugging Leaflet/PWA offline edge cases. All architectural choices, database security rules (`supabase/schema.sql`, `supabase/test-rls.sh`), validation constraints, and build/typecheck passes were reviewed and verified by the development workflow.
 
 ---
 
 ## Architecture & Project Structure
 
-UI components are decoupled from storage via a `dataService` facade (`DataAdapter` interface) and `authService` (`Supabase Auth` + `organization_profiles` RBAC + separated Demo Mode), allowing zero-config local execution or full Supabase Postgres + Auth operation.
+UI components are decoupled from storage via a `dataService` facade (`DataAdapter` interface) and `authService` (`Supabase Auth` + `organization_profiles` / JWT `app_metadata.role` RBAC + local-only Demo Mode), allowing zero-config local execution or full Supabase Postgres + Auth operation.
 
 ```text
 docs/
-└── AUTH_SETUP.md       # Supabase Auth + organization_profiles RBAC provisioning guide
+├── AUTH_SETUP.md       # Supabase Auth, coordinator app_metadata.role, & RBAC setup guide
+└── screenshots/        # Target screenshot directory (see docs/screenshots/README.md)
+supabase/
+├── schema.sql          # Idempotent Postgres schema, masked reports_public view, RLS & RPCs
+├── seed.sql            # Regional Northeast India sample seed data
+├── SECURITY.md         # Plain-language database security overview & accepted trade-offs
+└── test-rls.sh         # Automated curl RLS verification script
 src/
 ├── components/         # Reusable UI components (AppLayout, ProtectedRoute, EmergencyStrip,
 │                       # OfflineBanner, TrustBadge, SeverityBadge, StatusPill, IncidentCard,
@@ -80,7 +111,7 @@ src/
 ├── utils/              # Timestamp formatters, validation, staleness checks, & SMS payload builder
 ├── App.tsx             # React Router routes and ProtectedRoute RBAC guards
 ├── index.css           # Tailwind CSS v4 configuration, dark variant, fonts, and Leaflet styles
-└── main.tsx            # Application entry point
+└── main.tsx            # Application entry point, PWA update handler & ErrorBoundary
 ```
 
 ---
@@ -90,6 +121,7 @@ src/
 - **Framework:** React 19 + TypeScript + Vite
 - **Routing:** React Router (`react-router-dom`)
 - **Backend / Auth (Optional):** Supabase Postgres + Row Level Security + Supabase Auth
+- **Offline PWA:** `vite-plugin-pwa` (Workbox service worker + Web App Manifest)
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
 - **Icons:** Lucide React (`lucide-react`)
 - **Maps:** Leaflet (`leaflet`) + OpenStreetMap tiles (with offline directory fallback)
@@ -104,8 +136,8 @@ src/
 ### Installation & Development
 
 ```bash
-# Install dependencies
-npm install
+# Install dependencies deterministically
+npm ci
 
 # Start the development server (port 3000)
 npm run dev
@@ -128,7 +160,7 @@ npm run preview
 
 ## Demo Accounts & Roles
 
-When evaluating **Organization Login** (`/login`) in **DEMO MODE** (or when provisioned in Supabase Auth + `public.organization_profiles`), the following role assignments apply:
+When evaluating **Organization Login** (`/login`) in **Local Demo Only** mode (`VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` unset), the following role assignments apply:
 
 | Demo account | Role | Access Scope |
 | --- | --- | --- |
@@ -136,10 +168,5 @@ When evaluating **Organization Login** (`/login`) in **DEMO MODE** (or when prov
 | `demo.volunteer@northeastconnect.demo` | `VOLUNTEER` | Relief Operations Dashboard (`/ngo`); blocked from Coordinator Desk (`/coordinator`). |
 | `demo.coordinator@northeastconnect.demo` | `COORDINATOR` | Coordinator Desk (`/coordinator`) and Relief Operations Dashboard (`/ngo`). |
 
----
+When connected to live Supabase, those demo buttons are disabled; provision real users via [`docs/AUTH_SETUP.md`](docs/AUTH_SETUP.md).
 
-## Demo Walkthrough Tips
-
-1. **Role Selection (`/`) & Language Switching:** Open `/` to choose **Continue as Citizen** (`/board`) or **Organization Login** (`/login`). Switch languages across **English**, **অসমীয়া**, **हिन्दी**, and **বাংলা**.
-2. **Test RBAC Separation:** On `/login`, launch the clearly badged **`DEMO MODE`** account `demo.ngo@northeastconnect.demo` (`NGO_MEMBER`). Verify `/ngo` opens Relief Operations, and navigating to `/coordinator` displays **Access Denied — Insufficient Clearance**. Sign out and switch to `demo.coordinator@northeastconnect.demo` (`COORDINATOR`) to unlock `/coordinator`.
-3. **Test Offline-First Queuing:** Toggle **Simulate Offline** in the sidebar, submit a Quick SOS or 3-step report on `/report`, observe `"Saved on your device. Not yet sent."`, open **My Outbox** to test **Share via SMS**, then go online and click **Sync Queued**.
